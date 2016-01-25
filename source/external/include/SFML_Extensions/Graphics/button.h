@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _SFX_BUTTON_H_
+#define _SFX_BUTTON_H_
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
@@ -16,3 +17,5 @@ private:
 	sf::Texture* textures[2];
 	bool selected_;
 };
+
+#endif

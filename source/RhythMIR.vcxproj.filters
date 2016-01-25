@@ -57,6 +57,18 @@
     <ClCompile Include="external\include\SFML_Extensions\Window\input_manager.cpp">
       <Filter>Framework\SFX\Window</Filter>
     </ClCompile>
+    <ClCompile Include="game_state.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_state.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="menu_state.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="RhythMIR_application.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\cja\appstate.h">
@@ -72,9 +84,6 @@
       <Filter>Framework\CJA</Filter>
     </ClInclude>
     <ClInclude Include="external\include\cja\sprite_animation.h">
-      <Filter>Framework\CJA</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\cja\state_manager.h">
       <Filter>Framework\CJA</Filter>
     </ClInclude>
     <ClInclude Include="external\include\cja\updateable.h">
@@ -112,6 +121,18 @@
     </ClInclude>
     <ClInclude Include="external\include\SFML_Extensions\Window\input_manager.h">
       <Filter>Framework\SFX\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="game_state.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_state.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="menu_state.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythMIR_application.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

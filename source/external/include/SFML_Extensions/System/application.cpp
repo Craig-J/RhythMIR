@@ -3,34 +3,31 @@
 namespace sfx
 {
 	Application::Application() :
-		clock_()
+		clock_(),
+		window_()
 	{
-
 	}
 
 	Application::~Application()
 	{
 	}
 
-	void Application::Run()
+	bool Application::Run()
 	{
+		running_ = Initialize();
 		while (running_)
 		{
 			clock_.beginFrame();
-			sf::Time delta_time = clock_.getLastFrameTime();
-			// HANDLE INPUT
-			running_ = HandleInput(delta_time);
 			if (running_)
 			{
 				// UPDATE
-				Update(delta_time.asSeconds());
+				Update();
 
 				// RENDER
-				PreRender();
 				Render();
-				PostRender();
 			}
 			clock_.endFrame();
 		}
+		return CleanUp();
 	}
 }

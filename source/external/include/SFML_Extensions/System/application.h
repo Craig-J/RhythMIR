@@ -1,34 +1,33 @@
 #ifndef _SFX_APPLICATION_H_
 #define _SFX_APPLICATION_H_
 
-#include <cja/updateable.h>
+#include <SFML\Window.hpp>
 #include "frame_clock.h"
 
 namespace sfx
 {
-	class Application : public cja::Updateable
+	class Application
 	{
 	public:
 
 		Application();
 		virtual ~Application();
 
-		void Run();
-
-		inline sfx::FrameClock& GetFrameClock()  { return clock_; }
+		bool Run();
 
 	protected:
 
+		virtual bool Initialize() = 0;
+		virtual bool CleanUp() = 0;
+		virtual void Update() = 0;
 		virtual void Render() = 0;
 
-		// Useful elective implementations
-		virtual void PreRender() {}
-		virtual void PostRender() {}
-		virtual bool HandleInput(sf::Time delta_time) { return true; }
+		sfx::FrameClock clock_;
+		sf::Window window_;
 
 	private:
+		
 		bool running_;
-		sfx::FrameClock clock_;
 	};
 }
 #endif

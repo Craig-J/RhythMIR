@@ -1,5 +1,5 @@
-#ifndef _AUDIOMANAGER_H_
-#define _AUDIOMANAGER_H_
+#ifndef _SFX_AUDIOMANAGER_H_
+#define _SFX_AUDIOMANAGER_H_
 
 #include <sstream>
 #include <cja\resource_manager.h>

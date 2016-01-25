@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="RhythMIR_application.cpp" />
     <ClCompile Include="external\include\cja\camera.cpp" />
     <ClCompile Include="external\include\cja\sprite_animation.cpp" />
     <ClCompile Include="external\include\cja\updateable.cpp" />
@@ -44,15 +45,18 @@
     <ClCompile Include="external\include\SFML_Extensions\Graphics\sprite.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\System\application.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Window\input_manager.cpp" />
+    <ClCompile Include="game_state.cpp" />
+    <ClCompile Include="intro_state.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="menu_state.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RhythMIR_application.h" />
     <ClInclude Include="external\include\cja\appstate.h" />
     <ClInclude Include="external\include\cja\camera.h" />
     <ClInclude Include="external\include\cja\resource_manager.h" />
     <ClInclude Include="external\include\cja\singleton.h" />
     <ClInclude Include="external\include\cja\sprite_animation.h" />
-    <ClInclude Include="external\include\cja\state_manager.h" />
     <ClInclude Include="external\include\cja\updateable.h" />
     <ClInclude Include="external\include\cja\updateable_templated.h" />
     <ClInclude Include="external\include\cja\utils.h" />
@@ -65,6 +69,9 @@
     <ClInclude Include="external\include\SFML_Extensions\System\frame_clock.h" />
     <ClInclude Include="external\include\SFML_Extensions\System\math.h" />
     <ClInclude Include="external\include\SFML_Extensions\Window\input_manager.h" />
+    <ClInclude Include="game_state.h" />
+    <ClInclude Include="intro_state.h" />
+    <ClInclude Include="menu_state.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{39C3DA1A-0074-4E23-B4E8-88EB3369367C}</ProjectGuid>

@@ -21,9 +21,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 ////////////////////////////////////////////////////////////
+//
+//	Modified by Craig Jeffrey - 24th January 2016
+//	Minor formatting changes only.
+//
 
-#ifndef FRAMECLOCK_H_INCLUDED
-#define FRAMECLOCK_H_INCLUDED
+#ifndef _SFX_FRAMECLOCK_H_
+#define _SFX_FRAMECLOCK_H_
 
 #include <limits>
 #include <cassert>
@@ -254,4 +258,4 @@ namespace sfx
 	};
 }   // namespace sfx
 
-#endif  // FRAMECLOCK_H_INCLUDED
+#endif  // _SFX_FRAMECLOCK_H_

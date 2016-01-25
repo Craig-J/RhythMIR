@@ -6,6 +6,7 @@ namespace cja
 {
 
 	class StateManager;
+	enum class APPSTATE;
 
 	template<typename UpdateMeasureType>
 	class AppState : public Updateable_Templated<UpdateMeasureType>
@@ -18,20 +19,19 @@ namespace cja
 
 		virtual void InitializeState() = 0;
 		virtual void TerminateState() = 0;
-		virtual void Update(const UpdateMeasureType& _delta_measure) = 0;
+		virtual APPSTATE Update(const UpdateMeasureType& _delta_measure) = 0;
 		virtual void Render(const UpdateMeasureType& _delta_measure) = 0;
 
 	protected:
 
-		enum class STATE_PRORITY { LOWEST_PRIORITY, LOW_PRIORITY, NORMAL_PRIORITY, HIGH_PRIORITY, HIGHEST_PRIORITY } state_priority_;
-
-		AppState(const StateManager* _manager, const STATE_PRORITY priority_ = NORMAL_PRIORITY) :
-			manager_(_manager),
-			state_priority_(priority)
+		
+		AppState(const StateManager* _manager) :
+			manager_(_manager)
 		{
 		}
 
-		const StateManager* manager_; // Not smart pointer - appstates are owned by their manager
+		// Not smart pointer because appstates are owned by their manager
+		const StateManager* manager_;
 	};
 }
 

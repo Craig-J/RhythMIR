@@ -1,5 +1,5 @@
-#ifndef _SFX_INPUT_MANAGER_H
-#define _SFX_INPUT_MANAGER_H
+#ifndef _SFX_INPUT_MANAGER_H_
+#define _SFX_INPUT_MANAGER_H_
 #include <SFML\Window.hpp>
 
 namespace sfx
@@ -69,7 +69,7 @@ namespace sfx
 		
 		bool mouse_moved_;
 
-		// TODO(Craig): Changes these to queues and add a history depth variable later.
+		// TODO(Craig): Changes these to a container and add a history depth variable later.
 		Mouse mouse_;
 		Mouse previous_mouse_;
 		Keyboard keyboard_;
