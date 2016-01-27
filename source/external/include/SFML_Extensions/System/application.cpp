@@ -4,12 +4,13 @@ namespace sfx
 {
 	Application::Application() :
 		clock_(),
-		window_()
+		window_(sf::VideoMode().getFullscreenModes()[0], "")
 	{
 	}
 
 	Application::~Application()
 	{
+		window_.close();
 	}
 
 	bool Application::Run()

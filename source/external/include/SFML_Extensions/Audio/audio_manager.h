@@ -2,8 +2,8 @@
 #define _SFX_AUDIOMANAGER_H_
 
 #include <sstream>
-#include <cja\resource_manager.h>
-#include <cja\utils.h>
+#include <agnostic\resource_manager.h>
+#include <agnostic\utils.h>
 #include <SFML\Audio.hpp>
 
 namespace sfx
@@ -49,6 +49,7 @@ namespace sfx
 		// OUT:		sf::Sound object loaded with sound buffer
 		sf::Sound LoadSound(const string& _file_name)
 		{
+			// Construct a sound from the SoundFile buffer pointer and return it.
 			return sf::Sound(*sound_manager_.Load(_file_name));
 		}
 
@@ -82,8 +83,8 @@ namespace sfx
 			UnloadAllAudio();
 		}
 
-		cja::ResourceManager <string, SoundFile > sound_manager_;
-		cja::ResourceManager <string, MusicFile > music_manager_;
+		agn::ResourceManager <string, SoundFile > sound_manager_;
+		agn::ResourceManager <string, MusicFile > music_manager_;
 	};
 
 }

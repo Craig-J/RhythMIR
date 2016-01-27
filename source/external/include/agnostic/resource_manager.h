@@ -1,5 +1,5 @@
-#ifndef _CJA_RESOURCE_MANAGER_H_
-#define _CJA_RESOURCE_MANAGER_H_
+#ifndef _AGNOSTIC_RESOURCE_MANAGER_H_
+#define _AGNOSTIC_RESOURCE_MANAGER_H_
 
 #include <map>
 #include <string>
@@ -10,7 +10,7 @@ using namespace std;
 // Generalized resource managed with a map storing pointers to the resources.
 // Note:	Managed resource must have a constructor taking const KeyType& to allow Load to construct correctly.
 
-namespace cja
+namespace agn
 {
 	template<class KeyType, class ResourceType>
 	class ResourceManager
@@ -82,4 +82,4 @@ namespace cja
 	};
 }
 
-#endif
+#endif // _AGNOSTIC_RESOURCE_MANAGER_H_

@@ -35,11 +35,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="external\include\agnostic\sprite_animation.cpp" />
+    <ClCompile Include="external\include\agnostic\updateable.cpp" />
+    <ClCompile Include="external\include\agnostic\updateable_templated.cpp" />
     <ClCompile Include="RhythMIR_application.cpp" />
-    <ClCompile Include="external\include\cja\camera.cpp" />
-    <ClCompile Include="external\include\cja\sprite_animation.cpp" />
-    <ClCompile Include="external\include\cja\updateable.cpp" />
-    <ClCompile Include="external\include\cja\updateable_templated.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Graphics\animation.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Graphics\button.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Graphics\sprite.cpp" />
@@ -51,15 +50,17 @@
     <ClCompile Include="menu_state.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\include\agnostic\appstate.h" />
+    <ClInclude Include="external\include\agnostic\command.h" />
+    <ClInclude Include="external\include\agnostic\generic_state.h" />
+    <ClInclude Include="external\include\agnostic\logger.h" />
+    <ClInclude Include="external\include\agnostic\resource_manager.h" />
+    <ClInclude Include="external\include\agnostic\singleton.h" />
+    <ClInclude Include="external\include\agnostic\sprite_animation.h" />
+    <ClInclude Include="external\include\agnostic\updateable.h" />
+    <ClInclude Include="external\include\agnostic\updateable_templated.h" />
+    <ClInclude Include="external\include\agnostic\utils.h" />
     <ClInclude Include="RhythMIR_application.h" />
-    <ClInclude Include="external\include\cja\appstate.h" />
-    <ClInclude Include="external\include\cja\camera.h" />
-    <ClInclude Include="external\include\cja\resource_manager.h" />
-    <ClInclude Include="external\include\cja\singleton.h" />
-    <ClInclude Include="external\include\cja\sprite_animation.h" />
-    <ClInclude Include="external\include\cja\updateable.h" />
-    <ClInclude Include="external\include\cja\updateable_templated.h" />
-    <ClInclude Include="external\include\cja\utils.h" />
     <ClInclude Include="external\include\SFML_Extensions\Audio\audio_manager.h" />
     <ClInclude Include="external\include\SFML_Extensions\Graphics\animation.h" />
     <ClInclude Include="external\include\SFML_Extensions\Graphics\button.h" />

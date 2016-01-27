@@ -1,10 +1,9 @@
-#ifndef _CJA_APPSTATE_H_
-#define _CJA_APPSTATE_H_
-#include <cja/updateable_templated.h>
+#ifndef _AGNOSTIC_APPSTATE_H_
+#define _AGNOSTIC_APPSTATE_H_
+#include <agnostic/updateable_templated.h>
 
-namespace cja
+namespace agn
 {
-
 	class StateManager;
 	enum class APPSTATE;
 
@@ -35,4 +34,4 @@ namespace cja
 	};
 }
 
-#endif
+#endif // _AGNOSTIC_APPSTATE_H_
