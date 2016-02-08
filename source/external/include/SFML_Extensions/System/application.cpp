@@ -2,9 +2,9 @@
 
 namespace sfx
 {
-	Application::Application() :
+	Application::Application(sf::VideoMode _video_mode = sf::VideoMode().getDesktopMode(), std::string _application_title = "SFML Application") :
 		clock_(),
-		window_(sf::VideoMode().getFullscreenModes()[0], "")
+		window_(_video_mode, _application_title)
 	{
 	}
 

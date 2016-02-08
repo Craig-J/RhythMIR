@@ -1,34 +1,35 @@
 #ifndef _SFX_TEXTURE_MANAGER_H_
 #define _SFX_TEXTURE_MANAGER_H_
 
-#include <cja\resource_manager.h>
+#include <agnostic\resource_manager.h>
 #include <SFML\Graphics\Texture.hpp>
-#include <sstream>
-#include <cja\utils.h>
+#include <agnostic\logger.h>
 
 namespace sfx
 {
 	class TextureFile : public sf::Texture
 	{
-		TextureFile(const string& file_name)
+	public:
+		TextureFile(const std::string& file_name_)
 		{
-			if (!loadFromFile(file_name))
+			if (!loadFromFile(file_name_))
 			{
-				std::stringstream message;
-				message << "ERROR: " << file_name << " failed to load from file in TextureFile constructor.";
-				die(message.str().c_str());
+				std::string error;
+				error.append(file_name_);
+				error.append(" failed to load from file in TextureFile constructor.");
+				agn::Log::Error(error);
 			}
 		}
 	};
 
-	class TextureManager : public cja::ResourceManager < string, TextureFile >
+	class TextureManager : public agn::ResourceManager < std::string, TextureFile >
 	{
-		sf::Texture* LoadTexture(const string& _file_name)
+		sf::Texture* LoadTexture(const std::string& _file_name)
 		{
 			return static_cast<sf::Texture*>(Load(_file_name));
 		}
 
-		void UnloadTexture(const string& _file_name)
+		void UnloadTexture(const std::string& _file_name)
 		{
 			Unload(_file_name);
 		}
@@ -38,7 +39,6 @@ namespace sfx
 			Clear();
 		}
 	};
-
 }
 
-#endif
+#endif // _SFX_TEXTURE_MANAGER_H_

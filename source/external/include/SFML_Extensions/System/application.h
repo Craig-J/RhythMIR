@@ -1,7 +1,7 @@
 #ifndef _SFX_APPLICATION_H_
 #define _SFX_APPLICATION_H_
 
-#include <SFML\Window.hpp>
+#include <SFML\Graphics.hpp>
 #include "frame_clock.h"
 
 namespace sfx
@@ -10,7 +10,7 @@ namespace sfx
 	{
 	public:
 
-		Application();
+		Application(sf::VideoMode _video_mode, std::string _application_title);
 		virtual ~Application();
 
 		bool Run();
@@ -19,15 +19,15 @@ namespace sfx
 
 		virtual bool Initialize() = 0;
 		virtual bool CleanUp() = 0;
-		virtual void Update() = 0;
+		virtual bool Update() = 0;
 		virtual void Render() = 0;
 
 		sfx::FrameClock clock_;
-		sf::Window window_;
+		sf::RenderWindow window_;
 
 	private:
 		
 		bool running_;
 	};
 }
-#endif
+#endif // _SFX_APPLICATION_H_

@@ -1,6 +1,6 @@
 #include "updateable.h"
 
-namespace cja
+namespace agn
 {
 	bool Updateable::IsTimeToUpdate()
 	{
@@ -32,7 +32,7 @@ namespace cja
 		}
 	}
 
-	void Updateable::ActivateUpdate(bool _force_update = false)
+	void Updateable::ActivateUpdate(bool _force_update)
 	{
 		if (active_) return;
 		active_ = true;

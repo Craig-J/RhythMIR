@@ -1,14 +1,14 @@
 #include "sprite_animation.h"
-#include <iostream>
+#include "logger.h"
 
-namespace cja
+namespace agn
 {
 	SpriteAnimation::SpriteAnimation(const float _texture_width,
 		const float _texture_height,
-		const float _frame_duration = 0.0f,
-		const int _frame_count = 1,
-		const int _current_frame = 1,
-		const bool _looping = false) :
+		const float _frame_duration,
+		const int _frame_count,
+		const int _current_frame,
+		const bool _looping) :
 		finished_(false),
 		sheet_type_(SPRITESHEET_TYPE::SCROLL_X),
 		texture_width_(_texture_width),
@@ -19,11 +19,6 @@ namespace cja
 		SetUpdateFrameTime(_frame_duration);
 		SetFrameCount(_frame_count, _frame_count);
 		SetLooping(_looping);
-	}
-
-	SpriteAnimation::~SpriteAnimation()
-	{
-
 	}
 
 	void SpriteAnimation::ResetAnimation()
@@ -39,7 +34,7 @@ namespace cja
 		sheet_type_ = _type;
 	}
 
-	void SpriteAnimation::SetFrameCount(const int _total, const int _x_count = 1, const int _y_count = 1)
+	void SpriteAnimation::SetFrameCount(const int _total, const int _x_count, const int _y_count)
 	{
 		animation_frame_count_ = _total;
 
@@ -49,7 +44,7 @@ namespace cja
 		CalculateUVDimensions();
 	}
 
-	void SpriteAnimation::SetLooping(const bool _looping, const int _number_of_loops = 0)
+	void SpriteAnimation::SetLooping(const bool _looping, const int _number_of_loops)
 	{
 		looping_ = _looping;
 		current_loop_ = 0;
@@ -63,9 +58,9 @@ namespace cja
 
 		if (start_frame_ > animation_frame_count_ || start_frame_ <= 0)
 		{
-			std::cerr << "WARNING: Animation start frame is invalid." << std::endl;
-			std::cerr << "WARNING:     If nonlinear - animation may behave unexpectedly." << std::endl;
-			std::cerr << "WARNING:     If linear - animation start frame is now first frame." << std::endl;
+			Log::Warning("Animation start frame is invalid.");
+			Log::Warning("    If nonlinear - animation may behave unexpectedly.");
+			Log::Warning("    If linear - animation start frame is now first frame.");
 
 			// If we are using a linear sheet type (if it's not nonlinear)
 			if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
@@ -77,9 +72,9 @@ namespace cja
 
 		if (end_frame_ > animation_frame_count_ || end_frame_ <= 0)
 		{
-			std::cerr << "WARNING: Animation end frame is invalid." << std::endl;
-			std::cerr << "WARNING:     If nonlinear - animation will behave unexpectedly and never end." << std::endl;
-			std::cerr << "WARNING:     If linear - animation end frame is now last frame." << std::endl;
+			Log::Warning("Animation end frame is invalid.");
+			Log::Warning("    If nonlinear - animation will behave unexpectedly and never end.");
+			Log::Warning("    If linear - animation end frame is now last frame.");
 
 			// If we are using a linear sheet type (if it's not nonlinear)
 			if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)

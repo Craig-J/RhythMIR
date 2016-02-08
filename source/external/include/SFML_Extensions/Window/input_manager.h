@@ -1,5 +1,6 @@
 #ifndef _SFX_INPUT_MANAGER_H_
 #define _SFX_INPUT_MANAGER_H_
+
 #include <SFML\Window.hpp>
 
 namespace sfx
@@ -78,4 +79,4 @@ namespace sfx
 	};
 }
 
-#endif
+#endif // _SFX_INPUT_MANAGER_H_

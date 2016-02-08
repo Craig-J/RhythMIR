@@ -1,6 +1,6 @@
-#include "Button.h"
+#include "button.h"
 #include <cstddef> // For NULL definition
-#include <cja/utils.h>
+#include <agnostic/utils.h>
 
 Button::Button(sf::Texture* default_texture, sf::Texture* highlighted_texture) :
 selected_(false)

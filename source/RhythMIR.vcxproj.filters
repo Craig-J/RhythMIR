@@ -28,6 +28,9 @@
     <Filter Include="Framework\AGNOSTIC %28agn%29\Patterns">
       <UniqueIdentifier>{4226ba54-3cf7-4d15-b6f7-f5280a4bffac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\State Machine">
+      <UniqueIdentifier>{505a8c66-ae83-457c-8f2e-4d017c44fa9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,12 @@
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClCompile>
     <ClCompile Include="external\include\agnostic\updateable_templated.cpp">
+      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
+    </ClCompile>
+    <ClCompile Include="game_state_machine.cpp">
+      <Filter>Application\State Machine</Filter>
+    </ClCompile>
+    <ClCompile Include="external\include\agnostic\logger.cpp">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,9 +119,6 @@
     <ClInclude Include="RhythMIR_application.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="external\include\agnostic\appstate.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
     <ClInclude Include="external\include\agnostic\resource_manager.h">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClInclude>
@@ -136,6 +142,12 @@
     </ClInclude>
     <ClInclude Include="external\include\agnostic\command.h">
       <Filter>Framework\AGNOSTIC %28agn%29\Patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="appstate.h">
+      <Filter>Application\State Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="game_state_machine.h">
+      <Filter>Application\State Machine</Filter>
     </ClInclude>
     <ClInclude Include="external\include\agnostic\logger.h">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>

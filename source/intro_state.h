@@ -1,22 +1,23 @@
 #pragma once
 #include "appstate.h"
-#include "game_object.h" // sfml graphics included implicitly (by gameobject)
+#include <SFML_Extensions\Graphics\sprite.h>
 
-class IntroState :
-	public AppState
+class IntroState : public AppState
 {
 public:
-	IntroState(const GameApplication* application);
-	virtual ~IntroState();
+
+	using AppState::AppState;
+	virtual ~IntroState() {}
 	
 	void InitializeState();
 	void TerminateState();
-	GAMESTATE Update(const int& frame_counter, Input& myInput);
-	void Render(sf::Font& font, sf::RenderWindow& window);
+	void Update(const float _delta_time);
+	void Render(const float _delta_time);
 
 private:
+
 	void LoadTextures();
 
-	sf::Texture splash_texture_;
-	Sprite splash_;
+	//sf::Texture splash_texture_;
+	sfx::Sprite splash_;
 };

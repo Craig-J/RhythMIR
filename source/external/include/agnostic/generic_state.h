@@ -6,33 +6,45 @@
 namespace agn
 {
 	template <class _State>
-	using StatePtr = std::unique_ptr<_State>;
+	using StateInstance = std::unique_ptr<_State>;
 
-	template <typename StateMachine, class State>
+	template <class _StateMachine, class _State>
 	class GenericState
 	{
 	public:
-		explicit GenericState(StateMachine &_state_machine, StatePtr<State> &_state) :
-			state_machine_(_state_machine), state_(_state)
-		{}
 
-		template <class ConcreteState>
-		static void Initialize(StateMachine &_state_machine, StatePtr<State> &_state)
+		// No default constructor.
+		GenericState() = delete;
+
+		// Generic state constructor
+		// IN:	Reference to the templated state machine
+		//		Reference to the templated state unique ptr
+		explicit GenericState(_StateMachine &_state_machine, StateInstance<_State> &_state) :
+			state_machine_(_state_machine),
+			state_(_state)
 		{
-			state_ = StatePtr<State>(new ConcreteState(_state_machine, _state));
-			state_->InitializeState();
+		}
+
+		// Static Initialize function
+		// 
+		template <class _ConcreteState, class ... _Types>
+		static void Initialize(_StateMachine &_state_machine, StateInstance<_State> &_state, _Types ... _args)
+		{
+			_state = StateInstance<_State>(new _ConcreteState(_state_machine, _state, _args...));
+			_state->InitializeState();
 		}
 
 	protected:
 		// ChangeState
-		// Calls the static initialize for a new state.
-		template <class ConcreteState>
-		void ChangeState()
+		// Basic state transition implementation.
+		// Terminate current state and calls the static initialize for a new state.
+		template <class _ConcreteState, class ... _Types>
+		void ChangeState(_Types ... _args)
 		{
 			// Terminate current state.
 			TerminateState();
 			// Initialize new one.
-			Initialize<ConcreteState>(_state_machine, _state);
+			Initialize<_ConcreteState, _Types...>(state_machine_, state_, _args...);
 		}
 
 		// RenewState
@@ -48,11 +60,11 @@ namespace agn
 		virtual void TerminateState() {}
 
 	protected:
-		StateMachine &state_machine_;
+		_StateMachine &state_machine_;
 
 	private:
 		// The pointer to the current state.
-		StatePtr<State> &state_;
+		StateInstance<_State> &state_;
 	};
 }
 

@@ -1,7 +1,7 @@
-#ifndef _UPDATEABLE_H_
-#define _UPDATEABLE_H_
+#ifndef _AGNOSTIC_UPDATEABLE_H_
+#define _AGNOSTIC_UPDATEABLE_H_
 
-namespace cja
+namespace agn
 {
 	class Updateable
 	{
@@ -53,4 +53,4 @@ namespace cja
 
 	};
 }
-#endif
+#endif // _AGNOSTIC_UPDATEABLE_H_

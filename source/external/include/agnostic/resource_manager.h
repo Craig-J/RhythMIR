@@ -2,9 +2,7 @@
 #define _AGNOSTIC_RESOURCE_MANAGER_H_
 
 #include <map>
-#include <string>
-#include <iostream>
-using namespace std;
+#include "logger.h"
 
 // Resource Manager
 // Generalized resource managed with a map storing pointers to the resources.
@@ -17,7 +15,7 @@ namespace agn
 	{
 	private:
 
-		map<KeyType, ResourceType*> resource_cache_;
+		std::map<KeyType, ResourceType*> resource_cache_;
 
 	public:
 
@@ -64,7 +62,11 @@ namespace agn
 		{
 			if (!IsLoaded(_key))
 			{
-				cerr << "WARNING: Key <" << _key << "> is not in the cache - failed to unload." << endl;
+				std::string warning;
+				warning.append("Key <");
+				warning.append(_key);
+				warning.append("> is not in the cache - failed to unload.");
+				Log::Warning(warning);
 			}
 			else
 			{

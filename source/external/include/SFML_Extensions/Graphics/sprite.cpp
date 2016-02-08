@@ -1,9 +1,9 @@
 #include "sprite.h"
-#include <iostream>
+#include <agnostic\logger.h>
 
 namespace sfx
 {
-	Sprite::Sprite(sf::Vector2f _initial_position = sf::Vector2f(0.0f, 0.0f), const sf::Texture* _texture = nullptr) :
+	Sprite::Sprite(sf::Vector2f _initial_position, const sf::Texture* _texture) :
 		sf::Sprite(),
 		animated_(false),
 		animation_(nullptr),
@@ -95,7 +95,7 @@ namespace sfx
 		}
 		else
 		{
-			std::cerr << "ERROR: CalculateCurrentOrientation failed - invalid values." << std::endl;
+			agn::Log::Error("CalculateCurrentOrientation failed - invalid values.");
 			return orientation_;
 		}
 	}

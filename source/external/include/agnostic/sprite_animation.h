@@ -1,10 +1,10 @@
-#ifndef _CJA_SPRITE_ANIMATION_H_
-#define _CJA_SPRITE_ANIMATION_H_
+#ifndef _AGNOSTIC_SPRITE_ANIMATION_H_
+#define _AGNOSTIC_SPRITE_ANIMATION_H_
 #include "updateable.h"
 
-namespace cja
+namespace agn
 {
-	class SpriteAnimation : public Updateable
+	class SpriteAnimation : public agn::Updateable
 	{
 	public:
 
@@ -34,7 +34,7 @@ namespace cja
 			const int _current_frame = 1,
 			const bool _looping = false);
 
-		SpriteAnimation::~SpriteAnimation();
+		virtual SpriteAnimation::~SpriteAnimation() {}
 
 		// VIRTUAL FUNCTIONS
 		// Optional
@@ -66,7 +66,7 @@ namespace cja
 			// CurrentFrame
 			// In:		Frame to check for
 			// Out:		True if the current frame is the frame to check for
-			inline bool CurrentFrame(int) const { return current_frame_; }
+			inline bool CurrentFrame(int _frame) const { return(_frame == current_frame_); }
 
 			// IsFinished
 			// Out:		True if the animation has finished
@@ -137,4 +137,4 @@ namespace cja
 		void CalculateUVDimensions();
 	};
 }
-#endif
+#endif // _AGNOSTIC_SPRITE_ANIMATION_H_

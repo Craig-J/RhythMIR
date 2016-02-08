@@ -1,19 +1,6 @@
 #include "game_state.h"
-#include <sstream>
-#include "game_application.h"
-#include "box2d_helpers.h"
-#include "input.h"
 
-GameState::GameState(const GameApplication* application) :
-	AppState(application)
-{
-}
-
-
-GameState::~GameState()
-{
-}
-
+#ifdef fdsasdf
 void GameState::InitializeState()
 {
 	LoadTextures();
@@ -1398,3 +1385,5 @@ std::list<NetMessage> GameState::getWorldData()
 	// adds to explosions vector array
 	Explosions.push_back(explosion);
 }*/
+
+#endif

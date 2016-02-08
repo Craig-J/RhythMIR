@@ -1,9 +1,22 @@
 #include "RhythMIR_application.h"
 
-
-RhythMIR::RhythMIR()
+RhythMIR::~RhythMIR()
 {}
 
+bool RhythMIR::Initialize()
+{
+	return false;
+}
 
-RhythMIR::~RhythMIR()
+bool RhythMIR::CleanUp()
+{
+	return false;
+}
+
+bool RhythMIR::Update()
+{
+	return false;
+}
+
+void RhythMIR::Render()
 {}

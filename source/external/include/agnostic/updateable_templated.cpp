@@ -1,6 +1,6 @@
 #include "updateable_templated.h"
 
-namespace cja
+namespace agn
 {
 	template<typename UpdateMeasureType>
 	bool Updateable_Templated<UpdateMeasureType>::IsTimeToUpdate()

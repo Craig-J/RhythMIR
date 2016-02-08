@@ -1,7 +1,7 @@
-#ifndef _UPDATEABLE_TEMPLATED_H_
-#define _UPDATEABLE_TEMPLATED_H_
+#ifndef _AGNOSTIC_UPDATEABLE_TEMPLATED_H_
+#define _AGNOSTIC_UPDATEABLE_TEMPLATED_H_
 
-namespace cja
+namespace agn
 {
 	// Note this class is designed to be used with the basic data types.
 	// It takes advantage of default initialization of the templated type.
@@ -72,4 +72,4 @@ namespace cja
 
 	};
 }
-#endif
+#endif // _AGNOSTIC_UPDATEABLE_TEMPLATED_H_
