@@ -4,20 +4,20 @@
 #include <SFML_Extensions\Audio\audio_manager.h>
 #include <SFML_Extensions\Graphics\texture_manager.h>
 #include <SFML_Extensions\Window\input_manager.h>
+#include <SFML_Extensions\System\application.h>
 #include "appstate.h"
 
 class GameStateMachine
 {
 public:
 
-	GameStateMachine() {}
+	GameStateMachine(const sfx::Application&);
 	~GameStateMachine() {}
 
-	void Initialize();
-	void Update(const float _delta_time) { game_state_->Update(_delta_time); }
-	void Render(const float _delta_time) { game_state_->Render(_delta_time); }
-	void PauseGame();
+	void Start();
 	void Exit();
+	void Update(const float _delta_time);
+	void Render(const float _delta_time);
 
 private:
 
@@ -34,7 +34,9 @@ private:
 
 	// Instances of top-level states here.
 	// Instances of nested state machines should go in their parent states classes.
-	agn::StateInstance<AppState> game_state_;
+	agn::StateInstance<AppState> current_state_;
+
+	const sfx::Application& application_;
 
 };
 #endif // _GAME_STATE_MACHINE_H_

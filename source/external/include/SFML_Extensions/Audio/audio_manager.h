@@ -1,38 +1,39 @@
 #ifndef _SFX_AUDIOMANAGER_H_
 #define _SFX_AUDIOMANAGER_H_
 
-#include <agnostic\logger.h>
-using agn::Log;
 #include <agnostic\resource_manager.h>
 #include <SFML\Audio.hpp>
+#include <agnostic\logger.h>
+using agn::Log;
+#include <tuple>
 
 namespace sfx
 {
-	class SoundFile : public sf::SoundBuffer
+	class SoundBuffer : public sf::SoundBuffer
 	{
 	public:
-		SoundFile(const std::string& _file_name)
+		SoundBuffer(const std::string& _file_name)
 		{
 			if (!loadFromFile(_file_name))
 			{
 				std::string error;
 				error.append(_file_name);
-				error.append(" failed to load from file in SoundFile constructor.");
+				error.append(" failed to load from file in Sound constructor.");
 				Log::Error(error);
 			}
 		}
 	};
 
-	class MusicFile : public sf::Music
+	class Music : public sf::Music
 	{
 	public:
-		MusicFile(const std::string& _file_name)
+		Music(const std::string& _file_name)
 		{
 			if (!openFromFile(_file_name))
 			{
 				std::string error;
 				error.append(_file_name);
-				error.append(" failed to load from file in MusicFile constructor.");
+				error.append(" failed to load from file in Music constructor.");
 				Log::Error(error);
 			}
 		}
@@ -40,21 +41,23 @@ namespace sfx
 
 	class AudioManager
 	{
+	public:
+
 		// LoadMusic
 		// IN:		String key - file name of music to load
-		// OUT:		Pointer to sf::Music instance using the music file
-		sf::Music* LoadMusic(const std::string& _file_name)
+		// OUT:		Shared pointer to the music object
+		std::shared_ptr<Music> LoadMusic(const std::string& _file_name)
 		{
 			return music_manager_.Load(_file_name);
 		}
 
 		// LoadSound
 		// IN:		String key - file name of sound to load
-		// OUT:		sf::Sound object loaded with sound buffer
-		sf::Sound LoadSound(const std::string& _file_name)
+		// OUT:		Shared pointer to the sound buffer
+		std::shared_ptr<SoundBuffer> LoadSound(const std::string& _file_name)
 		{
-			// Construct a sound from the SoundFile buffer pointer and return it.
-			return sf::Sound(*sound_manager_.Load(_file_name));
+			// Construct a sound from the Sound buffer pointer and return it.
+			return sound_manager_.Load(_file_name);
 		}
 
 		// UnloadMusic
@@ -81,14 +84,8 @@ namespace sfx
 
 	private:
 
-		// Assuming only one manager caches each sound/music so cleaning everything up on destruction will be safe.
-		~AudioManager()
-		{
-			UnloadAllAudio();
-		}
-
-		agn::ResourceManager <std::string, SoundFile > sound_manager_;
-		agn::ResourceManager <std::string, MusicFile > music_manager_;
+		agn::ResourceManager <std::string, SoundBuffer> sound_manager_;
+		agn::ResourceManager <std::string, Music> music_manager_;
 	};
 
 }

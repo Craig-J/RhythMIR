@@ -1,11 +1,12 @@
 #ifndef _AGNOSTIC_RESOURCE_MANAGER_H_
 #define _AGNOSTIC_RESOURCE_MANAGER_H_
 
-#include <map>
+#include <unordered_map>
+#include <memory>
 #include "logger.h"
 
 // Resource Manager
-// Generalized resource managed with a map storing pointers to the resources.
+// Generalized resource managed with a map storing shared pointers to the resources.
 // Note:	Managed resource must have a constructor taking const KeyType& to allow Load to construct correctly.
 
 namespace agn
@@ -15,16 +16,13 @@ namespace agn
 	{
 	private:
 
-		std::map<KeyType, ResourceType*> resource_cache_;
+		std::unordered_map<KeyType, std::shared_ptr<ResourceType>> resource_cache_;
 
 	public:
 
 		~ResourceManager()
 		{
-			for (auto resource : resource_cache_)
-			{
-				delete resource.second;
-			}
+			resource_cache_.clear();
 		}
 
 		// IsLoaded
@@ -40,8 +38,8 @@ namespace agn
 
 		// Load
 		// IN:		Key of resource to load
-		// OUT:		Pointer to resource
-		ResourceType* Load(const KeyType& _key)
+		// OUT:		Shared pointer to resource
+		std::shared_ptr<ResourceType> Load(const KeyType& _key)
 		{
 			if (IsLoaded(_key))	// Already loaded, just return a pointer
 			{
@@ -50,8 +48,8 @@ namespace agn
 			else
 			{
 				// Construct resource using key and insert into cache then return pointer
-				auto resource = new ResourceType(_key);
-				resource_cache_.insert(std::pair<KeyType, ResourceType*>(_key, resource));
+				auto resource = std::make_shared<ResourceType>(_key);
+				resource_cache_.insert(std::pair<KeyType, std::shared_ptr<ResourceType>>(_key, resource));
 				return resource_cache_[_key];
 			}
 		}
@@ -70,7 +68,6 @@ namespace agn
 			}
 			else
 			{
-				delete resource_cache_[_key];
 				resource_cache_.erase(_key);
 			}
 		}
@@ -82,6 +79,9 @@ namespace agn
 			resource_cache_.clear();
 		}
 	};
+
+	// Pair type used for storing resources as enumerated strings (usually file names)
+	typedef std::pair<std::string, int> ResourceID;
 }
 
 #endif // _AGNOSTIC_RESOURCE_MANAGER_H_

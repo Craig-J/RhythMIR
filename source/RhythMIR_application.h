@@ -6,7 +6,7 @@ class RhythMIR : public sfx::Application
 {
 public:
 
-	using sfx::Application::Application;
+	RhythMIR(sf::VideoMode _video_mode, std::string _application_title);
 	~RhythMIR();
 
 	bool Initialize();

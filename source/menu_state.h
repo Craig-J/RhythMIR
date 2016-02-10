@@ -16,11 +16,9 @@ public:
 	
 private:
 
-	const static int kDifficultySettings = 5;
-	
 	void LoadTextures();
 
-	enum SELECTION { STARTGAME, MUSIC, SOUNDEFFECTS, DIFFICULTY}; // possible menu selections
+	enum SELECTION { STARTGAME, SONG_SELECTED, MUSIC, SOUNDEFFECTS}; // possible menu selections
 	SELECTION selection_;	// current menu selection
 	
 	/*sf::Texture start_texture_;

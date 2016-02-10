@@ -15,15 +15,15 @@ namespace sfx
 
 		bool Run();
 
+		sfx::FrameClock clock_;
+		sf::RenderWindow window_;
+
 	protected:
 
 		virtual bool Initialize() = 0;
 		virtual bool CleanUp() = 0;
 		virtual bool Update() = 0;
 		virtual void Render() = 0;
-
-		sfx::FrameClock clock_;
-		sf::RenderWindow window_;
 
 	private:
 		

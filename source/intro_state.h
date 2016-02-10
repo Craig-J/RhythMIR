@@ -1,6 +1,8 @@
 #pragma once
 #include "appstate.h"
 #include <SFML_Extensions\Graphics\sprite.h>
+#include <SFML_Extensions\Graphics\texture_manager.h>
+#include <vector>
 
 class IntroState : public AppState
 {
@@ -18,6 +20,5 @@ private:
 
 	void LoadTextures();
 
-	//sf::Texture splash_texture_;
-	sfx::Sprite splash_;
+	sfx::Sprite background_;
 };

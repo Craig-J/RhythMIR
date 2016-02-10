@@ -11,6 +11,7 @@ public:
 
 	virtual void Update(const float _delta_time) = 0;
 	virtual void Render(const float _delta_time) = 0;
+	virtual void CleanUp() {};
 };
 
 #endif // _APPSTATE_H_
