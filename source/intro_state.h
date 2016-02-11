@@ -1,8 +1,7 @@
 #pragma once
 #include "appstate.h"
+#include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML_Extensions\Graphics\sprite.h>
-#include <SFML_Extensions\Graphics\texture_manager.h>
-#include <vector>
 
 class IntroState : public AppState
 {
@@ -13,12 +12,12 @@ public:
 	
 	void InitializeState();
 	void TerminateState();
-	void Update(const float _delta_time);
+	bool Update(const float _delta_time);
 	void Render(const float _delta_time);
 
 private:
 
-	void LoadTextures();
+	void PreLoadTextures();
 
 	sfx::Sprite background_;
 };

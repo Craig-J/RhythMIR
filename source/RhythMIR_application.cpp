@@ -1,8 +1,8 @@
 #include "RhythMIR_application.h"
 
-RhythMIR::RhythMIR(sf::VideoMode _video_mode = sf::VideoMode().getDesktopMode(), std::string _application_title = "RhythMIR") :
+RhythMIR::RhythMIR(sf::VideoMode _video_mode, std::string _application_title) :
 	Application(_video_mode, _application_title),
-	machine_(*this)
+	machine_(window_, clock_)
 {}
 
 RhythMIR::~RhythMIR()
@@ -10,20 +10,28 @@ RhythMIR::~RhythMIR()
 
 bool RhythMIR::Initialize()
 {
-	machine_.Start();
-	return false;
+	return machine_.Start();
 }
 
-bool RhythMIR::CleanUp()
+void RhythMIR::CleanUp()
 {
 	machine_.Exit();
-	return false;
+}
+
+void RhythMIR::ProcessEvent(sf::Event& _event)
+{
+	switch (_event.type)
+	{
+	default:
+		// State machine handles all events that the application doesn't need to process
+		machine_.ProcessEvent(_event);
+		break;
+	}
 }
 
 bool RhythMIR::Update()
 {
-	machine_.Update(clock_.getLastFrameTime().asSeconds());
-	return false;
+	return machine_.Update(clock_.getLastFrameTime().asSeconds());
 }
 
 void RhythMIR::Render()

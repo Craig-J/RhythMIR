@@ -11,21 +11,25 @@ namespace sfx
 	public:
 
 		Application(sf::VideoMode _video_mode, std::string _application_title);
-		virtual ~Application();
+		virtual ~Application() {}
 
-		bool Run();
+		void Run();
+
+	protected:
 
 		sfx::FrameClock clock_;
 		sf::RenderWindow window_;
 
-	protected:
+	private:
 
 		virtual bool Initialize() = 0;
-		virtual bool CleanUp() = 0;
+		virtual void CleanUp() = 0;
 		virtual bool Update() = 0;
 		virtual void Render() = 0;
+		// Default event handling does nothing.
+		virtual void ProcessEvent(sf::Event& _event) {}
 
-	private:
+		void EventLoop();
 		
 		bool running_;
 	};

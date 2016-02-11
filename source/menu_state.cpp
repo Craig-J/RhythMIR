@@ -20,8 +20,9 @@ void MenuState::TerminateState()
 	// state cleanup
 }
 
-void MenuState::Update(const float _delta_time)
+bool MenuState::Update(const float _delta_time)
 {
+	return true;
 }
 
 void MenuState::Render(const float _delta_time)

@@ -20,11 +20,6 @@ namespace agn
 
 	public:
 
-		~ResourceManager()
-		{
-			resource_cache_.clear();
-		}
-
 		// IsLoaded
 		// IN:		Key of resource to check
 		// OUT:		Boolean indicating whether or not the resource is present in the cache
@@ -47,9 +42,9 @@ namespace agn
 			}
 			else
 			{
-				// Construct resource using key and insert into cache then return pointer
-				auto resource = std::make_shared<ResourceType>(_key);
-				resource_cache_.insert(std::pair<KeyType, std::shared_ptr<ResourceType>>(_key, resource));
+				// Construct resource using key and construct emplaced in cache
+				// Note that _key is used to construct the resource
+				resource_cache_.emplace(std::make_pair(_key, std::make_shared<ResourceType>(_key)));
 				return resource_cache_[_key];
 			}
 		}
@@ -79,9 +74,6 @@ namespace agn
 			resource_cache_.clear();
 		}
 	};
-
-	// Pair type used for storing resources as enumerated strings (usually file names)
-	typedef std::pair<std::string, int> ResourceID;
 }
 
 #endif // _AGNOSTIC_RESOURCE_MANAGER_H_

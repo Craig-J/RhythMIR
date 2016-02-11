@@ -8,27 +8,44 @@ namespace sfx
 	{
 	}
 
-	Application::~Application()
-	{
-		window_.close();
-	}
-
-	bool Application::Run()
+	void Application::Run()
 	{
 		running_ = Initialize();
 		while (running_)
 		{
 			clock_.beginFrame();
+			EventLoop();
 			if (running_)
 			{
-				// UPDATE
-				Update();
-
-				// RENDER
-				Render();
+				running_ = Update();
+				if (running_)
+				{
+					window_.clear();
+					Render();
+					window_.display();
+				}
 			}
 			clock_.endFrame();
 		}
-		return CleanUp();
+		window_.close();
+		CleanUp();
+	}
+
+	void Application::EventLoop()
+	{
+		sf::Event event;
+		while (window_.pollEvent(event))
+		{
+			switch (event.type)
+			{
+			case sf::Event::Closed:
+				running_ = false;
+				break;
+			default:
+				// Delegate all other event handling to virtual ProcessEvent function.
+				ProcessEvent(event);
+				break;
+			}
+		}
 	}
 }

@@ -19,7 +19,7 @@ namespace agn
 		// Generic state constructor
 		// IN:	Reference to the templated state machine
 		//		Reference to the templated state unique ptr
-		explicit GenericState(_StateMachine &_state_machine, StateInstance<_State> &_state) :
+		explicit GenericState(_StateMachine& _state_machine, StateInstance<_State>& _state) :
 			state_machine_(_state_machine),
 			state_(_state)
 		{
@@ -28,7 +28,7 @@ namespace agn
 		// Static Initialize function
 		// 
 		template <class _ConcreteState, class ... _Types>
-		static void Initialize(_StateMachine &_state_machine, StateInstance<_State> &_state, _Types ... _args)
+		static void Initialize(_StateMachine& _state_machine, StateInstance<_State>& _state, _Types ... _args)
 		{
 			_state = StateInstance<_State>(new _ConcreteState(_state_machine, _state, _args...));
 			_state->InitializeState();
@@ -37,7 +37,7 @@ namespace agn
 	protected:
 		// ChangeState
 		// Basic state transition implementation.
-		// Terminate current state and calls the static initialize for a new state.
+		// Terminate current state and calls the static initialize to create a new state.
 		template <class _ConcreteState, class ... _Types>
 		void ChangeState(_Types ... _args)
 		{
@@ -60,11 +60,11 @@ namespace agn
 		virtual void TerminateState() {}
 
 	protected:
-		_StateMachine &state_machine_;
+		_StateMachine& state_machine_;
 
 	private:
 		// The pointer to the current state.
-		StateInstance<_State> &state_;
+		StateInstance<_State>& state_;
 	};
 }
 

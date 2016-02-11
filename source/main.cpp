@@ -10,7 +10,5 @@ int main()
 	RhythMIR application(sf::VideoMode::getDesktopMode(), "RhythMIR");
 	application.Run();
 	Log::Message("Successfully exited!");
-	while (true)
-	{ }
 	return EXIT_SUCCESS;
 }

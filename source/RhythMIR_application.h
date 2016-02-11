@@ -10,11 +10,13 @@ public:
 	~RhythMIR();
 
 	bool Initialize();
-	bool CleanUp();
+	void CleanUp();
 	bool Update();
 	void Render();
+	void ProcessEvent(sf::Event& _event);
 
 private:
 
+	// RhythMIR delegates pretty much everything to its state machine.
 	GameStateMachine machine_;
 };

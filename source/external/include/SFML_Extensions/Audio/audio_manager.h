@@ -5,7 +5,6 @@
 #include <SFML\Audio.hpp>
 #include <agnostic\logger.h>
 using agn::Log;
-#include <tuple>
 
 namespace sfx
 {
@@ -87,6 +86,8 @@ namespace sfx
 		agn::ResourceManager <std::string, SoundBuffer> sound_manager_;
 		agn::ResourceManager <std::string, Music> music_manager_;
 	};
+
+	static AudioManager audio_manager;
 
 }
 

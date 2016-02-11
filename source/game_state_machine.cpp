@@ -3,30 +3,28 @@
 #include "menu_state.h"
 #include "game_state.h"
 
-sfx::AudioManager GameStateMachine::audio_manager_;
-sfx::TextureManager GameStateMachine::texture_manager_;
-sfx::InputManager GameStateMachine::input_manager_;
-
-GameStateMachine::GameStateMachine(const sfx::Application& _application) :
-	application_(_application)
+GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock) :
+	window_(_window),
+	clock_(_clock)
 {}
 
-void GameStateMachine::Start()
+bool GameStateMachine::Start()
 {
 	// Initialize first state
 	AppState::Initialize<IntroState>(*this, current_state_);
+	return true;
 }
 
 void GameStateMachine::Exit()
 {
-	// Delegate cleanup to final state
-	current_state_->CleanUp();
+	// Terminate current state when exiting
+	current_state_->TerminateState();
 }
 
-void GameStateMachine::Update(const float _delta_time)
+bool GameStateMachine::Update(const float _delta_time)
 {
 	// Delegate update to current state
-	current_state_->Update(_delta_time);
+	return current_state_->Update(_delta_time);
 }
 
 void GameStateMachine::Render(const float _delta_time)
@@ -35,3 +33,7 @@ void GameStateMachine::Render(const float _delta_time)
 	current_state_->Render(_delta_time);
 }
 
+void GameStateMachine::ProcessEvent(sf::Event & _event)
+{
+
+}

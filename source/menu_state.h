@@ -11,7 +11,7 @@ public:
 	
 	void InitializeState();
 	void TerminateState();
-	void Update(const float _delta_time);
+	bool Update(const float _delta_time);
 	void Render(const float _delta_time);
 	
 private:

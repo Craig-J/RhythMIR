@@ -5,7 +5,6 @@
 #include <SFML\Graphics\Texture.hpp>
 #include <agnostic\logger.h>
 using agn::Log;
-#include <tuple>
 
 namespace sfx
 {
@@ -23,21 +22,23 @@ namespace sfx
 			}
 		}
 	};
+	typedef std::shared_ptr<Texture> TxPtr;
 
 	class TextureManager
 	{
 	public:
-		std::shared_ptr<Texture> LoadTexture(const std::string& _file_name)
+
+		TxPtr Load(const std::string& _file_name)
 		{
 			return manager_.Load(_file_name);
 		}
 
-		void UnloadTexture(const std::string& _file_name)
+		void Unload(const std::string& _file_name)
 		{
 			manager_.Unload(_file_name);
 		}
 
-		inline void UnloadAllTextures()
+		void UnloadAll()
 		{
 			manager_.Clear();
 		}

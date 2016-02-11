@@ -9,9 +9,10 @@ public:
 	using GenericState::GenericState;
 	virtual ~AppState() {}
 
-	virtual void Update(const float _delta_time) = 0;
+	// Boolean returns indicate success or failure.
+	virtual bool Update(const float _delta_time) = 0;
 	virtual void Render(const float _delta_time) = 0;
-	virtual void CleanUp() {};
+	virtual void TerminateState() {}
 };
 
 #endif // _APPSTATE_H_
