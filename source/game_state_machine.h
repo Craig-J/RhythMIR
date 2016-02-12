@@ -4,8 +4,11 @@
 #include <SFML_Extensions\Graphics\texture_manager.h>
 #include <SFML_Extensions\Audio\audio_manager.h>
 #include <SFML_Extensions\System\application.h>
+#include <SFML_Extensions\Graphics\sprite.h>
 #include "appstate.h"
 
+// TO-DO
+// convert this to an sfx::GameEngine by variadic templating the states to friend
 class GameStateMachine
 {
 public:
@@ -21,6 +24,7 @@ public:
 
 private:
 
+	sfx::AudioManager audio_manager_;
 	sfx::TextureManager texture_manager_;
 
 	// Each state is essentially a part of the state machine.
@@ -36,6 +40,9 @@ private:
 
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
+
+	sfx::TexturePtr loading_background_texture_;
+	sfx::Sprite background_;
 
 };
 #endif // _GAME_STATE_MACHINE_H_

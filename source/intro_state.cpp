@@ -2,51 +2,42 @@
 #include <agnostic\logger.h>
 using agn::Log;
 #include "game_state_machine.h"
-#include <SFML_Extensions\Graphics\texture_manager.h>
+#include "menu_state.h"
 
 namespace
 {
-	sfx::TxPtr background_texture;
-	std::vector<std::pair<sfx::TxPtr, std::string>> textures =
-	{
-		{ background_texture, "intro_background.jpg"}
-	};
 }
 
 void IntroState::InitializeState()
 {
-	PreLoadTextures();
-
-	// Calculate window dimensions and centre
-	float window_width = (float)state_machine_.window_.getSize().x;
-	float window_height = (float)state_machine_.window_.getSize().y;
-	sf::Vector2f window_centre(window_width / 2.0f, window_height / 2.0f);
-
-	background_ = sfx::Sprite(sf::Vector2f(window_centre.x, window_centre.y), state_machine_.texture_manager_.Load().get());
-	background_.SetDimensions(sf::Vector2f(window_width, window_height));
-
+	LoadTextures();
+	state_machine_.background_.setTexture(*background_texture_);
 }
 
 void IntroState::TerminateState()
 {
+	for (auto texture : textures_)
+	{
+		state_machine_.texture_manager_.Unload(texture.second);
+	}
 }
 
 bool IntroState::Update(const float _delta_time)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		return false;
-	else
-		return true;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		ChangeState<MenuState>();
+	}
+	return true;
 }
 
 void IntroState::Render(const float _delta_time)
 {
-	state_machine_.window_.draw(background_);
 }
 
-void IntroState::PreLoadTextures()
+void IntroState::LoadTextures()
 {
-	for (auto texture : textures)
+	for (auto texture : textures_)
 	{
 		texture.first = state_machine_.texture_manager_.Load(texture.second);
 	}

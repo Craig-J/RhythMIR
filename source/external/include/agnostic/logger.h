@@ -104,6 +104,12 @@ namespace agn
 
 	private:
 
+		static enum class ERRORVERBOSITY { ALL, ERRORS_ONLY, FATAL_ERRORS_ONLY } error_vebosity_;
+		static enum class OUTPUTVERBOSITY { ALL, IMPORTANT_ONLY, NONE } output_vebosity_;
+		static bool timestamps_;
+		static bool log_to_file_; // Log to file NYI
+		static bool log_to_console_;
+
 		static void BindIOToConsole()
 		{
 			// Redirect the CRT standard input, output, and error handles to the console
@@ -131,12 +137,6 @@ namespace agn
 			std::strftime(time, sizeof(time), "[%x : %X]", std::localtime(&now));
 			return(time);
 		}
-		
-		static enum class ERRORVERBOSITY { ALL, ERRORS_ONLY, FATAL_ERRORS_ONLY } error_vebosity_;
-		static enum class OUTPUTVERBOSITY { ALL, IMPORTANT_ONLY, NONE } output_vebosity_;
-		static bool timestamps_;
-		static bool log_to_file_; // Log to file NYI
-		static bool log_to_console_;
 	};
 }
 

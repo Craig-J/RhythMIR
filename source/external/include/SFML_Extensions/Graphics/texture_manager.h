@@ -13,7 +13,14 @@ namespace sfx
 	public:
 		Texture(const std::string& _file_name)
 		{
-			if (!loadFromFile(_file_name))
+			if (loadFromFile(_file_name))
+			{
+				std::string msg;
+				msg.append(_file_name);
+				msg.append(" loaded succesfully.");
+				Log::Message(msg);
+			}
+			else
 			{
 				std::string error;
 				error.append(_file_name);
@@ -22,13 +29,13 @@ namespace sfx
 			}
 		}
 	};
-	typedef std::shared_ptr<Texture> TxPtr;
+	typedef std::shared_ptr<Texture> TexturePtr;
 
 	class TextureManager
 	{
 	public:
 
-		TxPtr Load(const std::string& _file_name)
+		TexturePtr Load(const std::string& _file_name)
 		{
 			return manager_.Load(_file_name);
 		}

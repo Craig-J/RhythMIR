@@ -1,7 +1,5 @@
 #include "game_state_machine.h"
 #include "intro_state.h"
-#include "menu_state.h"
-#include "game_state.h"
 
 GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock) :
 	window_(_window),
@@ -10,6 +8,14 @@ GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _
 
 bool GameStateMachine::Start()
 {
+	loading_background_texture_ = texture_manager_.Load("loading_background.jpg");
+	// Calculate window dimensions and centre
+	sf::Vector2f window_dimensions((float)window_.getSize().x, (float)window_.getSize().y);
+	sf::Vector2f window_centre(window_dimensions.x / 2.0f, window_dimensions.y / 2.0f);
+
+	background_ = sfx::Sprite(window_centre, loading_background_texture_.get());
+	background_.SetDimensions(window_dimensions);
+
 	// Initialize first state
 	AppState::Initialize<IntroState>(*this, current_state_);
 	return true;
@@ -29,6 +35,7 @@ bool GameStateMachine::Update(const float _delta_time)
 
 void GameStateMachine::Render(const float _delta_time)
 {
+	window_.draw(background_);
 	// Delegate render to current state
 	current_state_->Render(_delta_time);
 }

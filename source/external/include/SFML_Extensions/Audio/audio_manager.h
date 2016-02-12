@@ -13,7 +13,14 @@ namespace sfx
 	public:
 		SoundBuffer(const std::string& _file_name)
 		{
-			if (!loadFromFile(_file_name))
+			if (loadFromFile(_file_name))
+			{
+				std::string msg;
+				msg.append(_file_name);
+				msg.append(" loaded succesfully.");
+				Log::Message(msg);
+			}
+			else
 			{
 				std::string error;
 				error.append(_file_name);
@@ -22,21 +29,30 @@ namespace sfx
 			}
 		}
 	};
+	typedef std::shared_ptr<SoundBuffer> SoundPtr;
 
 	class Music : public sf::Music
 	{
 	public:
 		Music(const std::string& _file_name)
 		{
-			if (!openFromFile(_file_name))
+			if (openFromFile(_file_name))
+			{
+				std::string msg;
+				msg.append(_file_name);
+				msg.append(" opened succesfully.");
+				Log::Message(msg);
+			}
+			else
 			{
 				std::string error;
 				error.append(_file_name);
-				error.append(" failed to load from file in Music constructor.");
+				error.append(" failed to open from file in Music constructor.");
 				Log::Error(error);
 			}
 		}
 	};
+	typedef std::shared_ptr<Music> MusicPtr;
 
 	class AudioManager
 	{
@@ -86,8 +102,6 @@ namespace sfx
 		agn::ResourceManager <std::string, SoundBuffer> sound_manager_;
 		agn::ResourceManager <std::string, Music> music_manager_;
 	};
-
-	static AudioManager audio_manager;
 
 }
 

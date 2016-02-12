@@ -1,27 +1,33 @@
 #include "menu_state.h"
-#include <array>
+#include <agnostic\logger.h>
+using agn::Log;
+#include "game_state_machine.h"
+#include "intro_state.h"
 
 namespace
 {
-	const int state_texture_count = 1;
-	std::array<std::string, state_texture_count> texture_filenames =
-	{
-		"menu_background.png"
-	};
 }
 
 void MenuState::InitializeState()
 {
 	LoadTextures();
+	state_machine_.background_.setTexture(*background_texture_);
 }
 
 void MenuState::TerminateState()
 {
-	// state cleanup
+	for (auto texture : textures_)
+	{
+		state_machine_.texture_manager_.Unload(texture.second);
+	}
 }
 
 bool MenuState::Update(const float _delta_time)
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		ChangeState<IntroState>();
+	}
 	return true;
 }
 
@@ -31,4 +37,8 @@ void MenuState::Render(const float _delta_time)
 
 void MenuState::LoadTextures()
 {
+	for (auto texture : textures_)
+	{
+		texture.first = state_machine_.texture_manager_.Load(texture.second);
+	}
 }

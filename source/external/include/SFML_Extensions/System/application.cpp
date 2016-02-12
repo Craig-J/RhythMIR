@@ -15,6 +15,10 @@ namespace sfx
 		{
 			clock_.beginFrame();
 			EventLoop();
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			{
+				running_ = false;
+			}
 			if (running_)
 			{
 				running_ = Update();

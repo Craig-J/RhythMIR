@@ -77,6 +77,8 @@ namespace sfx
 		Keyboard previous_keyboard_;
 
 	};
+
+	static InputManager Input;
 }
 
 #endif // _SFX_INPUT_MANAGER_H_

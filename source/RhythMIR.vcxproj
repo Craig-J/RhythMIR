@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="appstate.cpp" />
     <ClCompile Include="external\include\agnostic\logger.cpp" />
     <ClCompile Include="external\include\agnostic\sprite_animation.cpp" />
     <ClCompile Include="external\include\agnostic\updateable.cpp" />

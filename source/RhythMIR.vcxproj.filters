@@ -78,6 +78,9 @@
     <ClCompile Include="external\include\agnostic\logger.cpp">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClCompile>
+    <ClCompile Include="appstate.cpp">
+      <Filter>Application\State Machine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\SFML_Extensions\Audio\audio_manager.h">

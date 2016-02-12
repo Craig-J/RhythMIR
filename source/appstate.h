@@ -1,12 +1,14 @@
 #ifndef _APPSTATE_H_
 #define _APPSTATE_H_
 #include <agnostic\generic_state.h>
+#include <SFML_Extensions\Graphics\texture_manager.h>
 
 class AppState : public agn::GenericState<class GameStateMachine, AppState>
 {
 public:
 
-	using GenericState::GenericState;
+	AppState::AppState(GameStateMachine&, agn::StateInstance<AppState>&);
+	AppState::AppState(GameStateMachine&, agn::StateInstance<AppState>&, sfx::TexturePtr);
 	virtual ~AppState() {}
 
 	// Boolean returns indicate success or failure.
