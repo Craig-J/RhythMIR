@@ -24,11 +24,11 @@ namespace agn
 
 		// Enum describing how to traverse the spritesheet
 		// Note:	NONLINEAR, SCROLLXY && SCROLL_YX have no implementations currently
-		enum class SPRITESHEET_TYPE { NONLINEAR, SCROLL_X, SCROLL_Y, /*SCROLL_XY, SCROLL_YX*/ };
+		enum class SPRITESHEET_TYPE { /*NONLINEAR,*/ SCROLL_X, SCROLL_Y, /*SCROLL_XY, SCROLL_YX*/ };
 
 		// Default constructor: Sets up a SCROLL_X spritesheet with no update constraints (updates every time update is called)
-		SpriteAnimation(const float _texture_width,
-			const float _texture_height,
+		SpriteAnimation(const int _texture_width,
+			const int _texture_height,
 			const float _frame_duration = 0.0f,
 			const int _frame_count = 1,
 			const int _current_frame = 1,

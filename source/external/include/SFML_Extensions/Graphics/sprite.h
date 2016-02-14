@@ -30,7 +30,7 @@ namespace sfx
 		// --1--		--1--		-----		-----
 		// 111--		--111		--111		111--
 		// -----		-----		--1--		--1--
-		// IN:		Orientation to play animation at
+		// IN:		Target orientation
 		void SetOrientation(TEXTURE_ORIENTATION);
 
 		// SetAnimation

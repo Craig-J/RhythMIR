@@ -2,7 +2,7 @@
 
 RhythMIR::RhythMIR(sf::VideoMode _video_mode, std::string _application_title) :
 	Application(_video_mode, _application_title),
-	machine_(window_, clock_)
+	machine_(window_, clock_, font_)
 {}
 
 RhythMIR::~RhythMIR()
@@ -20,13 +20,7 @@ void RhythMIR::CleanUp()
 
 void RhythMIR::ProcessEvent(sf::Event& _event)
 {
-	switch (_event.type)
-	{
-	default:
-		// State machine handles all events that the application doesn't need to process
-		machine_.ProcessEvent(_event);
-		break;
-	}
+	machine_.ProcessEvent(_event);
 }
 
 bool RhythMIR::Update()

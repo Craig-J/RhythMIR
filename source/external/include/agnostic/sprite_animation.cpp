@@ -3,8 +3,8 @@
 
 namespace agn
 {
-	SpriteAnimation::SpriteAnimation(const float _texture_width,
-		const float _texture_height,
+	SpriteAnimation::SpriteAnimation(const int _texture_width,
+		const int _texture_height,
 		const float _frame_duration,
 		const int _frame_count,
 		const int _current_frame,
@@ -63,11 +63,11 @@ namespace agn
 			Log::Warning("    If linear - animation start frame is now first frame.");
 
 			// If we are using a linear sheet type (if it's not nonlinear)
-			if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
+			/*if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
 			{
 				// Set start frame to first frame in animation to limit the damage.
 				start_frame_ = 1;
-			}
+			}*/
 		}
 
 		if (end_frame_ > animation_frame_count_ || end_frame_ <= 0)
@@ -77,11 +77,11 @@ namespace agn
 			Log::Warning("    If linear - animation end frame is now last frame.");
 
 			// If we are using a linear sheet type (if it's not nonlinear)
-			if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
+			/*if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
 			{
 				// Set end frame to last frame in animation to limit the damage.
 				end_frame_ = animation_frame_count_;
-			}
+			}*/
 		}
 	}
 
@@ -160,16 +160,17 @@ namespace agn
 		}
 
 		// If we are using a linear sheet type
-		if (sheet_type_ != SPRITESHEET_TYPE::NONLINEAR)
+		/*if (sheet_type_ == SPRITESHEET_TYPE::NONLINEAR)
 		{
+			// TO-DO: Fetch from a structure of frame data here
+			
+		}
+		else
+		{*/
 			// Calculate u and v from current frame and uv_width and uv_height
 			frame_.u = current_x_frame_ * frame_.uv_width - frame_.uv_width / 2;
 			frame_.v = current_y_frame_ * frame_.uv_height - frame_.uv_height / 2;
-		}
-		else
-		{
-			// TO-DO: Fetch from a structure of frame data here
-		}
+		//}
 
 		current_frame_++;
 	}

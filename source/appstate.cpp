@@ -1,14 +1,20 @@
 #include "appstate.h"
 #include "game_state_machine.h"
 
-AppState::AppState(GameStateMachine& _state_machine, agn::StateInstance<AppState>& _state) :
-	GenericState(_state_machine, _state)
+const Texture& AppState::default_texture_()
 {
-	state_machine_.background_.setTexture(*state_machine_.loading_background_texture_);
+	static Texture default_texture = Texture("default.png");
+	return default_texture;
 }
 
-AppState::AppState(GameStateMachine& _state_machine, agn::StateInstance<AppState>& _state, sfx::TexturePtr _loading_background_texture) :
+AppState::AppState(GameStateMachine& _state_machine, StatePtr<AppState>& _state) :
 	GenericState(_state_machine, _state)
 {
-	state_machine_.background_.setTexture(*_loading_background_texture);
+	machine_.background_.setTexture(*machine_.loading_background_texture_);
+}
+
+AppState::AppState(GameStateMachine& _state_machine, StatePtr<AppState>& _state, TexturePtr _loading_background_texture) :
+	AppState(_state_machine, _state)
+{
+	machine_.background_.setTexture(*_loading_background_texture);
 }

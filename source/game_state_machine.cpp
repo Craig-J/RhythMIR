@@ -1,20 +1,31 @@
 #include "game_state_machine.h"
 #include "intro_state.h"
+#include <SFML_Extensions\global.h>
 
-GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock) :
+GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font) :
 	window_(_window),
-	clock_(_clock)
+	clock_(_clock),
+	font_(_font)
 {}
 
 bool GameStateMachine::Start()
 {
-	loading_background_texture_ = texture_manager_.Load("loading_background.jpg");
+	loading_background_texture_ = sfx::Global::TextureManager.Load("loading_background.jpg");
 	// Calculate window dimensions and centre
 	sf::Vector2f window_dimensions((float)window_.getSize().x, (float)window_.getSize().y);
 	sf::Vector2f window_centre(window_dimensions.x / 2.0f, window_dimensions.y / 2.0f);
 
 	background_ = sfx::Sprite(window_centre, loading_background_texture_.get());
 	background_.SetDimensions(window_dimensions);
+
+	if (font_.loadFromFile("Jura-Regular.ttf"))
+	{
+		Log::Message("Font loaded successfully.");
+	}
+	else
+	{
+		Log::Error("Font failed to load.");
+	}
 
 	// Initialize first state
 	AppState::Initialize<IntroState>(*this, current_state_);

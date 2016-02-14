@@ -1,8 +1,9 @@
 #ifndef _SFX_APPLICATION_H_
 #define _SFX_APPLICATION_H_
 
-#include <SFML\Graphics.hpp>
+#include <SFML\Graphics\RenderWindow.hpp>
 #include "frame_clock.h"
+#include "system_HUD.h"
 
 namespace sfx
 {
@@ -19,6 +20,7 @@ namespace sfx
 
 		sfx::FrameClock clock_;
 		sf::RenderWindow window_;
+		sf::Font font_;
 
 	private:
 
@@ -30,7 +32,8 @@ namespace sfx
 		virtual void ProcessEvent(sf::Event& _event) {}
 
 		void EventLoop();
-		
+
+		SystemHUD hud_;
 		bool running_;
 	};
 }

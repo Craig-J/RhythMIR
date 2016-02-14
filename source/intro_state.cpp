@@ -1,30 +1,27 @@
 #include "intro_state.h"
-#include <agnostic\logger.h>
-using agn::Log;
 #include "game_state_machine.h"
 #include "menu_state.h"
 
-namespace
-{
-}
-
 void IntroState::InitializeState()
 {
-	LoadTextures();
-	state_machine_.background_.setTexture(*background_texture_);
+	textures_ = TextureFileVector
+	{
+		{machine_.background_texture_, "intro_background.jpg"}
+	};
+	Global::TextureManager.Load(textures_);
+
+	machine_.background_.setTexture(*machine_.background_texture_);
 }
 
 void IntroState::TerminateState()
 {
-	for (auto texture : textures_)
-	{
-		state_machine_.texture_manager_.Unload(texture.second);
-	}
+	Global::TextureManager.Unload(textures_);
+	textures_.clear();
 }
 
 bool IntroState::Update(const float _delta_time)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	if (Global::Input.KeyPressed(Keyboard::Space))
 	{
 		ChangeState<MenuState>();
 	}
@@ -33,12 +30,4 @@ bool IntroState::Update(const float _delta_time)
 
 void IntroState::Render(const float _delta_time)
 {
-}
-
-void IntroState::LoadTextures()
-{
-	for (auto texture : textures_)
-	{
-		texture.first = state_machine_.texture_manager_.Load(texture.second);
-	}
 }

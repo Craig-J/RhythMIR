@@ -31,6 +31,9 @@
     <Filter Include="Application\State Machine">
       <UniqueIdentifier>{505a8c66-ae83-457c-8f2e-4d017c44fa9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\States">
+      <UniqueIdentifier>{1d107901-ea68-4d18-9162-7bf316d9dbe1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,15 +53,6 @@
     </ClCompile>
     <ClCompile Include="external\include\SFML_Extensions\Window\input_manager.cpp">
       <Filter>Framework\SFML Extensions %28sfx%29\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="game_state.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="intro_state.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="menu_state.cpp">
-      <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="RhythMIR_application.cpp">
       <Filter>Application</Filter>
@@ -80,6 +74,18 @@
     </ClCompile>
     <ClCompile Include="appstate.cpp">
       <Filter>Application\State Machine</Filter>
+    </ClCompile>
+    <ClCompile Include="external\include\SFML_Extensions\global.cpp">
+      <Filter>Framework\SFML Extensions %28sfx%29</Filter>
+    </ClCompile>
+    <ClCompile Include="menu_state.cpp">
+      <Filter>Application\States</Filter>
+    </ClCompile>
+    <ClCompile Include="intro_state.cpp">
+      <Filter>Application\States</Filter>
+    </ClCompile>
+    <ClCompile Include="game_state.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,15 +115,6 @@
     </ClInclude>
     <ClInclude Include="external\include\SFML_Extensions\Window\input_manager.h">
       <Filter>Framework\SFML Extensions %28sfx%29\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="game_state.h">
-      <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="intro_state.h">
-      <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="menu_state.h">
-      <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="RhythMIR_application.h">
       <Filter>Application</Filter>
@@ -154,6 +151,21 @@
     </ClInclude>
     <ClInclude Include="external\include\agnostic\logger.h">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\SFML_Extensions\global.h">
+      <Filter>Framework\SFML Extensions %28sfx%29</Filter>
+    </ClInclude>
+    <ClInclude Include="menu_state.h">
+      <Filter>Application\States</Filter>
+    </ClInclude>
+    <ClInclude Include="intro_state.h">
+      <Filter>Application\States</Filter>
+    </ClInclude>
+    <ClInclude Include="game_state.h">
+      <Filter>Application\States</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\SFML_Extensions\System\system_HUD.h">
+      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

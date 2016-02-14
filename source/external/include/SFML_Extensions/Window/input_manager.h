@@ -28,13 +28,17 @@ namespace sfx
 		// To move the mouse in realtime use the sf::Mouse setPosition functions.
 
 		// Use these with events to update current objects at start of frame
+
 		void SetKeyDown(sf::Keyboard::Key);
 		void SetKeyUp(sf::Keyboard::Key);
 		void SetMouse(sf::Vector2i position);
 		void SetButtonDown(sf::Mouse::Button);
 		void SetButtonUp(sf::Mouse::Button);
 
-		void Update();	// Call at end of frame to update previous objects with current ones
+		// Call before event processing at start of frame or
+		// at end after all input logic is handled.
+		// Resets mousemoved and updates previous frame objects.
+		void Update();
 
 		////// ACCESSORS
 		// To access realtime state of mouse or keyboard use sf::Keyboard and sf::Mouse.
@@ -71,14 +75,13 @@ namespace sfx
 		bool mouse_moved_;
 
 		// TODO(Craig): Changes these to a container and add a history depth variable later.
+
 		Mouse mouse_;
 		Mouse previous_mouse_;
 		Keyboard keyboard_;
 		Keyboard previous_keyboard_;
 
 	};
-
-	static InputManager Input;
 }
 
 #endif // _SFX_INPUT_MANAGER_H_

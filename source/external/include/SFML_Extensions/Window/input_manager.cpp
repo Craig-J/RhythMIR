@@ -1,6 +1,7 @@
 #include "input_manager.h"
 namespace sfx
 {
+
 	void InputManager::SetKeyDown(sf::Keyboard::Key _key)
 	{
 		keyboard_.keys[_key] = true;
@@ -65,19 +66,9 @@ namespace sfx
 
 	void InputManager::Update()
 	{
+		mouse_moved_ = false; // Reset mouse moved for next frame otherwise it will always be true after first true case.
 		previous_keyboard_ = keyboard_;
-		keyboard_ = Keyboard();
-		if (mouse_.x != previous_mouse_.x || mouse_.y != previous_mouse_.y)
-		{
-			mouse_moved_ = true;
-		}
-		else
-		{
-			mouse_moved_ = false;
-		}
 		previous_mouse_ = mouse_;
-		mouse_ = Mouse();
-		
 	}
 
 	// Was this key pressed this update?

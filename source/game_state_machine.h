@@ -1,19 +1,14 @@
 #ifndef _GAME_STATE_MACHINE_H_
 #define _GAME_STATE_MACHINE_H_
 
-#include <SFML_Extensions\Graphics\texture_manager.h>
-#include <SFML_Extensions\Audio\audio_manager.h>
 #include <SFML_Extensions\System\application.h>
-#include <SFML_Extensions\Graphics\sprite.h>
 #include "appstate.h"
 
-// TO-DO
-// convert this to an sfx::GameEngine by variadic templating the states to friend
 class GameStateMachine
 {
 public:
 
-	GameStateMachine(sf::RenderWindow&, sfx::FrameClock&);
+	GameStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&);
 	~GameStateMachine() {}
 
 	bool Start();
@@ -24,9 +19,6 @@ public:
 
 private:
 
-	sfx::AudioManager audio_manager_;
-	sfx::TextureManager texture_manager_;
-
 	// Each state is essentially a part of the state machine.
 	// Friend is used so that states can be stored in their own files rather than everything here.
 	friend class AppState;
@@ -36,13 +28,15 @@ private:
 
 	// Instances of top-level states here.
 	// Instances of nested state machines should go in their parent states classes.
-	agn::StateInstance<AppState> current_state_;
+	StatePtr<AppState> current_state_;
 
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
+	sf::Font& font_;
 
-	sfx::TexturePtr loading_background_texture_;
-	sfx::Sprite background_;
+	TexturePtr loading_background_texture_;
+	TexturePtr background_texture_;
+	Sprite background_;
 
 };
 #endif // _GAME_STATE_MACHINE_H_

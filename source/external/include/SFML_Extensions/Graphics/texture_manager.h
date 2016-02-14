@@ -29,7 +29,9 @@ namespace sfx
 			}
 		}
 	};
+	typedef std::unique_ptr<Texture> UniqueTexturePtr;
 	typedef std::shared_ptr<Texture> TexturePtr;
+	typedef std::vector<std::pair<TexturePtr&, const std::string>> TextureFileVector;
 
 	class TextureManager
 	{
@@ -40,9 +42,26 @@ namespace sfx
 			return manager_.Load(_file_name);
 		}
 
+		void Load(const TextureFileVector& _textures)
+		{
+			for (auto texture : _textures)
+			{
+				texture.first = Load(texture.second);
+			}
+		}
+
 		void Unload(const std::string& _file_name)
 		{
 			manager_.Unload(_file_name);
+		}
+
+		void Unload(const TextureFileVector& _textures)
+		{
+			for (auto texture : _textures)
+			{
+				Unload(texture.second);
+				texture.first.reset();
+			}
 		}
 
 		void UnloadAll()

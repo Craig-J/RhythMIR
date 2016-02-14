@@ -2,7 +2,8 @@
 #define _SFX_AUDIOMANAGER_H_
 
 #include <agnostic\resource_manager.h>
-#include <SFML\Audio.hpp>
+#include <SFML\Audio\SoundBuffer.hpp>
+#include <SFML\Audio\Music.hpp>
 #include <agnostic\logger.h>
 using agn::Log;
 
@@ -29,7 +30,9 @@ namespace sfx
 			}
 		}
 	};
+	typedef std::unique_ptr<SoundBuffer> UniqueSoundPtr;
 	typedef std::shared_ptr<SoundBuffer> SoundPtr;
+	typedef std::vector<std::pair<SoundBuffer&, const std::string>> SoundFileVector;
 
 	class Music : public sf::Music
 	{
@@ -52,6 +55,7 @@ namespace sfx
 			}
 		}
 	};
+	typedef std::unique_ptr<Music> UniqueMusicPtr;
 	typedef std::shared_ptr<Music> MusicPtr;
 
 	class AudioManager

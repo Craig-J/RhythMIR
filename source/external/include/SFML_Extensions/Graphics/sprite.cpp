@@ -93,11 +93,8 @@ namespace sfx
 			else if (rect.height < 0)
 				return TEXTURE_ORIENTATION::FLIP_XY;	// Both X and Y negative
 		}
-		else
-		{
-			agn::Log::Error("CalculateCurrentOrientation failed - invalid values.");
-			return orientation_;
-		}
+		agn::Log::Error("CalculateCurrentOrientation failed - invalid values.");
+		return orientation_;
 	}
 
 	void Sprite::ApplyOrientation()

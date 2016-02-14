@@ -1,7 +1,5 @@
 #pragma once
 #include "appstate.h"
-#include <SFML_Extensions\Graphics\sprite.h>
-#include <SFML_Extensions\Graphics\texture_manager.h>
 
 class MenuState : public AppState
 {
@@ -16,18 +14,6 @@ public:
 	void Render(const float _delta_time);
 	
 private:
-
-	void LoadTextures();
-
-	sfx::TexturePtr background_texture_;
-
-	const std::vector<std::pair<sfx::TexturePtr&, const std::string>> textures_ =
-	{
-		{ background_texture_, "menu_background.jpg" }
-	};
-
-
-	sfx::Sprite background_;
 
 	enum SELECTION { STARTGAME, SONG_SELECTED, MUSIC, SOUNDEFFECTS}; // possible menu selections
 	SELECTION selection_;	// current menu selection
