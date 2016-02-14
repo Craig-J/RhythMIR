@@ -1,32 +1,30 @@
 #include "button.h"
-#include <cstddef> // For NULL definition
-#include <agnostic/utils.h>
 
-Button::Button(sf::Texture* default_texture, sf::Texture* highlighted_texture) :
-selected_(false)
+namespace sfx
 {
-	textures[0] = default_texture;
-	textures[1] = highlighted_texture;
-	setTexture(*textures[0]);
-}
-
-
-Button::~Button()
-{
-	DeleteNull(textures[0]);
-	DeleteNull(textures[1]);
-}
-
-void Button::Select(bool state)
-{
-	selected_ = state;
-	switch (selected_)
+	/*Button::Button() :
+		selected_(false)
 	{
-	case true:
-		setTexture(*textures[1]);
-		break;
-	case false:
+		
+	}*/
+
+	void Button::Select(bool state)
+	{
+		selected_ = state;
+		switch (selected_)
+		{
+		case true:
+			setTexture(*textures[1]);
+			break;
+		case false:
+			setTexture(*textures[0]);
+			break;
+		}
+	}
+	void Button::SetTextures(TexturePtr _default_texture, TexturePtr _highlighted_texture)
+	{
+		textures[0] = _default_texture;
+		textures[1] = _highlighted_texture;
 		setTexture(*textures[0]);
-		break;
 	}
 }

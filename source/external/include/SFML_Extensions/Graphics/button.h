@@ -1,21 +1,26 @@
 #ifndef _SFX_BUTTON_H_
 #define _SFX_BUTTON_H_
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
+#include <SFML_Extensions\Graphics\sprite.h>
+#include <SFML_Extensions\Graphics\texture_manager.h>
 
-class Button : public sf::Sprite
+// TO-DO make a button derived class that executes a command
+namespace sfx
 {
-public:
+	class Button : public Sprite
+	{
+	public:
 
-	Button(sf::Texture* default_texture, sf::Texture* highlighted_texture);
-	virtual ~Button();
+		//Button();
+		using Sprite::Sprite;
+		virtual ~Button() {}
 
-	void Select(bool state);
+		void Select(bool state);
+		void SetTextures(TexturePtr default_texture, TexturePtr highlighted_texture);
 
-private:
+	private:
 
-	sf::Texture* textures[2];
-	bool selected_;
-};
-
-#endif
+		TexturePtr textures[2];
+		bool selected_;
+	};
+}
+#endif // _SFX_BUTTON_H_

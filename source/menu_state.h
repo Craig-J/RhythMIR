@@ -1,5 +1,6 @@
 #pragma once
 #include "appstate.h"
+#include <SFML_Extensions\Graphics\button.h>
 
 class MenuState : public AppState
 {
@@ -15,18 +16,27 @@ public:
 	
 private:
 
-	enum SELECTION { STARTGAME, SONG_SELECTED, MUSIC, SOUNDEFFECTS}; // possible menu selections
-	SELECTION selection_;	// current menu selection
-	
-	/*sf::Texture start_texture_;
-	sf::Texture music_on_texture_, music_off_texture_;
-	sf::Texture sound_on_texture_, sound_off_texture_;
-	sf::Texture blue_square_, green_square_, yellow_diamond_, red_diamond_, purple_polygon_;
-	sf::Texture cross_texture_, dpad_texture_;
-	sf::Texture selector_;
-	GameObject start_button_,  music_button_, sound_effects_button_;
-	GameObject difficulty_button[kDifficultySettings];
-	GameObject dpad_, cross_;
-	GameObject selection_pointer_;*/
-};
+	void LoadSongList(std::string& _file_name);
 
+	std::vector<std::string> songs_;
+
+	enum MENUCONTEXT { OPTIONS, SONGS, START };
+	enum OPTION_SELECTIONS { MUSIC, SOUNDEFFECTS };
+	struct Selection
+	{
+		std::string song;
+		OPTION_SELECTIONS option;
+		MENUCONTEXT context;
+	} selected_;
+	
+	TexturePtr start_texture_;
+	TexturePtr music_on_texture_, music_off_texture_;
+	TexturePtr sound_on_texture_, sound_off_texture_;
+
+	sfx::Button start_button_;
+	sfx::Button	music_button_;
+	sfx::Button sound_effects_button_;
+
+	std::vector<std::string> headings_;
+	sf::Text heading_;
+};

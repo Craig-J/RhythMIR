@@ -3,6 +3,7 @@
 
 #include <SFML_Extensions\System\application.h>
 #include "appstate.h"
+#include "options.h"
 
 class GameStateMachine
 {
@@ -33,6 +34,8 @@ private:
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
 	sf::Font& font_;
+
+	Options options_;
 
 	TexturePtr loading_background_texture_;
 	TexturePtr background_texture_;

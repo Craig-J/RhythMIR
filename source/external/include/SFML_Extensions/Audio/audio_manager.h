@@ -102,7 +102,6 @@ namespace sfx
 		}
 
 	private:
-
 		agn::ResourceManager <std::string, SoundBuffer> sound_manager_;
 		agn::ResourceManager <std::string, Music> music_manager_;
 	};

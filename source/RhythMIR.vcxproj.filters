@@ -87,6 +87,13 @@
     <ClCompile Include="game_state.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
+    <ClCompile Include="game_object.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="hit_object.cpp" />
+    <ClCompile Include="options.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\SFML_Extensions\Audio\audio_manager.h">
@@ -166,6 +173,13 @@
     </ClInclude>
     <ClInclude Include="external\include\SFML_Extensions\System\system_HUD.h">
       <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
+    </ClInclude>
+    <ClInclude Include="game_object.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="hit_object.h" />
+    <ClInclude Include="options.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
