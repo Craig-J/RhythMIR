@@ -22,5 +22,6 @@ namespace sfx
 		static InputManager Input;
 		static TextureManager TextureManager;
 		static AudioManager AudioManager;
+		static void UnloadGlobalResources();
 	};
 }

@@ -38,6 +38,7 @@ namespace sfx
 		}
 		window_.close();
 		CleanUp();
+		Global::UnloadGlobalResources();
 	}
 
 	void Application::EventLoop()
