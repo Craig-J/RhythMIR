@@ -7,7 +7,7 @@ class GameState : public AppState
 {
 public:
 
-	GameState(GameStateMachine&, StatePtr<AppState>&, std::string&);
+	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, std::string&);
 	virtual ~GameState() {}
 	
 	void InitializeState();

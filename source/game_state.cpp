@@ -6,7 +6,7 @@ namespace
 {
 }
 
-GameState::GameState(GameStateMachine& _state_machine, StatePtr<AppState>& _state, std::string& _song_name) :
+GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, std::string& _song_name) :
 	AppState(_state_machine, _state)
 {
 	//LoadSongData(_song_name);

@@ -2,7 +2,7 @@
 #define _APPSTATE_H_
 
 #include <agnostic\generic_state.h>
-using agn::StatePtr;
+using agn::UniqueStatePtr;
 
 #include <SFML_Extensions\global.h>
 using sfx::Global;
@@ -16,12 +16,18 @@ using sfx::UniqueTexturePtr;
 using sfx::TexturePtr;
 using sfx::TextureFileVector;
 
+using sfx::UniqueMusicPtr;
+using sfx::MusicPtr;
+using sfx::UniqueSoundPtr;
+using sfx::SoundPtr;
+using sfx::SoundFileVector;
+
 class AppState : public agn::GenericState<class GameStateMachine, AppState>
 {
 public:
 
-	AppState(GameStateMachine&, StatePtr<AppState>&);
-	AppState(GameStateMachine&, StatePtr<AppState>&, sfx::TexturePtr);
+	AppState(GameStateMachine&, UniqueStatePtr<AppState>&);
+	AppState(GameStateMachine&, UniqueStatePtr<AppState>&, sfx::TexturePtr);
 	virtual ~AppState() {}
 
 	// Boolean returns indicate success or failure.
@@ -32,8 +38,7 @@ public:
 protected:
 
 	TextureFileVector textures_;
-
-	const Texture& default_texture_();
+	SoundFileVector sounds_;
 };
 
 #endif // _APPSTATE_H_

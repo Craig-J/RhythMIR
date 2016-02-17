@@ -3,7 +3,6 @@
 
 #include <SFML_Extensions\System\application.h>
 #include "appstate.h"
-#include "options.h"
 
 class GameStateMachine
 {
@@ -22,20 +21,25 @@ private:
 
 	// Each state is essentially a part of the state machine.
 	// Friend is used so that states can be stored in their own files rather than everything here.
+	// Indentation shows the state heirarchy.
 	friend class AppState;
-	friend class IntroState;
-	friend class MenuState;
-	friend class GameState;
+		friend class IntroState;
+		friend class MenuState;
+		friend class GameState;
 
 	// Instances of top-level states here.
 	// Instances of nested state machines should go in their parent states classes.
-	StatePtr<AppState> current_state_;
+	UniqueStatePtr<AppState> current_state_;
 
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
 	sf::Font& font_;
 
-	Options options_;
+	struct Options
+	{
+		bool music_;
+		bool sound_effects_;
+	} options_;
 
 	TexturePtr loading_background_texture_;
 	TexturePtr background_texture_;

@@ -30,7 +30,7 @@ private:
 
 		sf::Text text;
 		text.setFont(*font_);
-		text.setCharacterSize(16);
+		text.setCharacterSize(20);
 		text.setPosition(5.0f, 5.0f);
 
 		// Draw the available frame time statistics.

@@ -2,6 +2,7 @@
 #define _SFX_SPRITE_H_
 
 #include <SFML\Graphics\Sprite.hpp>
+#include <SFML_Extensions\Graphics\texture_manager.h>
 #include <SFML_Extensions\Graphics\animation.h>
 
 namespace sfx
@@ -13,7 +14,7 @@ namespace sfx
 		// Enum describing the orientation of mapping the texture to the sprite
 		enum class TEXTURE_ORIENTATION { NORMAL, FLIP_X, FLIP_Y, FLIP_XY };
 
-		Sprite(sf::Vector2f initial_position = sf::Vector2f(0.0f, 0.0f), const sf::Texture* texture = nullptr);
+		Sprite(sf::Vector2f initial_position = sf::Vector2f(0.0f, 0.0f), TexturePtr texture = nullptr);
 		virtual ~Sprite();
 
 		// SetDimensions

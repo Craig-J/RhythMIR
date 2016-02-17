@@ -8,10 +8,9 @@ class GameObject : public sfx::Sprite
 {	// Physics based game object
 public:
 
-	GameObject();		// Default constructor for default gameobjects
+	GameObject();
 	virtual ~GameObject();
 
-	// Common Functions - these work fine with and without box2d
 	void UpdatePosition(); // updates position_ with velocity_ or with box2d body_ position
 	void VerifyPosition(const sf::RenderWindow& window); // Used to make sure the object is within the bounds of the screen region
 	bool BoxCollisionTest(const GameObject& Object);

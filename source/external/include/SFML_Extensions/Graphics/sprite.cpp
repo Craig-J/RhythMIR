@@ -3,7 +3,7 @@
 
 namespace sfx
 {
-	Sprite::Sprite(sf::Vector2f _initial_position, const sf::Texture* _texture) :
+	Sprite::Sprite(sf::Vector2f _initial_position, TexturePtr _texture) :
 		sf::Sprite(),
 		animated_(false),
 		animation_(nullptr),

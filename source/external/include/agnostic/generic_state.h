@@ -6,7 +6,7 @@
 namespace agn
 {
 	template <class _State>
-	using StatePtr = std::unique_ptr<_State>;
+	using UniqueStatePtr = std::unique_ptr<_State>;
 
 	template <class _StateMachine, class _State>
 	class GenericState
@@ -19,7 +19,7 @@ namespace agn
 		// Generic state constructor
 		// IN:	Reference to the templated state machine
 		//		Reference to the templated state unique ptr
-		explicit GenericState(_StateMachine& _state_machine, StatePtr<_State>& _state) :
+		explicit GenericState(_StateMachine& _state_machine, UniqueStatePtr<_State>& _state) :
 			machine_(_state_machine),
 			state_(_state)
 		{
@@ -28,9 +28,9 @@ namespace agn
 		// Static Initialize function
 		// 
 		template <class _ConcreteState, class ... _Types>
-		static void Initialize(_StateMachine& _state_machine, StatePtr<_State>& _state, _Types ... _args)
+		static void Initialize(_StateMachine& _state_machine, UniqueStatePtr<_State>& _state, _Types ... _args)
 		{
-			_state = StatePtr<_State>(new _ConcreteState(_state_machine, _state, _args...));
+			_state = UniqueStatePtr<_State>(new _ConcreteState(_state_machine, _state, _args...));
 			_state->InitializeState();
 		}
 
@@ -64,7 +64,7 @@ namespace agn
 
 	private:
 		// Reference of the pointer to the current state.
-		StatePtr<_State>& state_;
+		UniqueStatePtr<_State>& state_;
 	};
 }
 

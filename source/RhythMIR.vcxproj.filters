@@ -90,8 +90,7 @@
     <ClCompile Include="game_object.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="hit_object.cpp" />
-    <ClCompile Include="options.cpp">
+    <ClCompile Include="hit_object.cpp">
       <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
@@ -138,9 +137,6 @@
     <ClInclude Include="external\include\agnostic\updateable_templated.h">
       <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClInclude>
-    <ClInclude Include="external\include\agnostic\utils.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
     <ClInclude Include="external\include\agnostic\generic_state.h">
       <Filter>Framework\AGNOSTIC %28agn%29\Patterns</Filter>
     </ClInclude>
@@ -177,8 +173,7 @@
     <ClInclude Include="game_object.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="hit_object.h" />
-    <ClInclude Include="options.h">
+    <ClInclude Include="hit_object.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>

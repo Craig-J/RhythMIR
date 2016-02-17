@@ -28,7 +28,6 @@
     <ClCompile Include="game_object.cpp" />
     <ClCompile Include="game_state_machine.cpp" />
     <ClCompile Include="hit_object.cpp" />
-    <ClCompile Include="options.cpp" />
     <ClCompile Include="RhythMIR_application.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Graphics\animation.cpp" />
     <ClCompile Include="external\include\SFML_Extensions\Graphics\button.cpp" />
@@ -50,13 +49,11 @@
     <ClInclude Include="external\include\agnostic\sprite_animation.h" />
     <ClInclude Include="external\include\agnostic\updateable.h" />
     <ClInclude Include="external\include\agnostic\updateable_templated.h" />
-    <ClInclude Include="external\include\agnostic\utils.h" />
     <ClInclude Include="external\include\SFML_Extensions\global.h" />
     <ClInclude Include="external\include\SFML_Extensions\System\system_HUD.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_state_machine.h" />
     <ClInclude Include="hit_object.h" />
-    <ClInclude Include="options.h" />
     <ClInclude Include="RhythMIR_application.h" />
     <ClInclude Include="external\include\SFML_Extensions\Audio\audio_manager.h" />
     <ClInclude Include="external\include\SFML_Extensions\Graphics\animation.h" />

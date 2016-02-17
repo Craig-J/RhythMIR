@@ -6,7 +6,10 @@ GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _
 	window_(_window),
 	clock_(_clock),
 	font_(_font)
-{}
+{
+	options_.music_ = true;
+	options_.sound_effects_ = true;
+}
 
 bool GameStateMachine::Start()
 {
@@ -15,7 +18,7 @@ bool GameStateMachine::Start()
 	sf::Vector2f window_dimensions((float)window_.getSize().x, (float)window_.getSize().y);
 	sf::Vector2f window_centre(window_dimensions.x / 2.0f, window_dimensions.y / 2.0f);
 
-	background_ = sfx::Sprite(window_centre, loading_background_texture_.get());
+	background_ = sfx::Sprite(window_centre, loading_background_texture_);
 	background_.SetDimensions(window_dimensions);
 
 	if (font_.loadFromFile("Jura-Regular.ttf"))

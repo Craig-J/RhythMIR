@@ -18,25 +18,36 @@ private:
 
 	void LoadSongList(std::string& _file_name);
 
-	std::vector<std::string> songs_;
+	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
+	sf::Text heading_;
 
-	enum MENUCONTEXT { OPTIONS, SONGS, START };
+	// Overall menu context objects
+	enum MENUCONTEXT { OPTIONS, SONGS, ACTIONS };
 	enum OPTION_SELECTIONS { MUSIC, SOUNDEFFECTS };
-	struct Selection
+	enum ACTIONS_SELECTIONS { START };
+	struct MenuContext
 	{
-		std::string song;
+		int song;
+		ACTIONS_SELECTIONS action;
 		OPTION_SELECTIONS option;
 		MENUCONTEXT context;
 	} selected_;
-	
-	TexturePtr start_texture_;
+	Sprite selector_;
+	TexturePtr selector_texture_;
+
+	// Options objects
 	TexturePtr music_on_texture_, music_off_texture_;
 	TexturePtr sound_on_texture_, sound_off_texture_;
-
-	sfx::Button start_button_;
 	sfx::Button	music_button_;
 	sfx::Button sound_effects_button_;
 
-	std::vector<std::string> headings_;
-	sf::Text heading_;
+	// Songs objects
+	std::vector<std::string> songs_;
+	bool songs_empty_;
+	sf::Text song_text_;
+
+	// Actions objects
+	TexturePtr start_texture_;
+	Sprite start_button_;
+	
 };
