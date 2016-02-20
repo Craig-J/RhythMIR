@@ -7,7 +7,7 @@
  */
 
 html {
-  font-family: sans-serif; /* 1 */
+  font-family: 'Play', sans-serif; /* 1 */
   -ms-text-size-adjust: 100%; /* 2 */
   -webkit-text-size-adjust: 100%; /* 2 */
 }
@@ -228,7 +228,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: monospace, monospace;
+  font-family: 'Source Code Pro', ;
   font-size: 1em;
 }
 
@@ -428,10 +428,11 @@ th {
 /* Style */
 
 body {
-  font-size: 15px;
-  font-family: Arial, Arial, Helvetica, sans-serif;
+  color: #777777;
+  font-size: 14px;
+  font-family: 'Play';
   line-height: 1.5;
-  background: #D1D1D1;
+  background: #111;
 }
 
 a {
@@ -450,9 +451,10 @@ h1.title {
   margin: 30px 20px 10px;
   font-size: 60px;
   font-weight: bold;
-  font-style: italic;
-  font-family:Georgia, serif;
+  font-family: 'Play';
+  color: #FF9900;
   text-align: center;
+  text-shadow: 4px 4px #333;
 }
 
 .wrapper {
@@ -462,20 +464,21 @@ h1.title {
 
 #container {
   border: 1px solid #2a2a2a;
-  background: #ddd url(../images/pattern.png);
+  background: #ddd url(../images/pattern.jpg);
   box-shadow: 0 0 5px #b1b1b1;
 }
 
 p.tagline {
   padding: 20px 20px 0;
-  color: #fff;
+  color: #FF9900;
   font-size: 17px;
+  text-shadow: 2px 2px #222;
 }
 
 #main {
   margin-top: 20px;
   padding: 0 20px 90px;
-  background-color: #fff;
+  background-color: #222;
 }
 
 .download-bar {
@@ -690,32 +693,25 @@ footer .owner {
   border: 5px solid #444;
   padding: 5px 15px;
   margin: -67px -10px 35px;
-  color: #d6d6d6;
-}
-
-footer .creds small {
-  float: right;
-  font-size: 10px;
-  text-align: right;
-  margin-left: 15px;
+  color: #888;
 }
 
 footer .owner .avatar {
-  background-color: #666;
+  background-color: #222;
   display: block;
-  margin: -19px 10px 0 0;
+  margin: -18px 4px 0 0;
   width: 60px;
   float: left;
 }
 
 footer .owner img {
   display: block;
-  border: 1px solid #2a2a2a;
-  margin: 5px;
+  width: 60px;
+  height: 60px;
 }
 
 footer .owner p {
-  font-family:Georgia, serif;
+  font-family: 'Play';
 }
 
 footer .owner p a {
@@ -751,15 +747,17 @@ footer .owner p a {
 
 .markdown-body h1 {
   font-size: 28px;
+  color: #FF9900;
 }
 
 .markdown-body h2 {
   font-size: 24px;
-  color: #557398;
+  color: #FF9900;
 }
 
 .markdown-body h3 {
   font-size: 20px;
+  color: #FF9900;
 }
 
 .markdown-body h4 {
@@ -878,7 +876,7 @@ footer .owner p a {
 
 .markdown-body blockquote {
   font-style: italic;
-  font-family:Georgia, serif;
+  font-family:'Play';
   font-size: 17px;
   border-top: 3px solid #333;
   border-bottom: 3px solid #333;
@@ -888,7 +886,7 @@ footer .owner p a {
 
 .markdown-body blockquote:before {
   font-style: italic;
-  font-family: Georgia, serif;
+  font-family: 'Play';
   font-size: 90px;
   height: 90px;
   margin-left: -60px;
@@ -964,3 +962,10 @@ footer .owner p a {
 .highlight .vg { color: #008080 } /* Name.Variable.Global */
 .highlight .vi { color: #008080 } /* Name.Variable.Instance */
 .highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+
+hr {
+  background: #FF9900;
+  border: 0;
+  outline: 0;
+  height: 4px;
+}
