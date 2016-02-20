@@ -4,6 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RhythMIR", "source\RhythMIR.vcxproj", "{39C3DA1A-0074-4E23-B4E8-88EB3369367C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E} = {EBEADAA1-BC2F-4088-9146-A04A807D404E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFML_Extensions", "external\include\SFML_Extensions\SFML_Extensions.vcxproj", "{EBEADAA1-BC2F-4088-9146-A04A807D404E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45} = {EE6830B3-D327-4229-BFDF-AD2E17AF2A45}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Agnostic", "external\include\Agnostic\Agnostic.vcxproj", "{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +31,22 @@ Global
 		{39C3DA1A-0074-4E23-B4E8-88EB3369367C}.Release Static|x86.Build.0 = Release Static|Win32
 		{39C3DA1A-0074-4E23-B4E8-88EB3369367C}.Release|x86.ActiveCfg = Release|Win32
 		{39C3DA1A-0074-4E23-B4E8-88EB3369367C}.Release|x86.Build.0 = Release|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Debug Static|x86.ActiveCfg = Debug Static|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Debug Static|x86.Build.0 = Debug Static|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Debug|x86.ActiveCfg = Debug|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Debug|x86.Build.0 = Debug|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Release Static|x86.ActiveCfg = Release Static|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Release Static|x86.Build.0 = Release Static|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Release|x86.ActiveCfg = Release|Win32
+		{EBEADAA1-BC2F-4088-9146-A04A807D404E}.Release|x86.Build.0 = Release|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Debug Static|x86.ActiveCfg = Debug|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Debug Static|x86.Build.0 = Debug|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Debug|x86.ActiveCfg = Debug|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Debug|x86.Build.0 = Debug|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Release Static|x86.ActiveCfg = Release|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Release Static|x86.Build.0 = Release|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Release|x86.ActiveCfg = Release|Win32
+		{EE6830B3-D327-4229-BFDF-AD2E17AF2A45}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,13 +1,14 @@
 #pragma once
 #include "appstate.h"
-#include "hit_object.h"
+#include "game_object.h"
+#include "beatmap.h"
 #include <vector>
 
 class GameState : public AppState
 {
 public:
 
-	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, std::string&);
+	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, Song&);
 	virtual ~GameState() {}
 	
 	void InitializeState();
@@ -17,28 +18,19 @@ public:
 	
 private:
 
-	struct NoteType
-	{
-		sf::Vector2f start_pos;
-		sf::Vector2f target_pos;
-		sf::Time approach_time;
-		sf::Time accuracy_tolerance;
-	};
-
 	void LoadSongData(std::string& _file_name);
 
-	void InputLoop();
-	void SpawnHitObject(const NoteType& _type);
+	void SpawnNote(const NoteLane& _lane);
+
+	Beatmap beatmap_;
 	
 	TexturePtr red_circle_texture_;
 	TexturePtr blue_circle_texture_;
 	TexturePtr green_circle_texture_;
 	TexturePtr orange_circle_texture_;
 	TexturePtr purple_circle_texture_;
-	
-	std::vector<std::unique_ptr<HitObject>> notes_;
 
-	// Variables
+	sf::Text score_text_;
 	int score_;
 };
 

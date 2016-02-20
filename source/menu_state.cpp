@@ -1,6 +1,6 @@
 #include "menu_state.h"
 #include "game_state_machine.h"
-//#include "game_state.h"
+#include "game_state.h"
 
 namespace
 {
@@ -69,21 +69,7 @@ void MenuState::InitializeState()
 	songs_empty_ = true;
 	//LoadSongList();
 
-	songs_.push_back("Example Song Title");
-	songs_.push_back("Example Song Title 2");
-	songs_.push_back("Example Song Title 3");
-	songs_.push_back("Example Song Title 4");
-	songs_.push_back("Example Song Title 5");
-	songs_.push_back("Example Song Title 6");
-	songs_.push_back("Example Song Title 7");
-	songs_.push_back("Example Song Title 8");
-	songs_.push_back("Example Song Title 9");
-	songs_.push_back("Example Song Title 10");
-	songs_.push_back("Example Song Title 11");
-	songs_.push_back("Example Song Title 12");
-	songs_.push_back("Example Song Title 13");
-	songs_.push_back("Example Song Title 14");
-	songs_.push_back("Example Song Title 15");
+	songs_.push_back(Song{ "songs\guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" });
 
 	selected_.context = OPTIONS;
 	selected_.option = MUSIC;
@@ -195,7 +181,7 @@ bool MenuState::Update(const float _delta_time)
 		if (Global::Input.KeyPressed(Keyboard::Space))
 		{
 			// TO-DO validate the song filename
-			//ChangeState<GameState>(selected_.song);
+			ChangeState<GameState>(songs_[selected_.song]);
 		}
 		break;
 	}
@@ -219,7 +205,7 @@ void MenuState::Render(const float _delta_time)
 	{
 		if (song_text_.getPosition().y > context_vertical_cuttoff)
 		{
-			song_text_.setString(song);
+			song_text_.setString(song.artist_ + " - " + song.title_);
 			song_text_.move(-(song_text_.getGlobalBounds().width * 0.5f), -(song_text_.getGlobalBounds().height * 0.5f));
 			machine_.window_.draw(song_text_);
 			song_text_.move((song_text_.getGlobalBounds().width * 0.5f), (song_text_.getGlobalBounds().height * 0.5f));

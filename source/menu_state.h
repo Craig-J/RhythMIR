@@ -1,6 +1,7 @@
 #pragma once
 #include "appstate.h"
 #include <SFML_Extensions\Graphics\button.h>
+#include "song.h"
 
 class MenuState : public AppState
 {
@@ -16,10 +17,7 @@ public:
 	
 private:
 
-	void LoadSongList(std::string& _file_name);
-
-	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
-	sf::Text heading_;
+	//void LoadSongList(std::string& _file_name);
 
 	// Overall menu context objects
 	enum MENUCONTEXT { OPTIONS, SONGS, ACTIONS };
@@ -35,6 +33,10 @@ private:
 	Sprite selector_;
 	TexturePtr selector_texture_;
 
+	// Heading Objects
+	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
+	sf::Text heading_;
+
 	// Options objects
 	TexturePtr music_on_texture_, music_off_texture_;
 	TexturePtr sound_on_texture_, sound_off_texture_;
@@ -42,7 +44,7 @@ private:
 	sfx::Button sound_effects_button_;
 
 	// Songs objects
-	std::vector<std::string> songs_;
+	std::vector<Song> songs_;
 	bool songs_empty_;
 	sf::Text song_text_;
 

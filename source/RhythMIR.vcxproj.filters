@@ -4,79 +4,31 @@
     <Filter Include="Application">
       <UniqueIdentifier>{a6378345-58e5-4907-83fd-9ccc06c0ab16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework">
-      <UniqueIdentifier>{77abb183-fc5f-4080-acf4-dd4c59e4a6ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\AGNOSTIC %28agn%29">
-      <UniqueIdentifier>{1bde6421-74df-4df5-9808-a27a9ca4068b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\SFML Extensions %28sfx%29">
-      <UniqueIdentifier>{ea1da1bb-014d-4735-9b6c-d1e848f17004}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\SFML Extensions %28sfx%29\System">
-      <UniqueIdentifier>{3399ab26-8eed-4418-9c28-a724cffc0606}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\SFML Extensions %28sfx%29\Graphics">
-      <UniqueIdentifier>{f3ba1660-aecc-449d-9f32-eaa8608ac1aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\SFML Extensions %28sfx%29\Audio">
-      <UniqueIdentifier>{11d633ed-4e48-48ec-a6c6-db9370f1ed78}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\SFML Extensions %28sfx%29\Window">
-      <UniqueIdentifier>{2ea1e210-fe7d-4a85-b9f8-51512bc29ff7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Framework\AGNOSTIC %28agn%29\Patterns">
-      <UniqueIdentifier>{4226ba54-3cf7-4d15-b6f7-f5280a4bffac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\State Machine">
       <UniqueIdentifier>{505a8c66-ae83-457c-8f2e-4d017c44fa9e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\States">
       <UniqueIdentifier>{1d107901-ea68-4d18-9162-7bf316d9dbe1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{77abb183-fc5f-4080-acf4-dd4c59e4a6ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\RapidXML">
+      <UniqueIdentifier>{bd484d5c-4ed3-4ee1-ba01-ca140611e1cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\Graphics\animation.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\Graphics\button.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\Graphics\sprite.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\System\application.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\Window\input_manager.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29\Window</Filter>
-    </ClCompile>
     <ClCompile Include="RhythMIR_application.cpp">
       <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\agnostic\sprite_animation.cpp">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\agnostic\updateable.cpp">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\agnostic\updateable_templated.cpp">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
     </ClCompile>
     <ClCompile Include="game_state_machine.cpp">
       <Filter>Application\State Machine</Filter>
     </ClCompile>
-    <ClCompile Include="external\include\agnostic\logger.cpp">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClCompile>
     <ClCompile Include="appstate.cpp">
       <Filter>Application\State Machine</Filter>
-    </ClCompile>
-    <ClCompile Include="external\include\SFML_Extensions\global.cpp">
-      <Filter>Framework\SFML Extensions %28sfx%29</Filter>
     </ClCompile>
     <ClCompile Include="menu_state.cpp">
       <Filter>Application\States</Filter>
@@ -90,73 +42,19 @@
     <ClCompile Include="game_object.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="hit_object.cpp">
+    <ClCompile Include="RhythMIR_XML.cpp">
       <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="external\include\SFML_Extensions\Audio\audio_manager.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\Graphics\animation.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\Graphics\button.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\Graphics\sprite.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\Graphics\texture_manager.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\System\application.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\System\frame_clock.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\System\math.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\Window\input_manager.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\Window</Filter>
-    </ClInclude>
     <ClInclude Include="RhythMIR_application.h">
       <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\resource_manager.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\sprite_animation.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\updateable.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\updateable_templated.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\generic_state.h">
-      <Filter>Framework\AGNOSTIC %28agn%29\Patterns</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\singleton.h">
-      <Filter>Framework\AGNOSTIC %28agn%29\Patterns</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\command.h">
-      <Filter>Framework\AGNOSTIC %28agn%29\Patterns</Filter>
     </ClInclude>
     <ClInclude Include="appstate.h">
       <Filter>Application\State Machine</Filter>
     </ClInclude>
     <ClInclude Include="game_state_machine.h">
       <Filter>Application\State Machine</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\agnostic\logger.h">
-      <Filter>Framework\AGNOSTIC %28agn%29</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\global.h">
-      <Filter>Framework\SFML Extensions %28sfx%29</Filter>
     </ClInclude>
     <ClInclude Include="menu_state.h">
       <Filter>Application\States</Filter>
@@ -167,13 +65,28 @@
     <ClInclude Include="game_state.h">
       <Filter>Application\States</Filter>
     </ClInclude>
-    <ClInclude Include="external\include\SFML_Extensions\System\system_HUD.h">
-      <Filter>Framework\SFML Extensions %28sfx%29\System</Filter>
-    </ClInclude>
     <ClInclude Include="game_object.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="hit_object.h">
+    <ClInclude Include="external\include\RapidXML\rapidxml_utils.hpp">
+      <Filter>External\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\RapidXML\rapidxml.hpp">
+      <Filter>External\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\RapidXML\rapidxml_iterators.hpp">
+      <Filter>External\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\RapidXML\rapidxml_print.hpp">
+      <Filter>External\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythMIR_XML.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="song.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="beatmap.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
