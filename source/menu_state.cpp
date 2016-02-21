@@ -63,7 +63,7 @@ void MenuState::InitializeState()
 
 	song_text_.setFont(machine_.font_);
 	song_text_.setCharacterSize(24);
-	song_text_.setColor(sf::Color::Color(128, 128, 128));
+	song_text_.setColor(sf::Color::Color(192, 192, 192));
 	song_text_.setPosition(sf::Vector2f(context_horizontal_spacing * 2, window_centre.y));
 
 	songs_empty_ = true;
