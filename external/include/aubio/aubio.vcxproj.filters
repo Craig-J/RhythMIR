@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="aubio">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="aubio\io">
+      <UniqueIdentifier>{a214913f-7697-4e13-a8c7-573dca761d6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\onset">
+      <UniqueIdentifier>{51636fb2-d31c-4542-8287-764a8730f62f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\pitch">
+      <UniqueIdentifier>{c7c6d6b2-e431-484c-bbda-41f421bcc46f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\spectral">
+      <UniqueIdentifier>{b2c05854-b7b2-4251-806d-509f30b6c976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\synth">
+      <UniqueIdentifier>{20b4f045-404b-4f98-ab6d-8a70fdd6e5cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\tempo">
+      <UniqueIdentifier>{e5dbcbb7-30f3-4bdd-8a95-7f1d787f3091}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\utils">
+      <UniqueIdentifier>{3571ab84-f27f-495c-82d3-a92cbe8cc537}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aubio\temporal">
+      <UniqueIdentifier>{34725df7-c198-4562-a3d7-8a2c0c7e44b7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="aubio.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="aubio_priv.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="cvec.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="fmat.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="fvec.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="lvec.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="mathutils.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="musicutils.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="vecutils.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
+    <ClInclude Include="io\audio_unit.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_apple_audio.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_sndfile.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_wavwrite.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_apple_audio.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_avcodec.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_sndfile.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_wavread.h">
+      <Filter>aubio\io</Filter>
+    </ClInclude>
+    <ClInclude Include="onset\onset.h">
+      <Filter>aubio\onset</Filter>
+    </ClInclude>
+    <ClInclude Include="onset\peakpicker.h">
+      <Filter>aubio\onset</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchyinfft.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitch.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchfcomb.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchmcomb.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchschmitt.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchspecacf.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchyin.h">
+      <Filter>aubio\pitch</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\hist.h">
+      <Filter>aubio\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\parameter.h">
+      <Filter>aubio\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\scale.h">
+      <Filter>aubio\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="tempo\beattracking.h">
+      <Filter>aubio\tempo</Filter>
+    </ClInclude>
+    <ClInclude Include="tempo\tempo.h">
+      <Filter>aubio\tempo</Filter>
+    </ClInclude>
+    <ClInclude Include="synth\sampler.h">
+      <Filter>aubio\synth</Filter>
+    </ClInclude>
+    <ClInclude Include="synth\wavetable.h">
+      <Filter>aubio\synth</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\fft.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\filterbank.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\filterbank_mel.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\mfcc.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\phasevoc.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\specdesc.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\tss.h">
+      <Filter>aubio\spectral</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\a_weighting.h">
+      <Filter>aubio\temporal</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\biquad.h">
+      <Filter>aubio\temporal</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\c_weighting.h">
+      <Filter>aubio\temporal</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\filter.h">
+      <Filter>aubio\temporal</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\resampler.h">
+      <Filter>aubio\temporal</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvec.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="fmat.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="fvec.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="lvec.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="mathutils.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="vecutils.c">
+      <Filter>aubio</Filter>
+    </ClCompile>
+    <ClCompile Include="io\audio_unit.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_apple_audio.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_sndfile.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_wavwrite.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_apple_audio.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_avcodec.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_sndfile.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_wavread.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\utils_apple_audio.c">
+      <Filter>aubio\io</Filter>
+    </ClCompile>
+    <ClCompile Include="onset\onset.c">
+      <Filter>aubio\onset</Filter>
+    </ClCompile>
+    <ClCompile Include="onset\peakpicker.c">
+      <Filter>aubio\onset</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitch.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchfcomb.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchmcomb.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchschmitt.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchspecacf.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchyin.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchyinfft.c">
+      <Filter>aubio\pitch</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\hist.c">
+      <Filter>aubio\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\parameter.c">
+      <Filter>aubio\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\scale.c">
+      <Filter>aubio\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="tempo\beattracking.c">
+      <Filter>aubio\tempo</Filter>
+    </ClCompile>
+    <ClCompile Include="tempo\tempo.c">
+      <Filter>aubio\tempo</Filter>
+    </ClCompile>
+    <ClCompile Include="synth\sampler.c">
+      <Filter>aubio\synth</Filter>
+    </ClCompile>
+    <ClCompile Include="synth\wavetable.c">
+      <Filter>aubio\synth</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\fft.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\filterbank.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\filterbank_mel.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\mfcc.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\ooura_fft8g.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\phasevoc.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\specdesc.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\statistics.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\tss.c">
+      <Filter>aubio\spectral</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\a_weighting.c">
+      <Filter>aubio\temporal</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\biquad.c">
+      <Filter>aubio\temporal</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\c_weighting.c">
+      <Filter>aubio\temporal</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\filter.c">
+      <Filter>aubio\temporal</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\resampler.c">
+      <Filter>aubio\temporal</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

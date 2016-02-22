@@ -1,7 +1,7 @@
 #include "RhythMIR_application.h"
 
-RhythMIR::RhythMIR(sf::VideoMode _video_mode, std::string _application_title) :
-	Application(_video_mode, _application_title),
+RhythMIR::RhythMIR(sf::RenderWindow& _window) :
+	Application(_window),
 	machine_(window_, clock_, font_)
 {}
 

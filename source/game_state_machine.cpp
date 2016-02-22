@@ -21,7 +21,7 @@ bool GameStateMachine::Start()
 	background_ = sfx::Sprite(window_centre, loading_background_texture_);
 	background_.SetDimensions(window_dimensions);
 
-	if (font_.loadFromFile("Jura-Regular.ttf"))
+	if (font_.loadFromFile("NovaMono.ttf"))
 	{
 		Log::Message("Font loaded successfully.");
 	}

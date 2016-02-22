@@ -83,5 +83,8 @@
     <ClInclude Include="beatmap.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="RhythMIR_aubio.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ namespace sfx
 	{
 	public:
 
-		Application(sf::VideoMode _video_mode, std::string _application_title);
+		Application(sf::RenderWindow& = sf::RenderWindow(sf::VideoMode::getDesktopMode(), "SFML Application"));
 		virtual ~Application() {}
 
 		void Run();
@@ -19,7 +19,7 @@ namespace sfx
 	protected:
 
 		sfx::FrameClock clock_;
-		sf::RenderWindow window_;
+		sf::RenderWindow& window_;
 		sf::Font font_;
 
 	private:

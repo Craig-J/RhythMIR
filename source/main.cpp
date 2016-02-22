@@ -7,7 +7,8 @@ int main()
 {
 	Log::EnableConsole();
 	Log::Message("Successfully started!");
-	RhythMIR application(sf::VideoMode::getDesktopMode(), "RhythMIR");
+	sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "RhythMIR", sf::Style::Fullscreen);
+	RhythMIR application(window);
 	application.Run();
 	Log::Message("Successfully exited!");
 	return EXIT_SUCCESS;

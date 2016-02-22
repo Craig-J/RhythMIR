@@ -3,8 +3,8 @@
 
 namespace sfx
 {
-	Application::Application(sf::VideoMode _video_mode = sf::VideoMode().getDesktopMode(), std::string _application_title = "SFML Application") :
-		window_(_video_mode, _application_title),
+	Application::Application(sf::RenderWindow& _window) :
+		window_(_window),
 		clock_(),
 		font_(),
 		hud_(clock_, font_)
