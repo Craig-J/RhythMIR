@@ -22,11 +22,6 @@
     <ClCompile Include="appstate.cpp" />
     <ClCompile Include="game_object.cpp" />
     <ClCompile Include="game_state_machine.cpp" />
-    <ClCompile Include="RhythMIR_XML.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="RhythMIR_application.cpp" />
     <ClCompile Include="game_state.cpp" />
     <ClCompile Include="intro_state.cpp" />
@@ -42,11 +37,6 @@
     <ClInclude Include="external\include\RapidXML\rapidxml_utils.hpp" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_state_machine.h" />
-    <ClInclude Include="RhythMIR_XML.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="RhythMIR_application.h" />
     <ClInclude Include="game_state.h" />
     <ClInclude Include="intro_state.h" />
@@ -161,7 +151,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\build\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Agnostic.lib;SFML_Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Agnostic.lib;SFML_Extensions.lib;libaubio.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference />
   </ItemDefinitionGroup>

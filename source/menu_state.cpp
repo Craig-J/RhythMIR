@@ -69,7 +69,7 @@ void MenuState::InitializeState()
 	songs_empty_ = true;
 	//LoadSongList();
 
-	songs_.push_back(Song{ "songs\guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" });
+	songs_.push_back(Song{ "songs/guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" });
 
 	selected_.context = OPTIONS;
 	selected_.option = MUSIC;

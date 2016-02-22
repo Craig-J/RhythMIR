@@ -42,9 +42,6 @@
     <ClCompile Include="game_object.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="RhythMIR_XML.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RhythMIR_application.h">
@@ -79,9 +76,6 @@
     </ClInclude>
     <ClInclude Include="external\include\RapidXML\rapidxml_print.hpp">
       <Filter>External\RapidXML</Filter>
-    </ClInclude>
-    <ClInclude Include="RhythMIR_XML.h">
-      <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="song.h">
       <Filter>Application</Filter>

@@ -83,9 +83,6 @@
     <ClInclude Include="System\frame_clock.h">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClInclude>
-    <ClInclude Include="System\math.h">
-      <Filter>SFML_Extensions %28sfx%29\System</Filter>
-    </ClInclude>
     <ClInclude Include="System\system_HUD.h">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClInclude>
@@ -364,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="include\SFML\System\Vector3.hpp">
       <Filter>SFML %28sf%29\System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\vector2.h">
+      <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

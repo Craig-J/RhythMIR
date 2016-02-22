@@ -127,8 +127,8 @@
     <ClInclude Include="include\SFML\Window\WindowStyle.hpp" />
     <ClInclude Include="System\application.h" />
     <ClInclude Include="System\frame_clock.h" />
-    <ClInclude Include="System\math.h" />
     <ClInclude Include="System\system_HUD.h" />
+    <ClInclude Include="System\vector2.h" />
     <ClInclude Include="Window\input_manager.h" />
   </ItemGroup>
   <ItemGroup>

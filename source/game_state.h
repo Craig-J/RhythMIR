@@ -20,17 +20,16 @@ private:
 
 	void LoadSongData(std::string& _file_name);
 
-	void SpawnNote(const NoteLane& _lane);
+	void SpawnNote(NotePath& _path);
 
 	Beatmap beatmap_;
 	
+	TexturePtr white_circle_texture_;
 	TexturePtr red_circle_texture_;
 	TexturePtr blue_circle_texture_;
 	TexturePtr green_circle_texture_;
-	TexturePtr orange_circle_texture_;
 	TexturePtr purple_circle_texture_;
 
 	sf::Text score_text_;
 	int score_;
 };
-

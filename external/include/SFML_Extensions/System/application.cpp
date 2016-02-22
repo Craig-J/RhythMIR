@@ -28,7 +28,7 @@ namespace sfx
 				running_ = Update();
 				if (running_)
 				{
-					window_.clear();
+					window_.clear(sf::Color::Black);
 					Render();
 					window_.draw(hud_);
 					window_.display();

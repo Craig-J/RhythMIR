@@ -20,6 +20,7 @@
     <ClInclude Include="command.h" />
     <ClInclude Include="generic_state.h" />
     <ClInclude Include="logger.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="resource_manager.h" />
     <ClInclude Include="singleton.h" />
     <ClInclude Include="sprite_animation.h" />

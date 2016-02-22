@@ -53,5 +53,8 @@
     <ClInclude Include="updateable.h">
       <Filter>Agnostic %28agn%29\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>Agnostic %28agn%29\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@ namespace sfx
 
 			sf::Text text;
 			text.setFont(*font_);
-			text.setCharacterSize(30);
+			text.setCharacterSize(24);
 			text.setPosition(5.0f, 5.0f);
 
 			// Draw the available frame time statistics.
@@ -46,7 +46,7 @@ namespace sfx
 				_render_target.draw(text, _states);
 
 				// Next line.
-				text.move(0.0f, 16.0f);
+				text.move(0.0f, 24.0f);
 			}
 		}
 
