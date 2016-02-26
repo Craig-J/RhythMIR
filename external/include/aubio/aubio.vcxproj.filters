@@ -175,6 +175,9 @@
     <ClInclude Include="temporal\resampler.h">
       <Filter>aubio\temporal</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>aubio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cvec.c">

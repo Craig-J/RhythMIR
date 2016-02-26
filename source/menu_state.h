@@ -2,6 +2,7 @@
 #include "appstate.h"
 #include <SFML_Extensions\Graphics\button.h>
 #include "song.h"
+#include "RhythMIR_aubio.h"
 
 class MenuState : public AppState
 {
@@ -22,7 +23,7 @@ private:
 	// Overall menu context objects
 	enum MENUCONTEXT { OPTIONS, SONGS, ACTIONS };
 	enum OPTION_SELECTIONS { MUSIC, SOUNDEFFECTS };
-	enum ACTIONS_SELECTIONS { START };
+	enum ACTIONS_SELECTIONS { PLAY, GENERATE, EDIT };
 	struct MenuContext
 	{
 		int song;
@@ -32,6 +33,8 @@ private:
 	} selected_;
 	Sprite selector_;
 	TexturePtr selector_texture_;
+
+	Aubio aubio_;
 
 	// Heading Objects
 	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
@@ -49,7 +52,9 @@ private:
 	sf::Text song_text_;
 
 	// Actions objects
-	TexturePtr start_texture_;
-	Sprite start_button_;
+	TexturePtr play_texture_;
+	Sprite play_button_;
+	TexturePtr generate_texture_;
+	Sprite generate_button_;
 	
 };

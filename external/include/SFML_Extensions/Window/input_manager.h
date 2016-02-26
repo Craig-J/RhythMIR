@@ -41,7 +41,6 @@ namespace sfx
 		void Update();
 
 		////// ACCESSORS
-		// To access realtime state of mouse or keyboard use sf::Keyboard and sf::Mouse.
 
 		// This frames mouse data.
 		inline const Mouse GetMouse() const { return mouse_; }
@@ -60,6 +59,9 @@ namespace sfx
 
 		// Was this key pressed this update?
 		const bool KeyPressed(sf::Keyboard::Key) const;
+
+		// Is this key currently down?
+		const bool static KeyDown(sf::Keyboard::Key);
 
 		// Was this key released this update?
 		const bool KeyReleased(sf::Keyboard::Key) const;

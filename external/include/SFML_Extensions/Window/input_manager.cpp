@@ -78,6 +78,11 @@ namespace sfx
 		return ((!previous_keyboard_.keys[_key]) && (keyboard_.keys[_key]));
 	}
 
+	const bool InputManager::KeyDown(sf::Keyboard::Key _key)
+	{
+		return sf::Keyboard::isKeyPressed(_key);
+	}
+
 	// Was this key released this update?
 	const bool InputManager::KeyReleased(sf::Keyboard::Key _key) const
 	{

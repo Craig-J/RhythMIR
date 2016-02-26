@@ -213,6 +213,9 @@ typedef enum {
 #define SAFE_LOG10(f) LOG10(CEIL_DENORMAL(f))
 #define SAFE_LOG(f)   LOG(CEIL_DENORMAL(f))
 
-#define UNUSED __attribute__((unused))
+#define UNUSED
+// Throws an error on MSVS2015, removed macro definition.
+// From what I understand it 
+//#define UNUSED __attribute__((unused))
 
 #endif /* _AUBIO__PRIV_H */

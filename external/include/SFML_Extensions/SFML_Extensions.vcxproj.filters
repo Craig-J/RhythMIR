@@ -54,6 +54,7 @@
     <ClCompile Include="System\application.cpp">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClCompile>
+    <ClCompile Include="System\clock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h">
@@ -363,6 +364,9 @@
       <Filter>SFML %28sf%29\System</Filter>
     </ClInclude>
     <ClInclude Include="System\vector2.h">
+      <Filter>SFML_Extensions %28sfx%29\System</Filter>
+    </ClInclude>
+    <ClInclude Include="System\clock.h">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClInclude>
   </ItemGroup>

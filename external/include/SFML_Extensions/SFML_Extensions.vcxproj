@@ -24,6 +24,7 @@
     <ClCompile Include="Graphics\button.cpp" />
     <ClCompile Include="Graphics\sprite.cpp" />
     <ClCompile Include="System\application.cpp" />
+    <ClCompile Include="System\clock.cpp" />
     <ClCompile Include="Window\input_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +127,7 @@
     <ClInclude Include="include\SFML\Window\WindowHandle.hpp" />
     <ClInclude Include="include\SFML\Window\WindowStyle.hpp" />
     <ClInclude Include="System\application.h" />
+    <ClInclude Include="System\clock.h" />
     <ClInclude Include="System\frame_clock.h" />
     <ClInclude Include="System\system_HUD.h" />
     <ClInclude Include="System\vector2.h" />

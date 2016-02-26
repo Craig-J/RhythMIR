@@ -34,7 +34,7 @@ namespace sfx
 
 			sf::Text text;
 			text.setFont(*font_);
-			text.setCharacterSize(24);
+			text.setCharacterSize(20);
 			text.setPosition(5.0f, 5.0f);
 
 			// Draw the available frame time statistics.
@@ -57,10 +57,9 @@ namespace sfx
 		{
 			std::ostringstream os;
 			os.precision(3);
-			os << std::setfill(' ');
-			os << std::left << std::setw(8);
-			os << _name << " : ";
-			os << std::setw(8);
+			os << std::left << std::setw(5);
+			os << _name << ": ";
+			os << std::setw(5);
 			os << _value << " " << _resolution;
 			return os.str();
 		}

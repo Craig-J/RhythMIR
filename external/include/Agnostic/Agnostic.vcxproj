@@ -24,6 +24,7 @@
     <ClInclude Include="resource_manager.h" />
     <ClInclude Include="singleton.h" />
     <ClInclude Include="sprite_animation.h" />
+    <ClInclude Include="string.h" />
     <ClInclude Include="updateable.h" />
     <ClInclude Include="updateable_templated.h" />
   </ItemGroup>

@@ -19,7 +19,7 @@ void MenuState::InitializeState()
 	textures_ = TextureFileVector
 	{
 		{ machine_.background_texture_, "menu_background.jpg" },
-		{ start_texture_, "transparent_start.png" },
+		{ play_texture_, "transparent_start.png" },
 		{ music_on_texture_, "transparent_music_on.png" },
 		{ music_off_texture_, "transparent_music_off.png" },
 		{ sound_on_texture_, "transparent_sound_on.png" },
@@ -43,9 +43,6 @@ void MenuState::InitializeState()
 	selector_ = sfx::Sprite(sf::Vector2f(options_x, window_centre.y),
 							selector_texture_);
 
-	start_button_ = sfx::Sprite(sf::Vector2f(context_horizontal_spacing * 3, window_centre.y),
-								start_texture_);
-
 	music_button_ = sfx::Button(sf::Vector2f(options_x, window_centre.y),
 								machine_.options_.music_,
 								music_on_texture_,
@@ -55,6 +52,12 @@ void MenuState::InitializeState()
 										machine_.options_.sound_effects_,
 										sound_on_texture_,
 										sound_off_texture_);
+
+	play_button_ = sfx::Sprite(sf::Vector2f(context_horizontal_spacing * 3, window_centre.y),
+							   play_texture_);
+
+	generate_button_ = sfx::Sprite(sf::Vector2f(context_horizontal_spacing * 3, window_centre.y),
+								   generate_texture_);
 
 	heading_.setFont(machine_.font_);
 	heading_.setCharacterSize(60);
@@ -75,7 +78,7 @@ void MenuState::InitializeState()
 	selected_.option = MUSIC;
 	if(!songs_.empty()) // If there are any songs, set selected song to the first element of songs_
 		selected_.song = 0;
-	selected_.action = START;
+	selected_.action = PLAY;
 
 }
 
@@ -203,6 +206,7 @@ void MenuState::Render(const float _delta_time)
 	song_text_.setPosition(context_horizontal_spacing * 2, window_centre.y + song_vertical_offset);
 	for (auto song : songs_)
 	{
+		// Don't draw song text unless it's past the vertical cutoff value
 		if (song_text_.getPosition().y > context_vertical_cuttoff)
 		{
 			song_text_.setString(song.artist_ + " - " + song.title_);
@@ -220,7 +224,7 @@ void MenuState::Render(const float _delta_time)
 	if (sound_effects_button_.getPosition().y > context_vertical_cuttoff)
 		machine_.window_.draw(sound_effects_button_);
 
-	machine_.window_.draw(start_button_);
+	machine_.window_.draw(play_button_);
 
 	machine_.window_.draw(selector_);
 }
