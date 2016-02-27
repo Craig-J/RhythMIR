@@ -5,22 +5,6 @@
 using agn::UniqueStatePtr;
 
 #include <SFML_Extensions\global.h>
-using sfx::Global;
-
-using sf::Keyboard;
-using sf::Mouse;
-
-using sfx::Sprite;
-using sfx::Texture;
-using sfx::UniqueTexturePtr;
-using sfx::TexturePtr;
-using sfx::TextureFileVector;
-
-using sfx::UniqueMusicPtr;
-using sfx::MusicPtr;
-using sfx::UniqueSoundPtr;
-using sfx::SoundPtr;
-using sfx::SoundFileVector;
 
 class AppState : public agn::GenericState<class GameStateMachine, AppState>
 {

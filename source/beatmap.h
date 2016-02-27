@@ -4,26 +4,40 @@
 #include <SFML_Extensions\global.h>
 #include <queue>
 
-class Note : public GameObject
+// Note abtracts the properties of a note as stored by the beatmap before gameplay
+struct Note
 {
 public:
-	Note(sf::Vector2f& _start_position,
+	Note(sf::Time& _offset);
+
+	sf::Time offset;
+	float frequency;
+};
+
+// TimingSection abstracts a section of constant BPM (or the whole song if BPM doesn't vary)
+struct TimingSection
+{
+	TimingSection(int _BPM, sf::Time _offset);
+
+	int BPM;
+	sf::Time offset;
+	std::queue<Note> notes;
+};
+
+// NoteObject implements a game object for notes when they are to be used to create gameplay
+class NoteObject : public GameObject
+{
+public:
+	NoteObject(sf::Vector2f& _start_position,
 		 sf::Vector2f& _target_position,
 		 sf::Time& _approach_time,
 		 TexturePtr _texture,
-		 sf::Color _color = sf::Color::White) :
-		GameObject(_start_position, _texture)
-	{
-		sf::Vector2f difference = _target_position - _start_position;
-		Accelerate(difference / _approach_time.asSeconds(), false);
-		if(_color != sf::Color::White)
-			setColor(_color);
-		offset_from_perfect = _approach_time;
-	}
+		 sf::Color _color = sf::Color::White);
 
 	sf::Time offset_from_perfect;
 };
 
+// NotePath abstracts a lane where notes can be placed
 struct NotePath
 {
 	NotePath(sf::Vector2f& _start_position,
@@ -31,20 +45,7 @@ struct NotePath
 			 sf::Time& _approach_time,
 			 int _accuracy,
 			 TexturePtr _note_texture,
-			 sf::Color _note_color = sf::Color::White) :
-		start_position(_start_position),
-		target_position(_target_position),
-		approach_time(_approach_time),
-		accuracy(_accuracy),
-		note_texture(_note_texture),
-		note_color(_note_color)
-	{
-		target = GameObject(_target_position, _note_texture);
-		target.setColor(sf::Color(_note_color.r,
-								  _note_color.g,
-								  _note_color.b,
-								  128));
-	}
+			 sf::Color _note_color = sf::Color::White);
 
 	sf::Vector2f start_position;
 	sf::Vector2f target_position;
@@ -52,36 +53,27 @@ struct NotePath
 	int accuracy;
 	TexturePtr note_texture;
 	sf::Color note_color;
-	std::vector<Note> notes;
+	std::vector<NoteObject> notes;
 	GameObject target;
 };
 
-// TimingSection abstracts a section of constant BPM (or the whole song if BPM doesn't vary)
-struct TimingSection
-{
-	TimingSection(int _BPM, int _offset) :
-		BPM(_BPM),
-		offset(_offset)
-	{
-	}
-
-	int BPM;
-	int offset;
-	std::queue<Note> notes;
-};
-
+// Beatmap abstracts the gameplay component of a song, including it's TimingSections and Music shared ptr
 class Beatmap
 {
 public:
 
-	Beatmap(const Song& _song) :
-		song_(_song),
-		music_(Global::AudioManager.LoadMusic(_song.file_name_))
-	{
-	}
+	// Explicit so that beatmap doesn't implicitly convert to a Song
+	explicit Beatmap(const Song& _song);
+
+	std::queue<TimingSection> CopyTimingSections();
 
 	const Song& song_;
 	MusicPtr music_;
+
+private:
+
+	// Aubio has direct access to a beatmaps sections for beatmap generation.
+	friend class Aubio;
+
 	std::vector<TimingSection> sections_;
-	std::vector<NotePath> note_paths_;
 };

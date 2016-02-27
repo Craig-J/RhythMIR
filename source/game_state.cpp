@@ -6,6 +6,7 @@
 namespace
 {
 	
+	sf::Time play_offset = sf::seconds(3);
 	sf::Time approach_time = sf::milliseconds(900);
 	sf::Vector2f window_centre;
 	int path_count = 4;
@@ -14,17 +15,19 @@ namespace
 	float path_x;
 	float path_x_offset;
 
+
 	const int hit_counter_statistic_count = 5;
 	const int hit_counter_y_offset = 24.0f;
 	
 }
 
-GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Song& _song) :
+GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Beatmap& _beatmap) :
 	AppState(_state_machine, _state),
-	beatmap_(_song),
+	beatmap_(_beatmap),
 	play_clock_(),
 	paused_(false),
-	finished_(false)
+	finished_(false),
+	current_section_(nullptr)
 {
 }
 
@@ -73,8 +76,8 @@ void GameState::InitializeState()
 	misses_ = 0;
 	hit_combo_ = 0;
 
-	// Beatmap and note path initialization
-	beatmap_.note_paths_.reserve(path_count);
+	// NotePath initialization
+	note_paths_.reserve(path_count);
 	path_start_y = 0.0f;
 	path_end_y = machine_.window_.getSize().y * 0.9f;
 	path_x = machine_.window_.getSize().x * 0.2f;
@@ -103,22 +106,26 @@ void GameState::InitializeState()
 			note_color = sf::Color::White;
 			break;
 		}
-		beatmap_.note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
+		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
 											  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
 											  approach_time,
 											  1,
 											  white_circle_texture_,
 											  note_color));
 	}
-	
-	srand(time(0));
 
+	// Beatmap initialization
+	sections_ = beatmap_.CopyTimingSections();
+
+	srand(time(0));
 }
 
 void GameState::TerminateState()
 {
 	Global::TextureManager.Unload(textures_);
 	textures_.clear();
+
+	delete current_section_;
 }
 
 bool GameState::Update(const float _delta_time)
@@ -138,61 +145,96 @@ bool GameState::Update(const float _delta_time)
 	{
 		play_clock_.Start();
 
-		auto time_elapsed = play_clock_.GetTimeElapsed().asSeconds();
-		if (time_elapsed > 3.0f && time_elapsed < beatmap_.music_->getDuration().asSeconds() + 3.0f)
+		auto time_elapsed = play_clock_.GetTimeElapsed();
+
+		// If more than the play offset (intro time) seconds and
+		// less than the duration of the music + play offset seconds has elapsed then...
+		if (time_elapsed > play_offset && time_elapsed < beatmap_.music_->getDuration() + play_offset)
 		{
+			auto current_offset = time_elapsed - play_offset;
+			auto current_approach_offset = current_offset + approach_time;
+
+			// Play music if it's not already playing
 			if(beatmap_.music_->getStatus() != sf::Music::Playing)
 				beatmap_.music_->play();
+
+			// If sections isn't empty
+			if (!sections_.empty())
+			{
+				// See if the next one's offset is less than the current approach offset
+				auto next_section = sections_.front();
+				if (current_approach_offset > next_section.offset)
+				{
+					current_section_ = new TimingSection(next_section);
+					sections_.pop();
+				}
+			}
+			else if (current_section_ == nullptr)
+			{
+				Log::Error("Current timing section is nullptr. Beatmap is invalid.");
+			}
+
+			// If there are any notes remaining in the current section
+			if (!current_section_->notes.empty())
+			{
+				// Get the next one
+				auto next_onset_offset = current_section_->notes.front().offset;
+
+				// If the next notes offset is less than the current approach offset
+				if (current_approach_offset > next_onset_offset)
+				{
+					// Just spawn a random note
+					SpawnNote(note_paths_[rand() % note_paths_.size()]);
+					current_section_->notes.pop();
+				}
+			}
+
+
+			if (Global::Input.KeyPressed(Keyboard::Z))
+			{
+				AttemptNoteHit(note_paths_[0]);
+			}
+			if (Global::Input.KeyPressed(Keyboard::X))
+			{
+				AttemptNoteHit(note_paths_[1]);
+			}
+			if (Global::Input.KeyPressed(Keyboard::N))
+			{
+				AttemptNoteHit(note_paths_[2]);
+			}
+			if (Global::Input.KeyPressed(Keyboard::M))
+			{
+				AttemptNoteHit(note_paths_[3]);
+			}
+
+
+			// Update note positions and remove offscreen notes
+			for (auto &path : note_paths_)
+			{
+				for (auto &note : path.notes)
+				{
+					note.UpdatePosition(_delta_time);
+					note.offset_from_perfect -= sf::seconds(_delta_time);
+					note.VerifyPosition(machine_.window_);
+				}
+				auto path_index = path.notes.begin();
+				while (path_index != path.notes.end())
+				{
+					if (path_index->visibility() == false)
+					{
+						path_index = path.notes.erase(path_index);
+						hit_combo_ = 0;
+						misses_++;
+					}
+					else
+						++path_index;
+				}
+			}
 		}
-		else if (time_elapsed > beatmap_.music_->getDuration().asSeconds() + 3.0f)
+		else if (time_elapsed > beatmap_.music_->getDuration() + play_offset)
 		{
 			beatmap_.music_->stop();
 			finished_ = true;
-		}
-
-		if (rand() % 200 == 0)
-		{
-			SpawnNote(beatmap_.note_paths_[rand() % beatmap_.note_paths_.size()]);
-		}
-
-		if (Global::Input.KeyPressed(Keyboard::Z))
-		{
-			AttemptNoteHit(beatmap_.note_paths_[0]);
-		}
-		if (Global::Input.KeyPressed(Keyboard::X))
-		{
-			AttemptNoteHit(beatmap_.note_paths_[1]);
-		}
-		if (Global::Input.KeyPressed(Keyboard::N))
-		{
-			AttemptNoteHit(beatmap_.note_paths_[2]);
-		}
-		if (Global::Input.KeyPressed(Keyboard::M))
-		{
-			AttemptNoteHit(beatmap_.note_paths_[3]);
-		}
-
-		// Update note positions and remove offscreen notes
-		for (auto &path : beatmap_.note_paths_)
-		{
-			for (auto &note : path.notes)
-			{
-				note.UpdatePosition(_delta_time);
-				note.offset_from_perfect -= sf::seconds(_delta_time);
-				note.VerifyPosition(machine_.window_);
-			}
-			auto path_index = path.notes.begin();
-			while (path_index != path.notes.end())
-			{
-				if (path_index->visibility() == false)
-				{
-					path_index = path.notes.erase(path_index);
-					hit_combo_ = 0;
-					misses_++;
-				}
-				else
-					++path_index;
-			}
 		}
 	}
 	return true;
@@ -200,7 +242,7 @@ bool GameState::Update(const float _delta_time)
 
 void GameState::Render(const float _delta_time)
 {	
-	for (auto path : beatmap_.note_paths_)
+	for (auto path : note_paths_)
 	{
 		machine_.window_.draw(path.target);
 		for (auto note : path.notes)
@@ -257,7 +299,7 @@ void GameState::Render(const float _delta_time)
 
 void GameState::SpawnNote(NotePath& _path)
 {
-	_path.notes.emplace_back(Note(_path.start_position,
+	_path.notes.emplace_back(NoteObject(_path.start_position,
 								  _path.target_position,
 								  _path.approach_time,
 								  _path.note_texture,

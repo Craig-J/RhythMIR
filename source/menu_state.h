@@ -1,7 +1,6 @@
 #pragma once
 #include "appstate.h"
 #include <SFML_Extensions\Graphics\button.h>
-#include "song.h"
 #include "RhythMIR_aubio.h"
 
 class MenuState : public AppState
@@ -35,6 +34,7 @@ private:
 	TexturePtr selector_texture_;
 
 	Aubio aubio_;
+	Beatmap* beatmap_;
 
 	// Heading Objects
 	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
@@ -48,7 +48,6 @@ private:
 
 	// Songs objects
 	std::vector<Song> songs_;
-	bool songs_empty_;
 	sf::Text song_text_;
 
 	// Actions objects

@@ -2,14 +2,13 @@
 #include "appstate.h"
 #include "game_object.h"
 #include "beatmap.h"
-#include <vector>
 #include <SFML_Extensions\System\clock.h>
 
 class GameState : public AppState
 {
 public:
 
-	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, Song&);
+	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, Beatmap&);
 	virtual ~GameState() {}
 	
 	void InitializeState();
@@ -25,6 +24,10 @@ private:
 	void AttemptNoteHit(NotePath& _path);
 
 	Beatmap beatmap_;
+
+	std::vector<NotePath> note_paths_;
+	std::queue<TimingSection> sections_;
+	TimingSection* current_section_;
 
 	sfx::Clock play_clock_;
 	

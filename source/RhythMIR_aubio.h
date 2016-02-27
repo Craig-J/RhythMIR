@@ -1,8 +1,7 @@
 #ifndef _RHYTHMIR_AUBIO_H_
 #define _RHYTHMIR_AUBIO_H_
 #include <aubio\aubio.h>
-#include <memory>
-#include <string>
+#include "beatmap.h"
 
 class Aubio
 {
@@ -11,12 +10,11 @@ public:
 	Aubio();
 	~Aubio();
 
-	void GenerateBeatmap(const std::string& _filename);
+	class Beatmap* GenerateBeatmap(const Song& _song);
 
 private:
 
-	unsigned int window_size;
-
+	unsigned int window_size_;
 
 	aubio_source_t* source;
 	aubio_onset_t* onset;

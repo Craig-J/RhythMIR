@@ -45,6 +45,9 @@
     <ClCompile Include="RhythMIR_aubio.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="beatmap.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RhythMIR_application.h">
