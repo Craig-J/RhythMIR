@@ -17,9 +17,9 @@ public:
 // TimingSection abstracts a section of constant BPM (or the whole song if BPM doesn't vary)
 struct TimingSection
 {
-	TimingSection(int _BPM, sf::Time _offset);
+	TimingSection(float _BPM, sf::Time _offset);
 
-	int BPM;
+	float BPM;
 	sf::Time offset;
 	std::queue<Note> notes;
 };

@@ -14,7 +14,9 @@ public:
 
 private:
 
-	unsigned int window_size_;
+	uint_t window_size_;
+	uint_t samplerate_ = 44100;
+	uint_t hop_size_ = window_size_ / 4;
 
 	aubio_source_t* source;
 	aubio_onset_t* onset;

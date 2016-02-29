@@ -1,6 +1,6 @@
 #ifndef _AGNOSTIC_STRING_H_
 #define _AGNOSTIC_STRING_H_
-#include <string>
+#include <sstream>
 #include <iomanip>
 
 namespace agn
@@ -10,7 +10,7 @@ namespace agn
 	{
 		std::ostringstream out;
 		out.precision(_precision);
-		out.setf(std::ios::showpoint);
+		out.setf(std::ios::showpoint | std::ios::fixed);
 		out << _value;
 		return out.str();
 	}

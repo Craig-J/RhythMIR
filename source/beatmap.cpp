@@ -4,7 +4,7 @@ Note::Note(sf::Time & _offset) :
 	offset(_offset)
 {}
 
-TimingSection::TimingSection(int _BPM, sf::Time _offset) :
+TimingSection::TimingSection(float _BPM, sf::Time _offset) :
 	BPM(_BPM),
 	offset(_offset)
 {}
