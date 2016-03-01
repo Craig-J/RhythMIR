@@ -52,7 +52,7 @@ void MenuState::InitializeState()
 	action_vertical_spacing = 150.0f;
 	action_vertical_offset = 0.0f;
 
-	selector_ = sfx::Sprite(sf::Vector2f(options_x, window_centre.y),
+	selector_ = sfx::Sprite(sf::Vector2f(songs_x, window_centre.y),
 							selector_texture_);
 
 	/*music_button_ = sfx::Button(sf::Vector2f(options_x, window_centre.y),

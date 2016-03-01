@@ -6,7 +6,7 @@ using agn::Log;
 
 Aubio::Aubio() :
 	samplerate_(44100),
-	window_size_(1024),
+	window_size_(1024 * 2),
 	hop_size_(window_size_ / 4),
 	source(nullptr),
 	onset(nullptr),

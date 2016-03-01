@@ -50,6 +50,9 @@
     <ProjectReference Include="..\external\include\Agnostic\Agnostic.vcxproj">
       <Project>{ee6830b3-d327-4229-bfdf-ad2e17af2a45}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\external\include\aubio\aubio.vcxproj">
+      <Project>{92a60520-8725-43ce-90e6-3c8066156643}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\external\include\SFML_Extensions\SFML_Extensions.vcxproj">
       <Project>{ebeadaa1-bc2f-4088-9146-a04a807d404e}</Project>
     </ProjectReference>
@@ -154,7 +157,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)build\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Agnostic.lib;SFML_Extensions.lib;aubio.lib;libaubio.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Agnostic.lib;SFML_Extensions.lib;aubio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference />
   </ItemDefinitionGroup>
