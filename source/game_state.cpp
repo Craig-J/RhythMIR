@@ -9,12 +9,12 @@ namespace
 	sf::Time play_offset = sf::seconds(3);
 	sf::Time approach_time = sf::milliseconds(900);
 	sf::Vector2f window_centre;
+
 	int path_count = 4;
 	float path_start_y;
 	float path_end_y;
 	float path_x;
 	float path_x_offset;
-
 
 	const int hit_counter_statistic_count = 5;
 	const int hit_counter_y_offset = 24.0f;

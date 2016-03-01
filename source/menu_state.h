@@ -37,14 +37,14 @@ private:
 	Beatmap* beatmap_;
 
 	// Heading Objects
-	const std::vector<std::string> headings_ = { "Options", "Songs", "Actions" };
+	const std::vector<std::string> headings_ = {"Songs", "Actions" };
 	sf::Text heading_;
 
 	// Options objects
-	TexturePtr music_on_texture_, music_off_texture_;
+	/*TexturePtr music_on_texture_, music_off_texture_;
 	TexturePtr sound_on_texture_, sound_off_texture_;
 	sfx::Button	music_button_;
-	sfx::Button sound_effects_button_;
+	sfx::Button sound_effects_button_;*/
 
 	// Songs objects
 	std::vector<Song> songs_;

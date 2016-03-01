@@ -6,14 +6,21 @@ using agn::Log;
 
 Aubio::Aubio() :
 	samplerate_(44100),
-	window_size_(1024 * 2),
-	hop_size_(window_size_ / 4)
+	window_size_(1024),
+	hop_size_(window_size_ / 4),
+	source(nullptr),
+	onset(nullptr),
+	tempo(nullptr)
 {}
 
 Aubio::~Aubio()
 {
-	del_aubio_source(source);
-	del_aubio_onset(onset);
+	if(source)
+		del_aubio_source(source);
+	if(onset)
+		del_aubio_onset(onset);
+	if (tempo)
+		del_aubio_tempo(tempo);
 	aubio_cleanup();
 }
 
@@ -46,7 +53,6 @@ Beatmap* Aubio::GenerateBeatmap(const Song& _song)
 			fvec_t* onset_buffer = new_fvec(2);
 			uint_t frame_count = 0;
 			uint_t frames_read = 0;
-			float highest_confidence = 0;
 			do
 			{
 				// Read from source to source buffer
@@ -61,10 +67,7 @@ Beatmap* Aubio::GenerateBeatmap(const Song& _song)
 					float confidence = aubio_tempo_get_confidence(tempo);
 					float last_beat = aubio_tempo_get_last_s(tempo);
 
-					if (highest_confidence < confidence)
-					{
-						section.BPM = BPM;
-					}
+					section.BPM = BPM;
 
 					Log::Message("Beat at " + agn::to_string_precise(last_beat, 3) + "s");
 					Log::Message("Estimated BPM: " + agn::to_string_precise(BPM, 2) + " Confidence: " + agn::to_string_precise(confidence, 2));

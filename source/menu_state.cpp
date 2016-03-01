@@ -9,8 +9,10 @@ namespace
 	float options_x;
 	float options_vertical_spacing;
 	float options_vertical_offset;
+	float songs_x;
 	float song_vertical_spacing;
 	float song_vertical_offset;
+	float actions_x;
 	float action_vertical_spacing;
 	float action_vertical_offset;
 	sf::Vector2f window_centre;
@@ -23,10 +25,10 @@ void MenuState::InitializeState()
 		{ machine_.background_texture_, "menu_background.jpg" },
 		{ play_texture_, "play_button.png" },
 		{ generate_texture_, "generate_button.png" },
-		{ music_on_texture_, "transparent_music_on.png" },
+		/*{ music_on_texture_, "transparent_music_on.png" },
 		{ music_off_texture_, "transparent_music_off.png" },
 		{ sound_on_texture_, "transparent_sound_on.png" },
-		{ sound_off_texture_, "transparent_sound_off.png" },
+		{ sound_off_texture_, "transparent_sound_off.png" },*/
 		{ selector_texture_, "circle_red.png" }
 	};
 	Global::TextureManager.Load(textures_);
@@ -35,20 +37,25 @@ void MenuState::InitializeState()
 
 	// Calculate various layout stuff
 	window_centre = sf::Vector2f(machine_.window_.getSize().x * 0.5, machine_.window_.getSize().y * 0.5);
-	context_horizontal_spacing = machine_.window_.getSize().x * 0.25f;
+	context_horizontal_spacing = machine_.window_.getSize().x * 0.33f;
 	context_vertical_cuttoff = machine_.window_.getSize().y * 0.3f;
-	options_x = context_horizontal_spacing;
+
+	/*options_x = context_horizontal_spacing;
 	options_vertical_spacing = 100.0f;
-	options_vertical_offset = 0.0f;
+	options_vertical_offset = 0.0f;*/
+
+	songs_x = context_horizontal_spacing;
 	song_vertical_spacing = 50.0f;
 	song_vertical_offset = 0.0f;
+
+	actions_x = context_horizontal_spacing * 2;
 	action_vertical_spacing = 150.0f;
 	action_vertical_offset = 0.0f;
 
 	selector_ = sfx::Sprite(sf::Vector2f(options_x, window_centre.y),
 							selector_texture_);
 
-	music_button_ = sfx::Button(sf::Vector2f(options_x, window_centre.y),
+	/*music_button_ = sfx::Button(sf::Vector2f(options_x, window_centre.y),
 								machine_.options_.music_,
 								music_on_texture_,
 								music_off_texture_);
@@ -56,12 +63,12 @@ void MenuState::InitializeState()
 	sound_effects_button_ = sfx::Button(sf::Vector2f(options_x, music_button_.getPosition().y + options_vertical_spacing),
 										machine_.options_.sound_effects_,
 										sound_on_texture_,
-										sound_off_texture_);
+										sound_off_texture_);*/
 
-	play_button_ = sfx::Sprite(sf::Vector2f(context_horizontal_spacing * 3, window_centre.y),
+	play_button_ = sfx::Sprite(sf::Vector2f(actions_x, window_centre.y),
 							   play_texture_);
 
-	generate_button_ = sfx::Sprite(sf::Vector2f(context_horizontal_spacing * 3, play_button_.getPosition().y + action_vertical_spacing),
+	generate_button_ = sfx::Sprite(sf::Vector2f(actions_x, play_button_.getPosition().y + action_vertical_spacing),
 								   generate_texture_);
 
 	heading_.setFont(machine_.font_);
@@ -70,15 +77,15 @@ void MenuState::InitializeState()
 	heading_.setPosition(sf::Vector2f(context_horizontal_spacing, machine_.window_.getSize().y * 0.2f));
 
 	song_text_.setFont(machine_.font_);
-	song_text_.setCharacterSize(24);
+	song_text_.setCharacterSize(30);
 	song_text_.setColor(sf::Color::Color(192, 192, 192));
-	song_text_.setPosition(sf::Vector2f(context_horizontal_spacing * 2, window_centre.y));
+	song_text_.setPosition(sf::Vector2f(songs_x, window_centre.y));
 
 	//LoadSongList();
 
 	songs_.push_back(Song{ "songs/guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" });
 
-	selected_.context = OPTIONS;
+	selected_.context = SONGS;
 	selected_.option = MUSIC;
 	if(!songs_.empty()) // If there are any songs, set selected song to the first element of songs_
 		selected_.song = 0;
@@ -97,7 +104,7 @@ bool MenuState::Update(const float _delta_time)
 	switch (selected_.context)
 	{
 
-		case OPTIONS:
+		/*case OPTIONS:
 		{
 			if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
 			{
@@ -145,7 +152,7 @@ bool MenuState::Update(const float _delta_time)
 			}
 
 			break;
-		}
+		}*/
 
 		case SONGS:
 			if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
@@ -154,12 +161,12 @@ bool MenuState::Update(const float _delta_time)
 				selector_.move(context_horizontal_spacing, 0.0f);
 				break;
 			}
-			if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
+			/*if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
 			{
 				selected_.context = OPTIONS;
 				selector_.move(-context_horizontal_spacing, 0.0f);
 				break;
-			}
+			}*/
 
 			if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
 			{
@@ -240,7 +247,7 @@ void MenuState::Render(const float _delta_time)
 		heading_.move(context_horizontal_spacing, 0.0f);
 	}
 
-	song_text_.setPosition(context_horizontal_spacing * 2, window_centre.y + song_vertical_offset);
+	song_text_.setPosition(songs_x, window_centre.y + song_vertical_offset);
 	for (auto song : songs_)
 	{
 		// Don't draw song text unless it's past the vertical cutoff value
@@ -254,12 +261,12 @@ void MenuState::Render(const float _delta_time)
 		song_text_.move(0.0f, song_vertical_spacing);
 	}
 
-	// Don't draw options buttons unless they are past the vertical cutoff value
-	if(music_button_.getPosition().y > context_vertical_cuttoff)
+	// Don't any of these unless they are past the vertical cutoff value
+	/*if(music_button_.getPosition().y > context_vertical_cuttoff)
 		machine_.window_.draw(music_button_);
 
 	if (sound_effects_button_.getPosition().y > context_vertical_cuttoff)
-		machine_.window_.draw(sound_effects_button_);
+		machine_.window_.draw(sound_effects_button_);*/
 
 	if(play_button_.getPosition().y > context_vertical_cuttoff)
 		machine_.window_.draw(play_button_);
