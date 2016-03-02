@@ -56,7 +56,8 @@ namespace sfx
 		static std::string format(std::string _name, std::string _resolution, T _value)
 		{
 			std::ostringstream os;
-			os.precision(3);
+			os.precision(2);
+			os.setf(std::ios::fixed | std::ios::showpoint);
 			os << std::left << std::setw(5);
 			os << _name << ": ";
 			os << std::setw(5);
