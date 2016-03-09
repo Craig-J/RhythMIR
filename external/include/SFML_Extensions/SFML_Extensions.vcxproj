@@ -22,6 +22,7 @@
     <ClCompile Include="global.cpp" />
     <ClCompile Include="Graphics\animation.cpp" />
     <ClCompile Include="Graphics\button.cpp" />
+    <ClCompile Include="Graphics\ImGui\SFImGui_application.cpp" />
     <ClCompile Include="Graphics\sprite.cpp" />
     <ClCompile Include="System\application.cpp" />
     <ClCompile Include="System\clock.cpp" />
@@ -32,6 +33,11 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="Graphics\animation.h" />
     <ClInclude Include="Graphics\button.h" />
+    <ClInclude Include="Graphics\ImGui\imconfig-events-SFML.h" />
+    <ClInclude Include="Graphics\ImGui\imconfig-rendering-SFML.h" />
+    <ClInclude Include="Graphics\ImGui\imgui-events-SFML.h" />
+    <ClInclude Include="Graphics\ImGui\imgui-rendering-SFML.h" />
+    <ClInclude Include="Graphics\ImGui\SFImGui_application.h" />
     <ClInclude Include="Graphics\sprite.h" />
     <ClInclude Include="Graphics\texture_manager.h" />
     <ClInclude Include="include\SFML\Audio.hpp" />
@@ -137,6 +143,9 @@
     <ProjectReference Include="..\Agnostic\Agnostic.vcxproj">
       <Project>{ee6830b3-d327-4229-bfdf-ad2e17af2a45}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ImGui\ImGui.vcxproj">
+      <Project>{35d4f8d3-44ce-4d4a-aed6-9719f3e5a62b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\SFML\Audio\SoundFileFactory.inl" />
@@ -230,7 +239,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>sfgui-s-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-main-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-main-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference />
@@ -296,7 +305,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfgui-s.lib;sfml-graphics-s.lib;opengl32.lib;freetype.lib;jpeg.lib;sfml-window-s.lib;winmm.lib;gdi32.lib;sfml-audio-s.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;sfml-system-s.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-s.lib;opengl32.lib;freetype.lib;jpeg.lib;sfml-window-s.lib;winmm.lib;gdi32.lib;sfml-audio-s.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;sfml-system-s.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <ProjectReference />
   </ItemDefinitionGroup>

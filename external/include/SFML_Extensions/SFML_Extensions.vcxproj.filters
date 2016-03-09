@@ -34,6 +34,9 @@
     <Filter Include="SFML %28sf%29\System">
       <UniqueIdentifier>{830a5559-ba2f-4aeb-8199-6070c1765daf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SFML_Extensions %28sfx%29\Graphics\ImGui">
+      <UniqueIdentifier>{f3b31728-7433-461c-a700-976b8e6f68c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="global.cpp">
@@ -54,7 +57,12 @@
     <ClCompile Include="System\application.cpp">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClCompile>
-    <ClCompile Include="System\clock.cpp" />
+    <ClCompile Include="System\clock.cpp">
+      <Filter>SFML_Extensions %28sfx%29\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ImGui\SFImGui_application.cpp">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h">
@@ -368,6 +376,21 @@
     </ClInclude>
     <ClInclude Include="System\clock.h">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imconfig-events-SFML.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imconfig-rendering-SFML.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui-events-SFML.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\imgui-rendering-SFML.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ImGui\SFImGui_application.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

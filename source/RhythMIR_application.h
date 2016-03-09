@@ -1,8 +1,8 @@
 #pragma once
-#include <SFML_Extensions\System\application.h>
+#include <SFML_Extensions\Graphics\ImGui\SFImGui_application.h>
 #include "game_state_machine.h"
 
-class RhythMIR : public sfx::Application
+class RhythMIR : public sfx::ImGuiApplication
 {
 public:
 

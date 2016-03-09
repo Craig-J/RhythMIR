@@ -1,7 +1,7 @@
 #include "RhythMIR_application.h"
 
 RhythMIR::RhythMIR(sf::RenderWindow& _window) :
-	Application(_window),
+	ImGuiApplication(_window),
 	machine_(window_, clock_, font_)
 {}
 
