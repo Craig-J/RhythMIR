@@ -20,11 +20,11 @@ namespace agn
 		const double SQRT2 = 1.41421356237309504880;
 		const double SQRT1_2 = 0.707106781186547524401;
 
-		constexpr DegToRad(float _deg)
+		inline float DegToRad(const float _deg)
 		{
 			return _deg * (PI / 180.0f);
 		}
-		constexpr RadToDeg(float _rad)
+		inline float RadToDeg(float _rad)
 		{
 			return _rad * (180.0f / PI);
 		}
