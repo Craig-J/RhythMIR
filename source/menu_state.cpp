@@ -35,7 +35,7 @@ void MenuState::InitializeState()
 		{ selector_texture_, "circle_red.png" }
 	};
 	Global::TextureManager.Load(textures_);
-	
+
 	machine_.background_.setTexture(*machine_.background_texture_);
 
 	// Calculate various layout stuff
@@ -69,17 +69,15 @@ void MenuState::InitializeState()
 	song_text_.setCharacterSize(30);
 	song_text_.setColor(sf::Color::Color(192, 192, 192));
 	song_text_.setPosition(sf::Vector2f(songs_x, window_centre.y));
-	LoadSongList("songs.rhythMIR");
-
-	songs_.insert(Song{ "songs/guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" });
+	LoadSongList("RhythMIR.songs");
 
 	selected_.context = SONGS;
-	if(!songs_.empty()) // If there are any songs, set selected song to the first element of songs_
+	if (!songs_.empty()) // If there are any songs, set selected song to the first element of songs_
 		selected_.song = songs_.begin();
 	selected_.action = PLAY;
 
 	GUI_ = true;
-	beatmap_ = nullptr;
+	beatmap_ = aubio_.LoadBeatmap("Goukisan - Guitar Vs. Piano 1.2 - single_mode.RhythMIR");
 	play_mode_ = FOURKEY;
 }
 
@@ -88,7 +86,7 @@ void MenuState::TerminateState()
 	Global::TextureManager.Unload(textures_);
 	textures_.clear();
 
-	SaveSongList("songs.rhythMIR");
+	SaveSongList("RhythMIR.songs");
 }
 
 bool MenuState::Update(const float _delta_time)
@@ -255,7 +253,7 @@ void MenuState::LoadSongList(const std::string& _file_name)
 				auto source_file = song_node->first_attribute("source")->value();
 				auto artist = song_node->first_attribute("artist")->value();
 				auto title = song_node->first_attribute("title")->value();
-				auto beatmap_list_file = song_node->first_attribute("beatmaps")->value();
+				auto beatmap_list_file = song_node->first_attribute("beatmap_list")->value();
 				std::string song(artist + std::string(title));
 				auto pair = songs_.emplace(Song(source_file, artist, title));
 				if (pair.second)
@@ -301,7 +299,7 @@ void MenuState::SaveSongList(const std::string& _file_name)
 		song_node->append_attribute(doc.allocate_attribute("source", song.source_file_name_.c_str()));
 		song_node->append_attribute(doc.allocate_attribute("artist", song.artist_.c_str()));
 		song_node->append_attribute(doc.allocate_attribute("title", song.title_.c_str()));
-		song_node->append_attribute(doc.allocate_attribute("beatmaps", song.beatmap_list_file_name_.c_str()));
+		song_node->append_attribute(doc.allocate_attribute("beatmap_list", song.beatmap_list_file_name_.c_str()));
 		root_node->append_node(song_node);
 	}
 

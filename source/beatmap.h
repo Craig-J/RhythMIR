@@ -80,7 +80,7 @@ public:
 
 	void LoadMusic();
 
-	const Song& song_;
+	const Song song_;
 	PLAYMODE play_mode_;
 	MusicPtr music_;
 

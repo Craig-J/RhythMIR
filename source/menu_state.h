@@ -1,7 +1,7 @@
 #pragma once
 #include "appstate.h"
-#include <SFML_Extensions\Graphics\button.h>
 #include "RhythMIR_aubio.h"
+#include <SFML_Extensions\Graphics\button.h>
 
 class MenuState : public AppState
 {

@@ -1,7 +1,6 @@
 #include "game_state.h"
 #include "game_state_machine.h"
 #include "menu_state.h"
-#include <Agnostic\string.h>
 
 namespace
 {
@@ -94,6 +93,8 @@ void GameState::InitializeState()
 	// Beatmap initialization
 	sections_ = beatmap_->CopyTimingSections();
 
+	if (!beatmap_->music_)
+		beatmap_->LoadMusic();
 	beatmap_->music_->setPlayingOffset(sf::Time::Zero);
 
 	srand(time(0));

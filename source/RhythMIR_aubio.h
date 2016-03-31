@@ -6,7 +6,10 @@
 #include <thread>
 #include <unordered_set>
 #include <ImGui\imgui.h>
+#include <Agnostic\logger.h>
+using agn::Log;
 #include <Agnostic\math.h>
+#include <Agnostic\string.h>
 #include <RapidXML\rapidxml_utils.hpp>
 #include <RapidXML\rapidxml_print.hpp>
 
@@ -73,6 +76,8 @@ public:
 
 	void UpdateGUI(bool* _opened);
 	Beatmap* GenerateBeatmap(const Song& _song);
+	Beatmap* LoadBeatmap(const std::string& _file_name);
+	void SaveBeatmap(const std::string& _file_name = std::string());
 
 private:
 
@@ -93,8 +98,5 @@ private:
 	std::thread* aubio_thread_;
 
 	void ThreadFunction();
-
-	void LoadBeatmap();
-	void SaveBeatmap();
 };
 #endif // _RHYTHMIR_AUBIO_H_

@@ -1,7 +1,4 @@
 #include "RhythMIR_aubio.h"
-#include <Agnostic\logger.h>
-using agn::Log;
-#include <Agnostic\string.h>
 
 namespace
 {
@@ -250,5 +247,186 @@ void Aubio::ThreadFunction()
 			del_aubio_source(source_);
 		aubio_cleanup();
 		generating_ = false;
+	}
+}
+
+Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
+{
+	using namespace rapidxml;
+
+	std::ifstream input_stream(_file_name);
+	if (input_stream)
+	{
+		file<> file(input_stream);
+		xml_document<> doc;
+		doc.parse<parse_no_data_nodes>(file.data());
+
+		xml_node<>* beatmap_node = doc.first_node("beatmap");
+
+		if (beatmap_node != 0)
+		{
+			Song song = Song(beatmap_node->first_attribute("source")->value(),
+							 beatmap_node->first_attribute("artist")->value(),
+							 beatmap_node->first_attribute("title")->value());
+			PLAYMODE mode;
+			switch (std::stoi(beatmap_node->first_attribute("type")->value()))
+			{
+			case 1:
+				mode = SINGLE;
+				break;
+			case 4:
+				mode = FOURKEY;
+				break;
+			case 88:
+				mode = PIANO;
+				break;
+			default:
+				Log::Error("Unknown beatmap type.");
+				mode = UNKNOWN;
+				break;
+			}
+			beatmap_ = new Beatmap(song, mode);
+
+			xml_node<>* section_node = beatmap_node->first_node("section");
+
+			while (section_node)
+			{
+				// Append section
+				beatmap_->sections_.emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
+															   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
+				// Get this notequeue vector. Will always be the last section.
+				auto &notequeue_vector = beatmap_->sections_.back().notes;
+
+				// Reserve space in the notequeue vector if we know the mode.
+				if (mode != UNKNOWN)
+				{
+					notequeue_vector.reserve(mode);
+				}
+				else
+				{
+					Log::Important("Notequeue vector could not be pre-allocated as beatmap type is unknown.");
+				}
+					
+				xml_node<>* notequeue_node = section_node->first_node("notequeue");
+				while (notequeue_node)
+				{
+					//auto frequency_cutoff = stof(notequeue_node->first_attribute("frequency_cutoff")->value());
+					notequeue_vector.emplace_back(); // Construct a notequeue at the back of the vector for this node
+					auto &notequeue = notequeue_vector.back();
+
+					xml_node<>* note_node = notequeue_node->first_node("note");
+					while (note_node)
+					{
+						notequeue.emplace(Note(sf::milliseconds(std::stoi(note_node->first_attribute("offset")->value()))));
+						note_node = note_node->next_sibling("note");
+					}
+
+					notequeue_node = notequeue_node->next_sibling("notequeue");
+				}
+
+				section_node = section_node->next_sibling("section");
+			}
+			doc.clear();
+			return beatmap_;
+		}
+		else
+		{
+			Log::Error("No beatmap node found. Format of input file is incorrect.");
+			return nullptr;
+		}
+	}
+	else
+	{
+		Log::Error("Beatmap file could not be opened.");
+		return nullptr;
+	}
+}
+
+void Aubio::SaveBeatmap(const std::string& _file_name)
+{
+	using namespace rapidxml;
+
+	if (beatmap_)
+	{
+		xml_document<> doc;
+
+		xml_node<>* decl = doc.allocate_node(node_declaration);
+		decl->append_attribute(doc.allocate_attribute("version", "1.0"));
+		decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
+		doc.append_node(decl);
+
+		xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
+		root_node->append_attribute(doc.allocate_attribute("source", beatmap_->song_.source_file_name_.c_str()));
+		root_node->append_attribute(doc.allocate_attribute("artist", beatmap_->song_.artist_.c_str()));
+		root_node->append_attribute(doc.allocate_attribute("title", beatmap_->song_.title_.c_str()));
+		auto type = doc.allocate_string(std::to_string(beatmap_->play_mode_).c_str());
+		root_node->append_attribute(doc.allocate_attribute("type", type));
+		doc.append_node(root_node);
+
+		for (auto &section : beatmap_->sections_)
+		{
+			xml_node<>* section_node = doc.allocate_node(node_element, "section");
+			auto bpm = doc.allocate_string(std::to_string(section.BPM).c_str());
+			auto offset = doc.allocate_string(std::to_string(section.offset.asMilliseconds()).c_str());
+			section_node->append_attribute(doc.allocate_attribute("BPM", bpm));
+			section_node->append_attribute(doc.allocate_attribute("offset", offset));
+
+			for (auto &notequeue : section.notes)
+			{
+				xml_node<>* notequeue_node = doc.allocate_node(node_element, "notequeue");
+				
+				while (!notequeue.empty())
+				{
+					xml_node<>* note_node = doc.allocate_node(node_element, "note");
+					auto note_offset = doc.allocate_string(std::to_string(notequeue.front().offset.asMilliseconds()).c_str());
+					note_node->append_attribute(doc.allocate_attribute("offset", note_offset));
+					notequeue.pop();
+					notequeue_node->append_node(note_node);
+				}
+
+				section_node->append_node(notequeue_node);
+			}
+
+			root_node->append_node(section_node);
+		}
+
+		std::ofstream output_stream;
+		if (_file_name == std::string())
+		{
+			std::stringstream file_name;
+			file_name << beatmap_->song_.artist_;
+			file_name << " - ";
+			file_name << beatmap_->song_.title_;
+			file_name << " - ";
+			switch (beatmap_->play_mode_)
+			{
+			case SINGLE:
+				file_name << "single";
+				break;
+			case FOURKEY:
+				file_name << "fourkey";
+				break;
+			case PIANO:
+				file_name << "piano";
+				break;
+			default:
+				file_name << "unknown";
+				break;
+			}
+			file_name << "_mode.rhythMIR";
+			output_stream = std::ofstream(file_name.str());
+		}
+		else
+		{
+			output_stream = std::ofstream(_file_name);
+		}
+		
+		output_stream << doc;
+		output_stream.close();
+		doc.clear();
+	}
+	else
+	{
+		Log::Warning("Beatmap is a null ptr. Can't save nothing.");
 	}
 }
