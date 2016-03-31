@@ -44,11 +44,11 @@ namespace agn
 	// The child class should have a private constructor and make Singleton a friend.
 	// This is to stop the derived class from being constructed externally.
 	// Example:
-	//		class Derived : public Singleton<DerivedClass>
+	//		class Derived : public Singleton<Derived>
 	//		{
 	//		private:
 	//			Derived() {};
-	//			friend class Singleton<DerivedClass>;
+	//			friend class Singleton<Derived>;
 	//		}
 	template<typename _Type>
 	class Singleton

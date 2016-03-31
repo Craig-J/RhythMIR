@@ -33,6 +33,20 @@ namespace agn
 		{
 			return start*(1.0f - time) + time*end;
 		}
+
+		struct approx
+		{
+			float epsilon;
+
+			approx(const float& _epsilon) :
+				epsilon(_epsilon)
+			{}
+
+			bool operator()(const float &_lhs, const float &_rhs) const
+			{
+				return (std::fabs(_rhs - _lhs) < epsilon);
+			}
+		};
 	}
 };
 

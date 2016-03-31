@@ -31,12 +31,12 @@
     <ClCompile Include="RhythMIR_aubio.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\external\include\RapidXML\rapidxml.hpp" />
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_iterators.hpp" />
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_print.hpp" />
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_utils.hpp" />
     <ClInclude Include="appstate.h" />
     <ClInclude Include="beatmap.h" />
-    <ClInclude Include="external\include\RapidXML\rapidxml.hpp" />
-    <ClInclude Include="external\include\RapidXML\rapidxml_iterators.hpp" />
-    <ClInclude Include="external\include\RapidXML\rapidxml_print.hpp" />
-    <ClInclude Include="external\include\RapidXML\rapidxml_utils.hpp" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_state_machine.h" />
     <ClInclude Include="RhythMIR_application.h" />

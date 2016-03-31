@@ -6,6 +6,8 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <fstream>
+#include <sstream>
 
 namespace agn
 {
@@ -17,11 +19,18 @@ namespace agn
 		// Use to log fatal errors to error stream.
 		static void FatalError(std::string _message)
 		{
+			std::string string;
 			if (timestamps_)
 			{
-				std::cerr << TimeStamp().c_str();
+				string.append(TimeStamp());
 			}
-			std::cerr << "<FATAL ERROR> " << _message.c_str() << std::endl;
+			string.append(" fatal error > " + _message);
+
+			if (log_to_console_)
+				std::cout << string << std::endl;
+			if (log_to_file_)
+				ofstream_ << string << std::endl;
+			stream_ << string << std::endl;
 
 #ifdef _DEBUG
 			abort();
@@ -36,11 +45,18 @@ namespace agn
 		{
 			if (error_vebosity_ != ERRORVERBOSITY::FATAL_ERRORS_ONLY)
 			{
+				std::string string;
 				if (timestamps_)
 				{
-					std::cerr << TimeStamp().c_str();
+					string.append(TimeStamp());
 				}
-				std::cerr << "<ERROR> " << _message.c_str() << std::endl;
+				string.append(" error > " + _message);
+
+				if (log_to_console_)
+					std::cout << string << std::endl;
+				if (log_to_file_)
+					ofstream_ << string << std::endl;
+				stream_ << string << std::endl;
 			}
 		}
 
@@ -50,11 +66,18 @@ namespace agn
 		{
 			if (error_vebosity_ == ERRORVERBOSITY::ALL)
 			{
+				std::string string;
 				if (timestamps_)
 				{
-					std::cerr << TimeStamp().c_str();
+					string.append(TimeStamp());
 				}
-				std::cerr << "<WARNING> " << _message.c_str() << std::endl;
+				string.append(" warning > " + _message);
+
+				if (log_to_console_)
+					std::cout << string << std::endl;
+				if (log_to_file_)
+					ofstream_ << string << std::endl;
+				stream_ << string << std::endl;
 			}
 		}
 
@@ -64,11 +87,18 @@ namespace agn
 		{
 			if (output_vebosity_ != OUTPUTVERBOSITY::NONE)
 			{
+				std::string string;
 				if (timestamps_)
 				{
-					std::cout << TimeStamp().c_str();
+					string.append(TimeStamp());
 				}
-				std::cout << "<Important> " << _message.c_str() << std::endl;
+				string.append(" important > " + _message);
+
+				if (log_to_console_)
+					std::cout << string << std::endl;
+				if (log_to_file_)
+					ofstream_ << string << std::endl;
+				stream_ << string << std::endl;
 			}
 		}
 
@@ -78,16 +108,30 @@ namespace agn
 		{
 			if (output_vebosity_ == OUTPUTVERBOSITY::ALL)
 			{
+				std::string string;
 				if (timestamps_)
 				{
-					std::cout << TimeStamp().c_str();
+					string.append(TimeStamp());
 				}
-				std::cout << _message.c_str() << std::endl;
+				string.append(_message);
+
+				if (log_to_console_)
+					std::cout << string << std::endl;
+				if (log_to_file_)
+					ofstream_ << string << std::endl;
+				stream_ << string << std::endl;
 			}
+		}
+
+		static std::stringstream& CaptureStreamOutput()
+		{
+			return stream_;
 		}
 
 		static void EnableConsole()
 		{
+			log_to_console_ = true;
+
 			// Allocate a console for this app.
 			AllocConsole();
 
@@ -107,8 +151,10 @@ namespace agn
 		static enum class ERRORVERBOSITY { ALL, ERRORS_ONLY, FATAL_ERRORS_ONLY } error_vebosity_;
 		static enum class OUTPUTVERBOSITY { ALL, IMPORTANT_ONLY, NONE } output_vebosity_;
 		static bool timestamps_;
-		static bool log_to_file_; // Log to file NYI
+		static bool log_to_file_;
 		static bool log_to_console_;
+		static std::ofstream ofstream_; // File output stream.
+		static std::stringstream stream_; // Extra output stream for consumption by external code.
 
 		static void BindIOToConsole()
 		{

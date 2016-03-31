@@ -8,7 +8,7 @@ class GameState : public AppState
 {
 public:
 
-	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, Beatmap&);
+	GameState(GameStateMachine&, UniqueStatePtr<AppState>&, Beatmap*);
 	virtual ~GameState() {}
 	
 	void InitializeState();
@@ -18,12 +18,10 @@ public:
 	
 private:
 
-	void LoadSongData(std::string& _file_name);
-
 	void SpawnNote(NotePath& _path);
 	void AttemptNoteHit(NotePath& _path);
 
-	Beatmap beatmap_;
+	Beatmap* beatmap_;
 
 	std::vector<NotePath> note_paths_;
 	std::queue<TimingSection> sections_;
@@ -46,4 +44,12 @@ private:
 	int score_;
 	bool paused_;
 	bool finished_;
+	bool hit_counters_;
+	
+	bool duncan_factor_;
+
+	void InitializeFourKeyMode();
+	void InitializePianoMode();
+
+	void FourKeyInput();
 };

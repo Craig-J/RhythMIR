@@ -10,11 +10,8 @@
     <Filter Include="Application\States">
       <UniqueIdentifier>{1d107901-ea68-4d18-9162-7bf316d9dbe1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External">
-      <UniqueIdentifier>{77abb183-fc5f-4080-acf4-dd4c59e4a6ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\RapidXML">
-      <UniqueIdentifier>{bd484d5c-4ed3-4ee1-ba01-ca140611e1cd}</UniqueIdentifier>
+    <Filter Include="RapidXML">
+      <UniqueIdentifier>{df49ed2f-d5ad-4f66-918a-e0c60974f711}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -71,18 +68,6 @@
     <ClInclude Include="game_object.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="external\include\RapidXML\rapidxml_utils.hpp">
-      <Filter>External\RapidXML</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\RapidXML\rapidxml.hpp">
-      <Filter>External\RapidXML</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\RapidXML\rapidxml_iterators.hpp">
-      <Filter>External\RapidXML</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\RapidXML\rapidxml_print.hpp">
-      <Filter>External\RapidXML</Filter>
-    </ClInclude>
     <ClInclude Include="song.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -91,6 +76,18 @@
     </ClInclude>
     <ClInclude Include="RhythMIR_aubio.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_utils.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\include\RapidXML\rapidxml.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_iterators.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\include\RapidXML\rapidxml_print.hpp">
+      <Filter>RapidXML</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

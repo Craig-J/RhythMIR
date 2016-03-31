@@ -10,7 +10,7 @@ namespace
 	sf::Time approach_time = sf::milliseconds(900);
 	sf::Vector2f window_centre;
 
-	int path_count = 4;
+	int path_count;
 	float path_start_y;
 	float path_end_y;
 	float path_x;
@@ -21,12 +21,14 @@ namespace
 	
 }
 
-GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Beatmap& _beatmap) :
+GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Beatmap* _beatmap) :
 	AppState(_state_machine, _state),
 	beatmap_(_beatmap),
 	play_clock_(),
 	paused_(false),
 	finished_(false),
+	hit_counters_(true),
+	duncan_factor_(true),
 	current_section_(nullptr)
 {
 }
@@ -76,46 +78,23 @@ void GameState::InitializeState()
 	misses_ = 0;
 	hit_combo_ = 0;
 
-	// NotePath initialization
-	note_paths_.reserve(path_count);
-	path_start_y = 0.0f;
-	path_end_y = machine_.window_.getSize().y * 0.9f;
-	path_x = machine_.window_.getSize().x * 0.2f;
-	path_x_offset = machine_.window_.getSize().x * 0.1f;
-	for (int index = 0; index < path_count; ++index)
+	switch (beatmap_->play_mode_)
 	{
-		sf::Color note_color;
-		switch (index)
-		{
-		case 0:
-			note_color = sf::Color::Green;
-			break;
-		case 1:
-			note_color = sf::Color::Red;
-			break;
-		case 2:
-			note_color = sf::Color::Yellow;
-			break;
-		case 3:
-			note_color = sf::Color::Blue;
-			break;
-		case 4:
-			note_color = sf::Color::Magenta;
-			break;
-		default:
-			note_color = sf::Color::White;
-			break;
-		}
-		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
-											  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
-											  approach_time,
-											  1,
-											  white_circle_texture_,
-											  note_color));
+	case FOURKEY:
+		InitializeFourKeyMode();
+		break;
+	case PIANO:
+		InitializePianoMode();
+		break;
+	default:
+		InitializeFourKeyMode();
+		break;
 	}
 
 	// Beatmap initialization
-	sections_ = beatmap_.CopyTimingSections();
+	sections_ = beatmap_->CopyTimingSections();
+
+	beatmap_->music_->setPlayingOffset(sf::Time::Zero);
 
 	srand(time(0));
 }
@@ -138,8 +117,16 @@ bool GameState::Update(const float _delta_time)
 	if (paused_)
 	{
 		play_clock_.Stop();
-		if (beatmap_.music_->getStatus() == sf::Music::Playing)
-			beatmap_.music_->pause();
+		if (beatmap_->music_->getStatus() == sf::Music::Playing)
+			beatmap_->music_->pause();
+		if (Global::Input.KeyPressed(Keyboard::BackSpace))
+		{
+			ChangeState<MenuState>();
+		}
+		if (Global::Input.KeyPressed(Keyboard::Return))
+		{
+			ChangeState<GameState>(beatmap_);
+		}
 	}
 	else
 	{
@@ -149,14 +136,14 @@ bool GameState::Update(const float _delta_time)
 
 		// If more than the play offset (intro time) seconds and
 		// less than the duration of the music + play offset seconds has elapsed then...
-		if (time_elapsed > play_offset && time_elapsed < beatmap_.music_->getDuration() + play_offset)
+		if (time_elapsed > play_offset && time_elapsed < beatmap_->music_->getDuration() + play_offset)
 		{
 			auto current_offset = time_elapsed - play_offset;
 			auto current_approach_offset = current_offset + approach_time;
 
 			// Play music if it's not already playing
-			if(beatmap_.music_->getStatus() != sf::Music::Playing)
-				beatmap_.music_->play();
+			if(beatmap_->music_->getStatus() != sf::Music::Playing)
+				beatmap_->music_->play();
 
 			// If sections isn't empty
 			if (!sections_.empty())
@@ -174,37 +161,46 @@ bool GameState::Update(const float _delta_time)
 				Log::Error("Current timing section is nullptr. Beatmap is invalid.");
 			}
 
-			// If there are any notes remaining in the current section
 			if (!current_section_->notes.empty())
 			{
-				// Get the next one
-				auto next_onset_offset = current_section_->notes.front().offset;
-
-				// If the next notes offset is less than the current approach offset
-				if (current_approach_offset > next_onset_offset)
+				for (auto notequeue = current_section_->notes.begin(); notequeue != current_section_->notes.end(); ++notequeue)
 				{
-					// Just spawn a random note
-					SpawnNote(note_paths_[rand() % note_paths_.size()]);
-					current_section_->notes.pop();
+					int index = notequeue - current_section_->notes.begin();
+					// If there are any notes remaining in the current section
+					if (!notequeue->empty())
+					{
+						// Get the next one
+						auto next_onset_offset = notequeue->front().offset;
+
+						// If the next notes offset is less than the current approach offset
+						if (current_approach_offset > next_onset_offset)
+						{
+							// Just spawn a random note
+							if(duncan_factor_)
+								SpawnNote(note_paths_[rand() % note_paths_.size()]);
+							else
+								SpawnNote(note_paths_[index]);
+							notequeue->pop();
+						}
+					}
 				}
 			}
+			else
+			{
+				Log::Error("Notequeue vector is empty.");
+			}
 
-
-			if (Global::Input.KeyPressed(Keyboard::Z))
+			// INPUT
+			switch (beatmap_->play_mode_)
 			{
-				AttemptNoteHit(note_paths_[0]);
-			}
-			if (Global::Input.KeyPressed(Keyboard::X))
-			{
-				AttemptNoteHit(note_paths_[1]);
-			}
-			if (Global::Input.KeyPressed(Keyboard::N))
-			{
-				AttemptNoteHit(note_paths_[2]);
-			}
-			if (Global::Input.KeyPressed(Keyboard::M))
-			{
-				AttemptNoteHit(note_paths_[3]);
+			case FOURKEY:
+				FourKeyInput();
+				break;
+			case PIANO:
+				break;
+			default:
+				FourKeyInput();
+				break;
 			}
 
 
@@ -231,9 +227,9 @@ bool GameState::Update(const float _delta_time)
 				}
 			}
 		}
-		else if (time_elapsed > beatmap_.music_->getDuration() + play_offset)
+		else if (time_elapsed > beatmap_->music_->getDuration() + play_offset)
 		{
-			beatmap_.music_->stop();
+			beatmap_->music_->stop();
 			finished_ = true;
 		}
 	}
@@ -304,6 +300,7 @@ void GameState::SpawnNote(NotePath& _path)
 								  _path.approach_time,
 								  _path.note_texture,
 								  _path.note_color));
+	_path.notes.back().SetDimensions(_path.target);
 }
 
 void GameState::AttemptNoteHit(NotePath& _path)
@@ -345,5 +342,97 @@ void GameState::AttemptNoteHit(NotePath& _path)
 			// Erase the front note (the one we are testing)
 			_path.notes.erase(_path.notes.begin());
 		}
+	}
+}
+
+void GameState::InitializeFourKeyMode()
+{
+	path_count = 4;
+
+	// NotePath initialization
+	note_paths_.reserve(path_count);
+	path_start_y = 0.0f;
+	path_end_y = machine_.window_.getSize().y * 0.9f;
+	path_x = machine_.window_.getSize().x * 0.2f;
+	path_x_offset = machine_.window_.getSize().x * 0.1f;
+	for (int index = 0; index < path_count; ++index)
+	{
+		sf::Color note_color;
+		switch (index)
+		{
+		case 0:
+			note_color = sf::Color::Green;
+			break;
+		case 1:
+			note_color = sf::Color::Red;
+			break;
+		case 2:
+			note_color = sf::Color::Yellow;
+			break;
+		case 3:
+			note_color = sf::Color::Blue;
+			break;
+		}
+		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
+										  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
+										  approach_time,
+										  1,
+										  white_circle_texture_,
+										  note_color));
+	}
+}
+
+void GameState::InitializePianoMode()
+{
+	path_count = 88;
+
+	// NotePath initialization
+	note_paths_.reserve(path_count);
+	path_start_y = 0.0f;
+	path_end_y = machine_.window_.getSize().y * 0.9f;
+	path_x = machine_.window_.getSize().x * 0.2f;
+	float length = (machine_.window_.getSize().x - path_x - path_x) / path_count;
+	path_x_offset = length + 2.0f;
+
+	for (int index = 0; index < path_count; ++index)
+	{
+		sf::Color note_color;
+		switch (index%2)
+		{
+		case 0:
+			note_color = sf::Color::White;
+			break;
+		case 1:
+			note_color = sf::Color::Black;
+			break;
+		}
+		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
+										  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
+										  approach_time,
+										  1,
+										  white_circle_texture_,
+										  note_color));
+		
+		note_paths_[index].target.SetDimensions(sf::Vector2f(length, length));
+	}
+}
+
+void GameState::FourKeyInput()
+{
+	if (Global::Input.KeyPressed(Keyboard::Z))
+	{
+		AttemptNoteHit(note_paths_[0]);
+	}
+	if (Global::Input.KeyPressed(Keyboard::X))
+	{
+		AttemptNoteHit(note_paths_[1]);
+	}
+	if (Global::Input.KeyPressed(Keyboard::N))
+	{
+		AttemptNoteHit(note_paths_[2]);
+	}
+	if (Global::Input.KeyPressed(Keyboard::M))
+	{
+		AttemptNoteHit(note_paths_[3]);
 	}
 }

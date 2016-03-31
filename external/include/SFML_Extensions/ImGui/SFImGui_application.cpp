@@ -7,7 +7,10 @@ namespace sfx
 		window_(_window),
 		clock_(),
 		font_(),
-		hud_(clock_, font_)
+		hud_(clock_, font_),
+		console_(),
+		display_hud_(true),
+		display_test_window_(false)
 	{
 		ImGui::SFML::SetRenderTarget(window_);
 		ImGui::SFML::InitImGuiRendering();
@@ -23,21 +26,34 @@ namespace sfx
 			clock_.beginFrame();
 			ImGui::SFML::UpdateImGui();
 			ImGui::SFML::UpdateImGuiRendering();
-			//ImGui::ShowTestWindow();
 			sfx::Global::Input.Update();
 			EventLoop();
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			{
 				running_ = false;
 			}
+			if (Global::Input.KeyPressed(sf::Keyboard::F10))
+			{
+				display_hud_ = !display_hud_;
+			}
+			if (Global::Input.KeyPressed(sf::Keyboard::F11))
+			{
+				display_test_window_ = !display_test_window_;
+			}
 			if (running_)
 			{
+				if(display_test_window_) ImGui::ShowTestWindow();
 				running_ = Update();
 				if (running_)
 				{
 					window_.clear(sf::Color::Black);
 					Render();
-					window_.draw(hud_);
+					if (display_hud_)
+					{
+						window_.draw(hud_);
+						console_.Draw("Console", &display_hud_);
+					}
+					
 					ImGui::Render();
 					window_.display();
 				}

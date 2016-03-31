@@ -1,10 +1,11 @@
 #ifndef _SFX_SFIMGUI_APPLICATION_H_
 #define _SFX_SFIMGUI_APPLICATION_H_
-#include <ImGui\imgui.h>
-#include <SFML_Extensions\Graphics\ImGui\imgui-events-SFML.h>
-#include <SFML_Extensions\Graphics\ImGui\imgui-rendering-SFML.h>
+#include <SFML_Extensions\ImGui\SFImGui.h>
+#include <SFML_Extensions\ImGui\imgui-events-SFML.h>
+#include <SFML_Extensions\ImGui\imgui-rendering-SFML.h>
 #include <SFML_Extensions\System\frame_clock.h>
 #include <SFML_Extensions\System\system_HUD.h>
+#include <SFML_Extensions\ImGui\console.h>
 
 namespace sfx
 {
@@ -34,7 +35,10 @@ namespace sfx
 
 		void EventLoop();
 
+		ImGuiConsole console_;
 		SystemHUD hud_;
+		bool display_hud_;
+		bool display_test_window_;
 		bool running_;
 	};
 }

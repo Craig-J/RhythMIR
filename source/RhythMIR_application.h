@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML_Extensions\Graphics\ImGui\SFImGui_application.h>
+#include <SFML_Extensions\ImGui\SFImGui_application.h>
 #include "game_state_machine.h"
 
 class RhythMIR : public sfx::ImGuiApplication
@@ -17,6 +17,6 @@ public:
 
 private:
 
-	// RhythMIR delegates pretty much everything to its state machine.
+	// RhythMIR delegates everything to its state machine.
 	GameStateMachine machine_;
 };

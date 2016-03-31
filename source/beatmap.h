@@ -4,6 +4,7 @@
 #include <SFML_Extensions\global.h>
 #include <queue>
 
+// STORAGE RELATED OBJECTS
 // Note abtracts the properties of a note as stored by the beatmap before gameplay
 struct Note
 {
@@ -21,7 +22,16 @@ struct TimingSection
 
 	float BPM;
 	sf::Time offset;
-	std::queue<Note> notes;
+	std::vector<std::queue<Note>> notes;
+};
+
+// GAMEPLAY RELATED OBJECTS
+enum PLAYMODE		// Generally corresponds to number of note paths for a beatmap
+{
+	UNKNOWN = -1,
+	SINGLE = 1,		// One synchronization path. Simplest case.
+	FOURKEY = 4,	// Four note paths, similar to DDR style games.
+	PIANO = 88		// Eighty-eight note paths. Mimics a standard piano.
 };
 
 // NoteObject implements a game object for notes when they are to be used to create gameplay
@@ -29,10 +39,10 @@ class NoteObject : public GameObject
 {
 public:
 	NoteObject(sf::Vector2f& _start_position,
-		 sf::Vector2f& _target_position,
-		 sf::Time& _approach_time,
-		 TexturePtr _texture,
-		 sf::Color _color = sf::Color::White);
+			   sf::Vector2f& _target_position,
+			   sf::Time& _approach_time,
+			   TexturePtr _texture,
+			   sf::Color _color = sf::Color::White);
 
 	sf::Time offset_from_perfect;
 };
@@ -63,11 +73,15 @@ class Beatmap
 public:
 
 	// Explicit so that beatmap doesn't implicitly convert to a Song
-	explicit Beatmap(const Song& _song);
+	explicit Beatmap(const Song& _song, const PLAYMODE& _mode);
+	~Beatmap();
 
 	std::queue<TimingSection> CopyTimingSections();
 
+	void LoadMusic();
+
 	const Song& song_;
+	PLAYMODE play_mode_;
 	MusicPtr music_;
 
 private:

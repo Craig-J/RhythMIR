@@ -34,8 +34,14 @@
     <Filter Include="SFML %28sf%29\System">
       <UniqueIdentifier>{830a5559-ba2f-4aeb-8199-6070c1765daf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SFML_Extensions %28sfx%29\Graphics\ImGui">
+    <Filter Include="ImGui">
       <UniqueIdentifier>{f3b31728-7433-461c-a700-976b8e6f68c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui\Backend">
+      <UniqueIdentifier>{596df3b8-9d73-4468-9596-f55bdaf27e4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui\Utilities">
+      <UniqueIdentifier>{ad66a4f6-b241-43cd-a097-bb11dcea630a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,8 +66,11 @@
     <ClCompile Include="System\clock.cpp">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ImGui\SFImGui_application.cpp">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClCompile Include="ImGui\SFImGui_application.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\console.cpp">
+      <Filter>ImGui\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -377,20 +386,26 @@
     <ClInclude Include="System\clock.h">
       <Filter>SFML_Extensions %28sfx%29\System</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imconfig-events-SFML.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClInclude Include="ImGui\SFImGui_application.h">
+      <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imconfig-rendering-SFML.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClInclude Include="ImGui\imgui-rendering-SFML.h">
+      <Filter>ImGui\Backend</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui-events-SFML.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClInclude Include="ImGui\imconfig-events-SFML.h">
+      <Filter>ImGui\Backend</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui\imgui-rendering-SFML.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClInclude Include="ImGui\imconfig-rendering-SFML.h">
+      <Filter>ImGui\Backend</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ImGui\SFImGui_application.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics\ImGui</Filter>
+    <ClInclude Include="ImGui\imgui-events-SFML.h">
+      <Filter>ImGui\Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\console.h">
+      <Filter>ImGui\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\SFImGui.h">
+      <Filter>ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

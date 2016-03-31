@@ -42,6 +42,7 @@ namespace ImGui
                     io.KeysDown[event.key.code]=true;
                     io.KeyCtrl=event.key.control;
                     io.KeyShift=event.key.shift;
+					io.KeyAlt = event.key.alt;
                     break;
                 }
                 case sf::Event::KeyReleased:
@@ -50,6 +51,7 @@ namespace ImGui
                     io.KeysDown[event.key.code]=false;
                     io.KeyCtrl=event.key.control;
                     io.KeyShift=event.key.shift;
+					io.KeyAlt = event.key.alt;
                     break;
                 }
                 case sf::Event::TextEntered:

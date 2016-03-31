@@ -17,43 +17,42 @@ public:
 	
 private:
 
-	//void LoadSongList(std::string& _file_name);
+	Aubio aubio_;
+	Beatmap* beatmap_; // Pointer to the current beatmap.
+	// Gets passed around between states so using naked pointer to avoid dealing with ownership.
+	// Should really be a shared ptr but we only ever have one so just passing it around is simpler.
 
-	// Overall menu context objects
-	enum MENUCONTEXT { OPTIONS, SONGS, ACTIONS };
-	enum OPTION_SELECTIONS { MUSIC, SOUNDEFFECTS };
+	// Menu context objects
+	enum MENUCONTEXT { SONGS, ACTIONS };
 	enum ACTIONS_SELECTIONS { PLAY, GENERATE, EDIT };
 	struct MenuContext
 	{
-		int song;
+		std::set<Song>::iterator song;
 		ACTIONS_SELECTIONS action;
-		OPTION_SELECTIONS option;
 		MENUCONTEXT context;
 	} selected_;
 	Sprite selector_;
-	TexturePtr selector_texture_;
-
-	Aubio aubio_;
-	Beatmap* beatmap_;
-
-	// Heading Objects
-	const std::vector<std::string> headings_ = {"Songs", "Actions" };
 	sf::Text heading_;
 
-	// Options objects
-	/*TexturePtr music_on_texture_, music_off_texture_;
-	TexturePtr sound_on_texture_, sound_off_texture_;
-	sfx::Button	music_button_;
-	sfx::Button sound_effects_button_;*/
-
-	// Songs objects
-	std::vector<Song> songs_;
+	// Song objects
+	std::set<Song> songs_;
+	std::set<std::pair<std::string, PLAYMODE>> beatmaps_;
 	sf::Text song_text_;
 
 	// Actions objects
-	TexturePtr play_texture_;
+	PLAYMODE play_mode_;
 	Sprite play_button_;
-	TexturePtr generate_texture_;
 	Sprite generate_button_;
+
+	void PlayGUI(bool*);
 	
+	// Song List I/O
+	void LoadSongList(const std::string&);
+	void SaveSongList(const std::string&);
+
+	// Beatmap List I/O
+	void LoadBeatmapList(const std::string&);
+	void SaveBeatmapList(const std::string&);
+
+	// Individual beatmap I/O is done by the aubio object.
 };
