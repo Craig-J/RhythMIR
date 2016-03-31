@@ -80,23 +80,23 @@ Beatmap* Aubio::GenerateBeatmap(const Song& _song)
 {
 	if (!generating_)
 	{
-		beatmap_ = new Beatmap(_song, settings_.play_mode_);
+		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_);
 
-		beatmap_->LoadMusic();
+		beatmap->LoadMusic();
 
-		aubio_thread_ = new std::thread(&Aubio::ThreadFunction, this);
+		aubio_thread_ = new std::thread(&Aubio::ThreadFunction, this, beatmap);
 
-		return beatmap_;
+		return beatmap;
 	}
 	return nullptr;
 }
 
-void Aubio::ThreadFunction()
+void Aubio::ThreadFunction(Beatmap* _beatmap)
 {
 	generating_ = true;
 	bool trained = !settings_.train_functions;
 
-	song_duration = beatmap_->music_->getDuration();
+	song_duration = _beatmap->music_->getDuration();
 
 	unsigned int total_samples;
 	if (trained)
@@ -107,14 +107,14 @@ void Aubio::ThreadFunction()
 	//sf::Time tempo_frame_duration = sf::seconds(tempo_function_.window_size / total_samples);
 
 	// Load source with aubio
-	source_ = new_aubio_source(const_cast<char*>(beatmap_->song_.source_file_name_.c_str()),
+	source_ = new_aubio_source(const_cast<char*>(_beatmap->song_.source_file_name_.c_str()),
 							  settings_.samplerate,
 							  settings_.hop_size);
 
 	if (!source_)
 	{
-		Log::Error("Aubio failed to load source from " + beatmap_->song_.source_file_name_);
-		beatmap_ = nullptr;
+		Log::Error("Aubio failed to load source from " + _beatmap->song_.source_file_name_);
+		_beatmap = nullptr;
 		del_aubio_source(source_);
 		source_ = nullptr;
 		return;
@@ -133,7 +133,7 @@ void Aubio::ThreadFunction()
 											tempo_function_.hop_size,
 											settings_.samplerate);
 		// Create first timing section
-		beatmap_->sections_.emplace_back(TimingSection(0, sf::Time::Zero));
+		_beatmap->sections_.emplace_back(TimingSection(0, sf::Time::Zero));
 
 		// Onset
 		for (auto &object : onset_objects_)
@@ -144,7 +144,7 @@ void Aubio::ThreadFunction()
 											settings_.samplerate);
 		}
 
-		auto &section = beatmap_->sections_.front();
+		auto &section = _beatmap->sections_.front();
 		section.notes.resize(settings_.filter_count);
 
 		// Filters
@@ -285,17 +285,17 @@ Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
 				mode = UNKNOWN;
 				break;
 			}
-			beatmap_ = new Beatmap(song, mode);
+			Beatmap* beatmap = new Beatmap(song, mode);
 
 			xml_node<>* section_node = beatmap_node->first_node("section");
 
 			while (section_node)
 			{
 				// Append section
-				beatmap_->sections_.emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
+				beatmap->sections_.emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
 															   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
 				// Get this notequeue vector. Will always be the last section.
-				auto &notequeue_vector = beatmap_->sections_.back().notes;
+				auto &notequeue_vector = beatmap->sections_.back().notes;
 
 				// Reserve space in the notequeue vector if we know the mode.
 				if (mode != UNKNOWN)
@@ -327,7 +327,7 @@ Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
 				section_node = section_node->next_sibling("section");
 			}
 			doc.clear();
-			return beatmap_;
+			return beatmap;
 		}
 		else
 		{
@@ -342,11 +342,11 @@ Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
 	}
 }
 
-void Aubio::SaveBeatmap(const std::string& _file_name)
+void Aubio::SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name)
 {
 	using namespace rapidxml;
 
-	if (beatmap_)
+	if (_beatmap)
 	{
 		xml_document<> doc;
 
@@ -356,14 +356,14 @@ void Aubio::SaveBeatmap(const std::string& _file_name)
 		doc.append_node(decl);
 
 		xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
-		root_node->append_attribute(doc.allocate_attribute("source", beatmap_->song_.source_file_name_.c_str()));
-		root_node->append_attribute(doc.allocate_attribute("artist", beatmap_->song_.artist_.c_str()));
-		root_node->append_attribute(doc.allocate_attribute("title", beatmap_->song_.title_.c_str()));
-		auto type = doc.allocate_string(std::to_string(beatmap_->play_mode_).c_str());
+		root_node->append_attribute(doc.allocate_attribute("source", _beatmap->song_.source_file_name_.c_str()));
+		root_node->append_attribute(doc.allocate_attribute("artist", _beatmap->song_.artist_.c_str()));
+		root_node->append_attribute(doc.allocate_attribute("title", _beatmap->song_.title_.c_str()));
+		auto type = doc.allocate_string(std::to_string(_beatmap->play_mode_).c_str());
 		root_node->append_attribute(doc.allocate_attribute("type", type));
 		doc.append_node(root_node);
 
-		for (auto &section : beatmap_->sections_)
+		for (auto &section : _beatmap->sections_)
 		{
 			xml_node<>* section_node = doc.allocate_node(node_element, "section");
 			auto bpm = doc.allocate_string(std::to_string(section.BPM).c_str());
@@ -394,11 +394,11 @@ void Aubio::SaveBeatmap(const std::string& _file_name)
 		if (_file_name == std::string())
 		{
 			std::stringstream file_name;
-			file_name << beatmap_->song_.artist_;
+			file_name << _beatmap->song_.artist_;
 			file_name << " - ";
-			file_name << beatmap_->song_.title_;
+			file_name << _beatmap->song_.title_;
 			file_name << " - ";
-			switch (beatmap_->play_mode_)
+			switch (_beatmap->play_mode_)
 			{
 			case SINGLE:
 				file_name << "single";

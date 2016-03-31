@@ -77,7 +77,8 @@ public:
 	void UpdateGUI(bool* _opened);
 	Beatmap* GenerateBeatmap(const Song& _song);
 	Beatmap* LoadBeatmap(const std::string& _file_name);
-	void SaveBeatmap(const std::string& _file_name = std::string());
+	void SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name = std::string());
+	bool IsGenerating() { return generating_; }
 
 private:
 
@@ -91,12 +92,11 @@ private:
 
 	aubio_source_t* source_;
 	aubio_filterbank_t* filterbank_;
-	Beatmap* beatmap_;
 
-	bool generating_;
+	std::atomic<bool> generating_;
 	std::atomic<float> progress_;
 	std::thread* aubio_thread_;
 
-	void ThreadFunction();
+	void ThreadFunction(Beatmap*);
 };
 #endif // _RHYTHMIR_AUBIO_H_

@@ -23,6 +23,8 @@ namespace
 	TexturePtr generate_texture_;
 
 	bool GUI_;
+
+	const std::string song_list("songs.RhythMIR");
 }
 
 void MenuState::InitializeState()
@@ -69,7 +71,7 @@ void MenuState::InitializeState()
 	song_text_.setCharacterSize(30);
 	song_text_.setColor(sf::Color::Color(192, 192, 192));
 	song_text_.setPosition(sf::Vector2f(songs_x, window_centre.y));
-	LoadSongList("RhythMIR.songs");
+	LoadSongList(song_list);
 
 	selected_.context = SONGS;
 	if (!songs_.empty()) // If there are any songs, set selected song to the first element of songs_
@@ -86,7 +88,7 @@ void MenuState::TerminateState()
 	Global::TextureManager.Unload(textures_);
 	textures_.clear();
 
-	SaveSongList("RhythMIR.songs");
+	SaveSongList(song_list);
 }
 
 bool MenuState::Update(const float _delta_time)
@@ -146,7 +148,10 @@ bool MenuState::Update(const float _delta_time)
 						{
 							if (beatmap_->song_ == *selected_.song)
 							{
-								ChangeState<GameState>(beatmap_);
+								if (!aubio_.IsGenerating())
+									ChangeState<GameState>(beatmap_);
+								else
+									Log::Important("Beatmap generation in progress.");
 							}
 							else
 							{
