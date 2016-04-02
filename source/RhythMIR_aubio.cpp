@@ -54,6 +54,10 @@ Aubio::Aubio() :
 	settings_.filterbank_window_size = 1024;
 	settings_.filter_ranges.reserve(settings_.filter_count);
 	onset_objects_.resize(settings_.filter_count, { onset_functions_.front(), nullptr });
+
+	// GUI
+	gui_ = {}; // default initialize everything in GUI
+	gui_.beatmap_name = "test";
 }
 
 Aubio::~Aubio()
@@ -62,25 +66,16 @@ Aubio::~Aubio()
 		aubio_thread_->join();
 }
 
-void Aubio::UpdateGUI(bool* _opened)
+void Aubio::UpdateGUI()
 {
-	if (!ImGui::Begin("RhythMIR GUI", _opened, ImVec2(400, 200), -1.f, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
-	{
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-
 	ImGui::ProgressBar(progress_);
-
-	ImGui::End();
 }
 
 Beatmap* Aubio::GenerateBeatmap(const Song& _song)
 {
 	if (!generating_)
 	{
-		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_);
+		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_, gui_.beatmap_name, gui_.beatmap_description);
 
 		beatmap->LoadMusic();
 
@@ -96,6 +91,8 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 	generating_ = true;
 	bool trained = !settings_.train_functions;
 
+	auto song_path = _beatmap->song_.full_file_path();
+
 	song_duration = _beatmap->music_->getDuration();
 
 	unsigned int total_samples;
@@ -107,17 +104,18 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 	//sf::Time tempo_frame_duration = sf::seconds(tempo_function_.window_size / total_samples);
 
 	// Load source with aubio
-	source_ = new_aubio_source(const_cast<char*>(_beatmap->song_.source_file_name_.c_str()),
+	source_ = new_aubio_source(const_cast<char*>(song_path.c_str()),
 							  settings_.samplerate,
 							  settings_.hop_size);
 
 	if (!source_)
 	{
-		Log::Error("Aubio failed to load source from " + _beatmap->song_.source_file_name_);
-		_beatmap = nullptr;
+		Log::Error("Aubio failed to load source from " + song_path);
+		
 		del_aubio_source(source_);
 		source_ = nullptr;
-		return;
+		generating_ = false;
+		_beatmap = nullptr;
 	}
 	else
 	{
@@ -132,8 +130,11 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 											tempo_function_.window_size,
 											tempo_function_.hop_size,
 											settings_.samplerate);
+
+		_beatmap->sections_ = new std::vector<TimingSection>();
+
 		// Create first timing section
-		_beatmap->sections_.emplace_back(TimingSection(0, sf::Time::Zero));
+		_beatmap->sections_->emplace_back(TimingSection(0, sf::Time::Zero));
 
 		// Onset
 		for (auto &object : onset_objects_)
@@ -144,7 +145,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 											settings_.samplerate);
 		}
 
-		auto &section = _beatmap->sections_.front();
+		auto &section = _beatmap->sections_->front();
 		section.notes.resize(settings_.filter_count);
 
 		// Filters
@@ -250,11 +251,11 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 	}
 }
 
-Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
+Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap)
 {
 	using namespace rapidxml;
-
-	std::ifstream input_stream(_file_name);
+	
+ 	std::ifstream input_stream(_beatmap.full_file_path() + ".RhythMIR");
 	if (input_stream)
 	{
 		file<> file(input_stream);
@@ -285,17 +286,18 @@ Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
 				mode = UNKNOWN;
 				break;
 			}
-			Beatmap* beatmap = new Beatmap(song, mode);
+			Beatmap* beatmap = new Beatmap(song, mode, _beatmap.name_);
 
 			xml_node<>* section_node = beatmap_node->first_node("section");
 
 			while (section_node)
 			{
+				beatmap->sections_ = new std::vector<TimingSection>();
 				// Append section
-				beatmap->sections_.emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
+				beatmap->sections_->emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
 															   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
 				// Get this notequeue vector. Will always be the last section.
-				auto &notequeue_vector = beatmap->sections_.back().notes;
+				auto &notequeue_vector = beatmap->sections_->back().notes;
 
 				// Reserve space in the notequeue vector if we know the mode.
 				if (mode != UNKNOWN)
@@ -342,28 +344,28 @@ Beatmap* Aubio::LoadBeatmap(const std::string& _file_name)
 	}
 }
 
-void Aubio::SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name)
+void Aubio::SaveBeatmap(const Beatmap& _beatmap)
 {
 	using namespace rapidxml;
 
-	if (_beatmap)
+	xml_document<> doc;
+
+	xml_node<>* decl = doc.allocate_node(node_declaration);
+	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
+	decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
+	doc.append_node(decl);
+
+	xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
+	root_node->append_attribute(doc.allocate_attribute("source", _beatmap.song_.source_file_name_.c_str()));
+	root_node->append_attribute(doc.allocate_attribute("artist", _beatmap.song_.artist_.c_str()));
+	root_node->append_attribute(doc.allocate_attribute("title", _beatmap.song_.title_.c_str()));
+	auto type = doc.allocate_string(std::to_string(_beatmap.play_mode_).c_str());
+	root_node->append_attribute(doc.allocate_attribute("type", type));
+	doc.append_node(root_node);
+
+	if (_beatmap.sections_)
 	{
-		xml_document<> doc;
-
-		xml_node<>* decl = doc.allocate_node(node_declaration);
-		decl->append_attribute(doc.allocate_attribute("version", "1.0"));
-		decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
-		doc.append_node(decl);
-
-		xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
-		root_node->append_attribute(doc.allocate_attribute("source", _beatmap->song_.source_file_name_.c_str()));
-		root_node->append_attribute(doc.allocate_attribute("artist", _beatmap->song_.artist_.c_str()));
-		root_node->append_attribute(doc.allocate_attribute("title", _beatmap->song_.title_.c_str()));
-		auto type = doc.allocate_string(std::to_string(_beatmap->play_mode_).c_str());
-		root_node->append_attribute(doc.allocate_attribute("type", type));
-		doc.append_node(root_node);
-
-		for (auto &section : _beatmap->sections_)
+		for (auto &section : *_beatmap.sections_)
 		{
 			xml_node<>* section_node = doc.allocate_node(node_element, "section");
 			auto bpm = doc.allocate_string(std::to_string(section.BPM).c_str());
@@ -374,7 +376,7 @@ void Aubio::SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name)
 			for (auto &notequeue : section.notes)
 			{
 				xml_node<>* notequeue_node = doc.allocate_node(node_element, "notequeue");
-				
+
 				while (!notequeue.empty())
 				{
 					xml_node<>* note_node = doc.allocate_node(node_element, "note");
@@ -389,44 +391,36 @@ void Aubio::SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name)
 
 			root_node->append_node(section_node);
 		}
+	}
 
-		std::ofstream output_stream;
-		if (_file_name == std::string())
+	std::ofstream output_stream(_beatmap.full_file_path() + ".RhythMIR");
+	/*if (_file_name == std::string())
+	{
+		std::stringstream file_name;
+		switch (_beatmap->play_mode_)
 		{
-			std::stringstream file_name;
-			file_name << _beatmap->song_.artist_;
-			file_name << " - ";
-			file_name << _beatmap->song_.title_;
-			file_name << " - ";
-			switch (_beatmap->play_mode_)
-			{
-			case SINGLE:
-				file_name << "single";
-				break;
-			case FOURKEY:
-				file_name << "fourkey";
-				break;
-			case PIANO:
-				file_name << "piano";
-				break;
-			default:
-				file_name << "unknown";
-				break;
-			}
-			file_name << "_mode.rhythMIR";
-			output_stream = std::ofstream(file_name.str());
+		case SINGLE:
+			file_name << "single";
+			break;
+		case FOURKEY:
+			file_name << "fourkey";
+			break;
+		case PIANO:
+			file_name << "piano";
+			break;
+		default:
+			file_name << "unknown";
+			break;
 		}
-		else
-		{
-			output_stream = std::ofstream(_file_name);
-		}
-		
-		output_stream << doc;
-		output_stream.close();
-		doc.clear();
+		file_name << "_mode.RhythMIR";
+		output_stream = std::ofstream(file_name.str());
 	}
 	else
 	{
-		Log::Warning("Beatmap is a null ptr. Can't save nothing.");
-	}
+		output_stream = std::ofstream(_file_name);
+	}*/
+		
+	output_stream << doc;
+	output_stream.close();
+	doc.clear();
 }

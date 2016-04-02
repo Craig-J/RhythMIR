@@ -56,6 +56,12 @@ public:
 		std::vector<std::pair<float, float>> filter_ranges;
 	};
 
+	struct GUI
+	{
+		std::string beatmap_name;
+		std::string beatmap_description;
+	};
+
 	struct TempoEstimate
 	{
 		float BPM;
@@ -74,15 +80,16 @@ public:
 	Aubio();
 	~Aubio();
 
-	void UpdateGUI(bool* _opened);
+	void UpdateGUI();
 	Beatmap* GenerateBeatmap(const Song& _song);
-	Beatmap* LoadBeatmap(const std::string& _file_name);
-	void SaveBeatmap(Beatmap* _beatmap, const std::string& _file_name = std::string());
+	Beatmap* LoadBeatmap(const Beatmap& _beatmap);
+	void SaveBeatmap(const Beatmap& _beatmap);
 	bool IsGenerating() { return generating_; }
 
 private:
 
 	Settings settings_;
+	GUI gui_;
 
 	Function tempo_function_;
 	std::vector<TempoEstimate> beats_;

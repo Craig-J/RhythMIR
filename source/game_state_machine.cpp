@@ -1,5 +1,5 @@
 #include "game_state_machine.h"
-#include "intro_state.h"
+#include "menu_state.h"
 #include <SFML_Extensions\global.h>
 
 GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font) :
@@ -31,7 +31,7 @@ bool GameStateMachine::Start()
 	}
 
 	// Initialize first state
-	AppState::Initialize<IntroState>(*this, current_state_);
+	AppState::Initialize<MenuState>(*this, current_state_);
 	return true;
 }
 

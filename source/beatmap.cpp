@@ -43,21 +43,32 @@ NotePath::NotePath(sf::Vector2f & _start_position,
 							  128));
 }
 
-Beatmap::Beatmap(const Song& _song, const PLAYMODE& _mode) :
+Beatmap::Beatmap(const Song& _song,
+				 const PLAYMODE& _mode,
+				 const std::string& _name,
+				 const std::string& _description) :
 	song_(_song),
 	play_mode_(_mode),
-	music_(nullptr)
+	name_(_name),
+	description_(_description),
+	music_(nullptr),
+	sections_(nullptr)
 {}
 
 Beatmap::~Beatmap()
 {
-	Global::AudioManager.UnloadMusic(song_.source_file_name_);
+		Global::AudioManager.UnloadMusic(song_.full_file_path());
+	if (sections_)
+	{
+		delete sections_;
+		sections_ = nullptr;
+	}
 }
 
 std::queue<TimingSection> Beatmap::CopyTimingSections()
 {
 	std::queue<TimingSection> copy;
-	for (auto section : sections_)
+	for (auto section : *sections_)
 	{
 		copy.push(section);
 	}
@@ -66,5 +77,5 @@ std::queue<TimingSection> Beatmap::CopyTimingSections()
 
 void Beatmap::LoadMusic()
 {
-	music_ = Global::AudioManager.LoadMusic(song_.source_file_name_);
+	music_ = Global::AudioManager.LoadMusic(song_.full_file_path());
 }

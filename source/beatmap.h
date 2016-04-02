@@ -72,8 +72,10 @@ class Beatmap
 {
 public:
 
-	// Explicit so that beatmap doesn't implicitly convert to a Song
-	explicit Beatmap(const Song& _song, const PLAYMODE& _mode);
+	Beatmap(const Song& _song,
+			const PLAYMODE& _mode,
+			const std::string& _name,
+			const std::string& _description = std::string());
 	~Beatmap();
 
 	std::queue<TimingSection> CopyTimingSections();
@@ -83,11 +85,31 @@ public:
 	const Song song_;
 	PLAYMODE play_mode_;
 	MusicPtr music_;
+	std::string name_;
+	std::string description_;
+
+	std::string full_file_path() const
+	{
+		return song_.relative_path() + name_;
+	}
+
+	bool operator<(const Beatmap& _other) const
+	{
+		return(std::tie(song_, name_, play_mode_) < std::tie(_other.song_, _other.name_, _other.play_mode_));
+	}
+	bool operator==(const Beatmap& _other) const
+	{
+		return(std::tie(song_, name_, play_mode_) == std::tie(_other.song_, _other.name_, _other.play_mode_));
+	}
+	bool operator!=(const Beatmap& _other) const
+	{
+		return(std::tie(song_, name_, play_mode_) != std::tie(_other.song_, _other.name_, _other.play_mode_));
+	}
 
 private:
 
 	// Aubio has direct access to a beatmaps sections for beatmap generation.
 	friend class Aubio;
 
-	std::vector<TimingSection> sections_;
+	std::vector<TimingSection>* sections_;
 };

@@ -2,6 +2,7 @@
 #include "appstate.h"
 #include "RhythMIR_aubio.h"
 #include <SFML_Extensions\Graphics\button.h>
+#include <boost/filesystem.hpp>
 
 class MenuState : public AppState
 {
@@ -23,36 +24,42 @@ private:
 	// Should really be a shared ptr but we only ever have one so just passing it around is simpler.
 
 	// Menu context objects
-	enum MENUCONTEXT { SONGS, ACTIONS };
-	enum ACTIONS_SELECTIONS { PLAY, GENERATE, EDIT };
+	enum MENUCONTEXT { SONGS, BEATMAPS, ACTIONS };
+	enum ACTIONS_SELECTIONS { PLAY, GENERATE };
 	struct MenuContext
 	{
-		std::set<Song>::iterator song;
+		std::map<Song, std::set<Beatmap>>::iterator song;
+		std::set<Beatmap>::iterator beatmap;
 		ACTIONS_SELECTIONS action;
 		MENUCONTEXT context;
 	} selected_;
 	Sprite selector_;
 	sf::Text heading_;
 
-	// Song objects
-	std::set<Song> songs_;
-	std::set<std::pair<std::string, PLAYMODE>> beatmaps_;
+	// Song/beatmap objects
+	std::map<Song, std::set<Beatmap>> songs_;
 	sf::Text song_text_;
+	sf::Text beatmap_text_;
 
 	// Actions objects
-	PLAYMODE play_mode_;
 	Sprite play_button_;
 	Sprite generate_button_;
 
-	void PlayGUI(bool*);
+	void GUI();
 	
 	// Song List I/O
 	void LoadSongList(const std::string&);
 	void SaveSongList(const std::string&);
 
 	// Beatmap List I/O
-	void LoadBeatmapList(const std::string&);
-	void SaveBeatmapList(const std::string&);
+	void LoadBeatmapList(const Song&, bool _force_load = false);
+	void SaveBeatmapList(const Song&);
+	void GetSongBeatmaps();
 
-	// Individual beatmap I/O is done by the aubio object.
+	// Individual beatmap I/O is delegated to the aubio object.
+	void LoadBeatmap(const Beatmap&, bool _force_load = false);
+	void SaveBeatmap(const Beatmap&);
+
+	void GenerateTestBeatmaps();
+	void GenerateTestSongs();
 };
