@@ -46,7 +46,7 @@ namespace sfx
 				_render_target.draw(text, _states);
 
 				// Next line.
-				text.move(0.0f, 24.0f);
+				text.move(0.0f, 20.0f);
 			}
 		}
 

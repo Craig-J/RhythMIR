@@ -1,8 +1,10 @@
 #include "console.h"
 #include <Agnostic\logger.h>
+
 namespace sfx
 {
-	ImGuiConsole::ImGuiConsole() :
+	ImGuiConsole::ImGuiConsole(sf::RenderWindow& _window) :
+		window_(_window),
 		out_(agn::Log::CaptureStreamOutput())
 	{
 		ClearLog();
@@ -37,18 +39,18 @@ namespace sfx
 	{
 		UpdateStream();
 
-		ImGui::SetNextWindowSize(ImVec2(420, 560), ImGuiSetCond_FirstUseEver);
-		if (!ImGui::Begin(title, opened))
+		ImGui::SetNextWindowPos(ImVec2(220, 10));
+		
+		if (!ImGui::Begin(title, opened, ImVec2(window_.getSize().x - 230, window_.getSize().y * 0.2f), -1.f,
+						  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
 			ImGui::End();
 			return;
 		}
 
-		ImGui::TextWrapped("Press F10 to toggle the console.");
-
 		if (ImGui::SmallButton("Clear")) ClearLog();
-
-		ImGui::Separator();
+		ImGui::SameLine();
+		ImGui::TextWrapped("Press F10 to toggle the console and frame measures.");
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 		static ImGuiTextFilter filter;
@@ -87,7 +89,7 @@ namespace sfx
 				break;
 			}
 			ImGui::PushStyleColor(ImGuiCol_Text, colour);
-			ImGui::TextUnformatted(item);
+			ImGui::TextWrapped(item);
 			ImGui::PopStyleColor();
 		}
 		if (scroll_to_bottom_)
@@ -97,6 +99,7 @@ namespace sfx
 		ImGui::EndChild();
 		ImGui::End();
 	}
+
 	void ImGuiConsole::UpdateStream()
 	{
 		std::string line;

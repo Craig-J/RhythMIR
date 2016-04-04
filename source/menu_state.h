@@ -8,29 +8,31 @@ class MenuState : public AppState
 {
 public:
 
-	using AppState::AppState;
+	MenuState(GameStateMachine&, UniqueStatePtr<AppState>&, Beatmap* = nullptr);
 	virtual ~MenuState() {}
 	
 	void InitializeState();
 	void TerminateState();
 	bool Update(const float _delta_time);
 	void Render(const float _delta_time);
+	void ProcessEvent(sf::Event & _event);
 	
 private:
 
-	Aubio aubio_;
+	std::unique_ptr<Aubio> aubio_;
 	Beatmap* beatmap_; // Pointer to the current beatmap.
 	// Gets passed around between states so using naked pointer to avoid dealing with ownership.
 	// Should really be a shared ptr but we only ever have one so just passing it around is simpler.
+	std::atomic<bool> generating_beatmap_;
 
 	// Menu context objects
-	enum MENUCONTEXT { SONGS, BEATMAPS, ACTIONS };
-	enum ACTIONS_SELECTIONS { PLAY, GENERATE };
+	enum MENUCONTEXT { SONGS, BEATMAPS/*, ACTIONS */};
+	//enum ACTIONS_SELECTIONS { PLAY/*, GENERATE */};
 	struct MenuContext
 	{
 		std::map<Song, std::set<Beatmap>>::iterator song;
 		std::set<Beatmap>::iterator beatmap;
-		ACTIONS_SELECTIONS action;
+		//ACTIONS_SELECTIONS action;
 		MENUCONTEXT context;
 	} selected_;
 	Sprite selector_;
@@ -42,10 +44,24 @@ private:
 	sf::Text beatmap_text_;
 
 	// Actions objects
-	Sprite play_button_;
-	Sprite generate_button_;
+	//Sprite play_button_;
+	//Sprite generate_button_;
 
-	void GUI();
+	struct GUI
+	{
+		bool input_focus;
+
+		char song_artist[128];
+		char song_title[128];
+		char song_source[128];
+		char beatmap_name[128];
+		char beatmap_description[1024];
+
+		std::map<Song, std::set<Beatmap>>::iterator song_to_delete;
+		std::string delete_song_popup;
+
+	} gui_;
+	void UpdateGUI();
 	
 	// Song List I/O
 	void LoadSongList(const std::string&);
@@ -60,6 +76,6 @@ private:
 	void LoadBeatmap(const Beatmap&, bool _force_load = false);
 	void SaveBeatmap(const Beatmap&);
 
-	void GenerateTestBeatmaps();
-	void GenerateTestSongs();
+	void GenerateTestBeatmap();
+	void GenerateTestSong();
 };

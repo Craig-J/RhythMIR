@@ -56,5 +56,5 @@ void GameStateMachine::Render(const float _delta_time)
 
 void GameStateMachine::ProcessEvent(sf::Event & _event)
 {
-
+	current_state_->ProcessEvent(_event);
 }

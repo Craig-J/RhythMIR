@@ -35,6 +35,9 @@ private:
 	sfx::FrameClock& clock_;
 	sf::Font& font_;
 
+	void ToggleHUD();
+	bool IsHUDActive();
+
 	struct Options
 	{
 		bool music_;

@@ -19,14 +19,26 @@ namespace
 			return(a.time < b.time);
 		}
 	};
+
+	namespace SpecDesc
+	{
+		const auto energy = std::make_pair("Energy", "energy");
+		const auto hfc = std::make_pair("High Frequency Content (HFC)", "hfc");
+		const auto complex = std::make_pair("Complex Domain", "complex");
+		const auto phase = std::make_pair("Phase Based", "phase");
+		const auto specdiff = std::make_pair("Spectral Difference", "specdiff");
+		const auto kl = std::make_pair("Kullback-Liebler", "kl");
+		const auto mkl = std::make_pair("Modified Kullback-Liebler", "mkl");
+		const auto specflux = std::make_pair("Spectral Flux", "specflux");
+	}
 }
 
-Aubio::Aubio() :
+Aubio::Aubio(std::atomic<bool>& _generating) :
 	aubio_thread_(nullptr),
 	source_(nullptr),
 	filterbank_(nullptr),
 	progress_(0),
-	generating_(false)
+	generating_(_generating)
 {
 	settings_.samplerate = 44100;
 	settings_.hop_size = 256;
@@ -45,7 +57,7 @@ Aubio::Aubio() :
 	// Onset
 	settings_.onset_function_count = 1;
 	Function default_function;
-	default_function.name = "specflux";
+	default_function.name = "specdiff";
 	default_function.window_size = 1024;
 	default_function.hop_size = 256;
 	onset_functions_.push_back(default_function);
@@ -54,10 +66,6 @@ Aubio::Aubio() :
 	settings_.filterbank_window_size = 1024;
 	settings_.filter_ranges.reserve(settings_.filter_count);
 	onset_objects_.resize(settings_.filter_count, { onset_functions_.front(), nullptr });
-
-	// GUI
-	gui_ = {}; // default initialize everything in GUI
-	gui_.beatmap_name = "test";
 }
 
 Aubio::~Aubio()
@@ -71,11 +79,11 @@ void Aubio::UpdateGUI()
 	ImGui::ProgressBar(progress_);
 }
 
-Beatmap* Aubio::GenerateBeatmap(const Song& _song)
+Beatmap* Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description)
 {
 	if (!generating_)
 	{
-		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_, gui_.beatmap_name, gui_.beatmap_description);
+		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_, _beatmap_name, _beatmap_description);
 
 		beatmap->LoadMusic();
 
@@ -179,8 +187,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 
 					beats_.push_back({ BPM, last_beat, confidence });
 
-					Log::Message("Beat at " + agn::to_string_precise(last_beat, 3) + "s");
-					Log::Message("Estimated BPM: " + agn::to_string_precise(BPM, 2) + " Confidence: " + agn::to_string_precise(confidence, 2));
+					Log::Message("Beat at " + agn::to_string_precise(last_beat, 3) + "s BPM : " + agn::to_string_precise(BPM, 2) + " Confidence : " + agn::to_string_precise(confidence, 2));
 				}
 			}
 
@@ -266,9 +273,9 @@ Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap)
 
 		if (beatmap_node != 0)
 		{
-			Song song = Song(beatmap_node->first_attribute("source")->value(),
-							 beatmap_node->first_attribute("artist")->value(),
-							 beatmap_node->first_attribute("title")->value());
+			Song song = Song(beatmap_node->first_attribute("artist")->value(),
+							 beatmap_node->first_attribute("title")->value(),
+							 beatmap_node->first_attribute("source")->value());
 			PLAYMODE mode;
 			switch (std::stoi(beatmap_node->first_attribute("type")->value()))
 			{
@@ -356,9 +363,9 @@ void Aubio::SaveBeatmap(const Beatmap& _beatmap)
 	doc.append_node(decl);
 
 	xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
-	root_node->append_attribute(doc.allocate_attribute("source", _beatmap.song_.source_file_name_.c_str()));
 	root_node->append_attribute(doc.allocate_attribute("artist", _beatmap.song_.artist_.c_str()));
 	root_node->append_attribute(doc.allocate_attribute("title", _beatmap.song_.title_.c_str()));
+	root_node->append_attribute(doc.allocate_attribute("source", _beatmap.song_.source_file_name_.c_str()));
 	auto type = doc.allocate_string(std::to_string(_beatmap.play_mode_).c_str());
 	root_node->append_attribute(doc.allocate_attribute("type", type));
 	doc.append_node(root_node);

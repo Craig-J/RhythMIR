@@ -5,13 +5,13 @@
 class Song
 {
 public:
-	Song(const std::string& _source_file_name,
-		 const std::string& _artist,
+	Song(const std::string& _artist,
 		 const std::string& _title,
+		 const std::string& _source_file_name,
 		 const std::string& _path_overwrite = std::string()) :
-		source_file_name_(_source_file_name),
 		artist_(_artist),
-		title_(_title)
+		title_(_title),
+		source_file_name_(_source_file_name)
 	{
 		if (_path_overwrite == std::string())
 		{
@@ -44,17 +44,17 @@ public:
 
 	bool operator==(const Song& _other) const
 	{
-		return(std::tie(artist_, title_, source_file_name_) == std::tie(_other.artist_, _other.title_, _other.source_file_name_));
+		return(std::tie(artist_, title_) == std::tie(_other.artist_, _other.title_));
 	}
 
 	bool operator!=(const Song& _other) const
 	{
-		return(std::tie(artist_, title_, source_file_name_) != std::tie(_other.artist_, _other.title_, _other.source_file_name_));
+		return(std::tie(artist_, title_) != std::tie(_other.artist_, _other.title_));
 	}
 
 	bool operator<(const Song& _other) const
 	{
-		return(std::tie(artist_, title_, source_file_name_) < std::tie(_other.artist_, _other.title_, _other.source_file_name_));
+		return(std::tie(artist_, title_) < std::tie(_other.artist_, _other.title_));
 	}
 
 private:

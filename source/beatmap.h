@@ -29,6 +29,7 @@ struct TimingSection
 enum PLAYMODE		// Generally corresponds to number of note paths for a beatmap
 {
 	UNKNOWN = -1,
+	TEST = 0,		// Internal test type. Will never be exported.
 	SINGLE = 1,		// One synchronization path. Simplest case.
 	FOURKEY = 4,	// Four note paths, similar to DDR style games.
 	PIANO = 88		// Eighty-eight note paths. Mimics a standard piano.

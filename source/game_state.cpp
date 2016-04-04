@@ -122,7 +122,7 @@ bool GameState::Update(const float _delta_time)
 			beatmap_->music_->pause();
 		if (Global::Input.KeyPressed(Keyboard::BackSpace))
 		{
-			ChangeState<MenuState>();
+			ChangeState<MenuState>(beatmap_);
 		}
 		if (Global::Input.KeyPressed(Keyboard::Return))
 		{

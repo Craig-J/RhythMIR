@@ -15,7 +15,7 @@ namespace sfx
 	{
 	public:
 
-		ImGuiConsole();
+		ImGuiConsole(sf::RenderWindow&);
 		~ImGuiConsole();
 
 		void ClearLog();
@@ -23,6 +23,8 @@ namespace sfx
 		void Draw(const char* title, bool* opened);
 		
 	private:
+
+		sf::RenderWindow& window_;
 
 		void UpdateStream();
 

@@ -18,6 +18,7 @@ public:
 	virtual bool Update(const float _delta_time) = 0;
 	virtual void Render(const float _delta_time) = 0;
 	virtual void TerminateState() {}
+	virtual void ProcessEvent(sf::Event & _event) {}
 
 protected:
 

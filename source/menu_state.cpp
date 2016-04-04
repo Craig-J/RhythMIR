@@ -4,10 +4,11 @@
 
 namespace
 {
-	// Implementation details here
+	// Implementation details
 
-	const std::vector<std::string> headings_ = { "Songs", "Beatmaps", "Actions" };
+	const std::vector<std::string> headings_ = { "Songs", "Beatmaps" };
 
+	float context_vertical_padding;
 	float context_horizontal_spacing;
 	float context_vertical_cuttoff;
 	float songs_x;
@@ -16,17 +17,20 @@ namespace
 	float beatmaps_x;
 	float beatmaps_vertical_spacing;
 	float beatmaps_vertical_offset;
-	float actions_x;
+	/*float actions_x;
 	float action_vertical_spacing;
-	float action_vertical_offset;
+	float action_vertical_offset;*/
 	sf::Vector2f window_centre;
+	sf::Vector2f window_size;
 
-	TexturePtr play_texture_;
 	TexturePtr selector_texture_;
-	TexturePtr generate_texture_;
+	//TexturePtr play_texture_;
+	//TexturePtr generate_texture_;
 
+	bool display_HUD; // Is console/systemhud visible
 	bool* show_GUI;
 
+	// Note: Song and beatmap function defaults should be the same directories/extensions as here
 	const std::string song_directory("songs/");
 	const std::string song_list_extension(".RhythMIR");
 	const std::string song_list_default_filename(song_directory + "songs" + song_list_extension);
@@ -34,7 +38,7 @@ namespace
 	const std::string beatmap_list_default_filename("_beatmaps" + beatmap_list_extension);
 	const std::string beatmap_extension(".RhythMIR");
 
-	static const char alphanum[] =
+	const char alphanum[] =
 		"0123456789"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz";
@@ -49,15 +53,25 @@ namespace
 		}
 		return string;
 	}
+
+	void FixThisShit()
+	{
+		boost::filesystem::remove(song_directory);
+	}
 }
+
+MenuState::MenuState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Beatmap* _beatmap) :
+	AppState(_state_machine, _state),
+	beatmap_(_beatmap)
+{}
 
 void MenuState::InitializeState()
 {
 	textures_ = TextureFileVector
 	{
 		{ machine_.background_texture_, "menu_background.jpg" },
-		{ play_texture_, "play_button.png" },
-		{ generate_texture_, "generate_button.png" },
+		//{ play_texture_, "play_button.png" },
+		//{ generate_texture_, "generate_button.png" },
 		{ selector_texture_, "circle_red.png" }
 	};
 	Global::TextureManager.Load(textures_);
@@ -65,51 +79,56 @@ void MenuState::InitializeState()
 	machine_.background_.setTexture(*machine_.background_texture_);
 
 	// Calculate various layout stuff
-	window_centre = sf::Vector2f(machine_.window_.getSize().x * 0.5, machine_.window_.getSize().y * 0.5);
-	context_horizontal_spacing = machine_.window_.getSize().x * 0.2f;
-	context_vertical_cuttoff = machine_.window_.getSize().y * 0.2f;
+	window_size = sf::Vector2f(machine_.window_.getSize().x, machine_.window_.getSize().y);
+	window_centre = sf::Vector2f(window_size.x * 0.5, window_size.y * 0.5);
 
-	songs_x = window_centre.x;
-	song_vertical_spacing = 50.0f;
+	context_horizontal_spacing = window_size.x * 0.35f;
+	context_vertical_padding = window_size.y * 0.2f;
+	context_vertical_cuttoff = context_vertical_padding + window_size.y * 0.08f;
+
+	songs_x = 10;
+	song_vertical_spacing = 40.0f;
 	song_vertical_offset = 0.0f;
 
 	beatmaps_x = songs_x + context_horizontal_spacing;
-	beatmaps_vertical_spacing = 50.0f;
+	beatmaps_vertical_spacing = 40.0f;
 	beatmaps_vertical_offset = 0.0f;
 
-	actions_x = beatmaps_x + context_horizontal_spacing;
-	action_vertical_spacing = 150.0f;
-	action_vertical_offset = 0.0f;
 
+	/*actions_x = beatmaps_x + context_horizontal_spacing;
+	action_vertical_spacing = 150.0f;
+	action_vertical_offset = 0.0f;*/
+
+	// Graphics stuff
 	selector_ = sfx::Sprite(sf::Vector2f(songs_x, window_centre.y),
 							selector_texture_);
 
-	play_button_ = sfx::Sprite(sf::Vector2f(actions_x, window_centre.y),
-							   play_texture_);
+	/*play_button_ = sfx::Sprite(sf::Vector2f(actions_x, window_centre.y),
+							   play_texture_);*/
 
-	generate_button_ = sfx::Sprite(sf::Vector2f(actions_x, play_button_.getPosition().y + action_vertical_spacing),
-								   generate_texture_);
+	/*generate_button_ = sfx::Sprite(sf::Vector2f(actions_x, play_button_.getPosition().y + action_vertical_spacing),
+								   generate_texture_);*/
 
 	heading_.setFont(machine_.font_);
 	heading_.setCharacterSize(60);
 	heading_.setColor(sf::Color::Color(255, 69, 0));
-	heading_.setPosition(sf::Vector2f(context_horizontal_spacing, machine_.window_.getSize().y * 0.1f));
+	heading_.setPosition(sf::Vector2f(context_horizontal_spacing, window_size.y * 0.1f));
 
 	song_text_.setFont(machine_.font_);
-	song_text_.setCharacterSize(30);
+	song_text_.setCharacterSize(24);
 	song_text_.setColor(sf::Color::Color(192, 192, 192));
 	song_text_.setPosition(sf::Vector2f(songs_x, window_centre.y));
 	
 
 	beatmap_text_.setFont(machine_.font_);
-	beatmap_text_.setCharacterSize(30);
+	beatmap_text_.setCharacterSize(24);
 	beatmap_text_.setColor(sf::Color::Color(192, 192, 192));
 	beatmap_text_.setPosition(sf::Vector2f(beatmaps_x, window_centre.y));
 
+	// Song list and beatmap objects
 	selected_.context = SONGS;
 
 	LoadSongList(song_list_default_filename);
-	songs_.emplace(Song{ "guitar_vs_piano.wav", "Goukisan", "Guitar Vs. Piano 1.2" }, std::set<Beatmap>());
 	selected_.song = songs_.begin();
 
 	if (!songs_.empty())
@@ -117,10 +136,17 @@ void MenuState::InitializeState()
 		GetSongBeatmaps();
 	}
 
-	selected_.action = PLAY;
+	//selected_.action = PLAY;
 
+	// Aubio/Beatmap state stuff
+	generating_beatmap_ = false;
+	aubio_ = std::make_unique<Aubio>(generating_beatmap_);
 	beatmap_ = nullptr;
+
+	// GUI initialization
+	display_HUD = true;
 	show_GUI = new bool(true);
+	gui_ = {}; // Default initialize everything
 }
 
 void MenuState::TerminateState()
@@ -132,7 +158,11 @@ void MenuState::TerminateState()
 
 	for (auto &song : songs_)
 	{
-		SaveBeatmapList(song.first);
+		if (song.first.source_file_name_ != ".test") // skip test songs
+		{
+			LoadBeatmapList(song.first); // Preserve unloaded beatmaps lists by loading them before saving
+			SaveBeatmapList(song.first);
+		}
 	}
 
 	SaveSongList(song_list_default_filename);
@@ -140,18 +170,29 @@ void MenuState::TerminateState()
 
 bool MenuState::Update(const float _delta_time)
 {
-	GUI();
-	if (Global::Input.KeyPressed(Keyboard::Num1))
+	if (Global::Input.KeyPressed(sf::Keyboard::F10))
 	{
-		GenerateTestSongs();
+		display_HUD = !display_HUD;
+		if (display_HUD)
+			context_vertical_padding = window_size.y * 0.2f;
+		else
+			context_vertical_padding = window_size.y * 0.05f;
+		context_vertical_cuttoff = context_vertical_padding + window_size.y * 0.08f;
 	}
+	UpdateGUI();
+	if (!gui_.input_focus)
+	{
+		if (Global::Input.KeyPressed(Keyboard::Num1))
+		{
+			GenerateTestSong();
+		}
 
-	if (Global::Input.KeyPressed(Keyboard::Num2))
-	{
-		GenerateTestBeatmaps();
-	}
-	switch (selected_.context)
-	{
+		if (Global::Input.KeyPressed(Keyboard::Num2))
+		{
+			GenerateTestBeatmap();
+		}
+		switch (selected_.context)
+		{
 		case SONGS:
 			if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
 			{
@@ -190,105 +231,95 @@ bool MenuState::Update(const float _delta_time)
 				selector_.move(-context_horizontal_spacing, 0.0f);
 				break;
 			}
-			if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
+			/*if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
 			{
 				selected_.context = ACTIONS;
 				selector_.move(context_horizontal_spacing, 0.0f);
 				break;
-			}
+			}*/
 
-			if (!songs_.empty()) // Only allow up and down movement if the map isn't empty
+			if (!songs_.empty())
 			{
-				if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+				if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
 				{
-					if (selected_.beatmap != --selected_.song->second.end())
-					{
-						selected_.beatmap++;
-						beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
-					}
-				}
-				if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
-				{
-					if (selected_.beatmap != selected_.song->second.begin())
-					{
-						selected_.beatmap--;
-						beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
-					}
-				}
-
-				if (Global::Input.KeyPressed(Keyboard::Space))
-				{
-					if (!selected_.song->second.empty())
-					{
-						LoadBeatmap(*selected_.beatmap);
-					}
-				}
-
-				if (Global::Input.KeyPressed(Keyboard::S))
-				{
-					if (!selected_.song->second.empty())
-					{
-						if(beatmap_)
-							SaveBeatmap(*beatmap_);
-					}
-				}
-			}
-			break;
-
-		case ACTIONS:
-		{
-			
-			if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
-			{
-				selected_.context = BEATMAPS;
-				selector_.move(-context_horizontal_spacing, 0.0f);
-				break;
-			}
-
-			bool moved_vertically_this_update = false;
-			switch (selected_.action)
-			{
-				case PLAY:
 					if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
 					{
-						selected_.action = GENERATE;
-						action_vertical_offset = -action_vertical_spacing;
-						moved_vertically_this_update = true;
-					}
-					if (Global::Input.KeyPressed(Keyboard::Space))
-					{
-						if (beatmap_)
+						if (selected_.beatmap != --selected_.song->second.end())
 						{
-							if (!aubio_.IsGenerating())
-							{
-								ChangeState<GameState>(beatmap_);
-							}
-							else
-								Log::Important("Beatmap generation in progress. Waiting for it to finish.");
+							selected_.beatmap++;
+							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
 						}
-						else	
-							Log::Important("No beatmap loaded. A beatmap is required to play. Generate or load one.");
 					}
-					break;
-				case GENERATE:
 					if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
 					{
-						selected_.action = PLAY;
-						action_vertical_offset = action_vertical_spacing;
-						moved_vertically_this_update = true;
+						if (selected_.beatmap != selected_.song->second.begin())
+						{
+							selected_.beatmap--;
+							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+						}
 					}
-					if (Global::Input.KeyPressed(Keyboard::Space))
-					{
-						beatmap_ = aubio_.GenerateBeatmap(selected_.song->first);
-					}
-					break;
-			}
-			if (moved_vertically_this_update)
-			{
-				play_button_.move(0.0f, action_vertical_offset);
-				generate_button_.move(0.0f, action_vertical_offset);
+				}
 			}
 			break;
+
+			/*case ACTIONS:
+			{
+
+				if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
+				{
+					selected_.context = BEATMAPS;
+					selector_.move(-context_horizontal_spacing, 0.0f);
+					break;
+				}
+
+				bool moved_vertically_this_update = false;
+				switch (selected_.action)
+				{
+					case PLAY:
+						if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+						{
+							selected_.action = GENERATE;
+							action_vertical_offset = -action_vertical_spacing;
+							moved_vertically_this_update = true;
+						}
+						if (Global::Input.KeyPressed(Keyboard::Space))
+						{
+							if (beatmap_)
+							{
+								if (!generating_beatmap_)
+								{
+									ChangeState<GameState>(beatmap_);
+								}
+								else
+									Log::Message("Beatmap generation in progress. Waiting for it to finish.");
+							}
+							else
+								Log::Message("No beatmap loaded. A beatmap is required to play. Generate or load one.");
+						}
+						break;
+					case GENERATE:
+						if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
+						{
+							selected_.action = PLAY;
+							action_vertical_offset = action_vertical_spacing;
+							moved_vertically_this_update = true;
+						}
+						if (Global::Input.KeyPressed(Keyboard::Space))
+						{
+							if (!songs_.empty())
+								beatmap_ = aubio_->GenerateBeatmap(selected_.song->first);
+							else
+								Log::Message("Song list is empty. Add a song before generating a beatmap.");
+						}
+						break;
+				}
+				if (moved_vertically_this_update)
+				{
+					play_button_.move(0.0f, action_vertical_offset);
+					//generate_button_.move(0.0f, action_vertical_offset);
+				}
+				break;
+			}*/
 		}
 	}
 	return true;
@@ -296,13 +327,13 @@ bool MenuState::Update(const float _delta_time)
 
 void MenuState::Render(const float _delta_time)
 {
-	heading_.setPosition(window_centre.x, machine_.window_.getSize().y * 0.2f);
+	heading_.setPosition(songs_x, context_vertical_padding);
 	for (auto &heading : headings_)
 	{
 		heading_.setString(heading);
-		heading_.move(-(heading_.getGlobalBounds().width * 0.5f), 0.0f);
+		//heading_.move(-(heading_.getGlobalBounds().width * 0.5f), 0.0f);
 		machine_.window_.draw(heading_);
-		heading_.move((heading_.getGlobalBounds().width * 0.5f), 0.0f);
+		//heading_.move((heading_.getGlobalBounds().width * 0.5f), 0.0f);
 		heading_.move(context_horizontal_spacing, 0.0f);
 	}
 
@@ -312,10 +343,18 @@ void MenuState::Render(const float _delta_time)
 		// Don't draw song text unless it's past the vertical cutoff value
 		if (song_text_.getPosition().y > context_vertical_cuttoff)
 		{
-			song_text_.setString(song.first.song_name());
-			song_text_.move(-(song_text_.getGlobalBounds().width * 0.5f), -(song_text_.getGlobalBounds().height * 0.5f));
+			auto song_name = song.first.song_name();
+			if (song_name.size() > 40)
+			{
+				song_name.resize(40);
+				song_name += "...";
+			}
+			song_text_.setString(song_name);
+			song_text_.move(0.0f, -(song_text_.getGlobalBounds().height * 0.5f));
+			//song_text_.move(-(song_text_.getGlobalBounds().width * 0.5f), -(song_text_.getGlobalBounds().height * 0.5f));
 			machine_.window_.draw(song_text_);
-			song_text_.move((song_text_.getGlobalBounds().width * 0.5f), (song_text_.getGlobalBounds().height * 0.5f));
+			song_text_.move(0.0f, (song_text_.getGlobalBounds().height * 0.5f));
+			//song_text_.move((song_text_.getGlobalBounds().width * 0.5f), (song_text_.getGlobalBounds().height * 0.5f));
 		}
 		song_text_.move(0.0f, song_vertical_spacing);
 	}
@@ -331,43 +370,260 @@ void MenuState::Render(const float _delta_time)
 				if (beatmap_text_.getPosition().y > context_vertical_cuttoff)
 				{
 					beatmap_text_.setString(beatmap.name_);
-					beatmap_text_.move(-(beatmap_text_.getGlobalBounds().width * 0.5f), -(beatmap_text_.getGlobalBounds().height * 0.5f));
+					beatmap_text_.move(0.0f, -(beatmap_text_.getGlobalBounds().height * 0.5f));
+					//beatmap_text_.move(-(beatmap_text_.getGlobalBounds().width * 0.5f), -(beatmap_text_.getGlobalBounds().height * 0.5f));
 					machine_.window_.draw(beatmap_text_);
-					beatmap_text_.move((beatmap_text_.getGlobalBounds().width * 0.5f), (beatmap_text_.getGlobalBounds().height * 0.5f));
+					beatmap_text_.move(0.0f, (beatmap_text_.getGlobalBounds().height * 0.5f));
+					//beatmap_text_.move((beatmap_text_.getGlobalBounds().width * 0.5f), (beatmap_text_.getGlobalBounds().height * 0.5f));
 				}
 				beatmap_text_.move(0.0f, beatmaps_vertical_spacing);
 			}
 		}
 	}
 
-	if(play_button_.getPosition().y > context_vertical_cuttoff && play_button_.getPosition().y < machine_.window_.getSize().y - context_vertical_cuttoff)
-		machine_.window_.draw(play_button_);
+	/*if(play_button_.getPosition().y > context_vertical_cuttoff && play_button_.getPosition().y < window_size.y - context_vertical_cuttoff)
+		machine_.window_.draw(play_button_);*/
 
-	if (generate_button_.getPosition().y > context_vertical_cuttoff && generate_button_.getPosition().y < machine_.window_.getSize().y - context_vertical_cuttoff)
-		machine_.window_.draw(generate_button_);
+	/*if (generate_button_.getPosition().y > context_vertical_cuttoff && generate_button_.getPosition().y < window_size.y - context_vertical_cuttoff)
+		machine_.window_.draw(generate_button_);*/
 
 	machine_.window_.draw(selector_);
 }
 
-void MenuState::GUI()
+void MenuState::ProcessEvent(sf::Event& _event)
 {
-	if (!ImGui::Begin("RhythMIR GUI", show_GUI, ImVec2(400, 200), -1.f, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
+	switch (_event.type)
+	{
+	case sf::Event::Resized:
+		window_size = sf::Vector2f(_event.size.width, _event.size.height);
+		break;
+	}
+}
+
+void MenuState::UpdateGUI()
+{
+	ImGui::SetNextWindowPos(ImVec2(beatmaps_x + (context_horizontal_spacing * 0.7f), context_vertical_cuttoff - window_size.y * 0.04f));
+	ImGui::SetNextWindowSize(ImVec2(window_size.x - (beatmaps_x + (context_horizontal_spacing * 0.7f) + 10), window_size.y - (context_vertical_cuttoff - window_size.y * 0.04f + 10)));
+	if (!ImGui::Begin("RhythMIR GUI", show_GUI, ImVec2(0, 0), -1.f,
+					  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+					  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
 	}
 
-	switch (selected_.context)
+	ImGui::TextWrapped("Welcome to RhythMIR!");
+	if (ImGui::CollapsingHeader("Introduction and Controls"))
 	{
-	case SONGS:
-		break;
-	case BEATMAPS:
-		break;
-	case ACTIONS:
-		aubio_.UpdateGUI();
-		break;
+		//ImGui::
 	}
+
+	if(ImGui::Button("GTFO"))
+	{
+		FixThisShit();
+	}
+
+	if (ImGui::CollapsingHeader("Song UI"))
+	{
+		ImGui::TextWrapped("This UI is for adding songs to RhythMIR. Place the source file for the song in the songs directory (songs/). RhythMIR currently only supports .wav files.");
+		ImGui::TextWrapped("Once the song source file is in the songs directory, enter the artist, title and source file name (e.g. \"example.wav\" in the text boxes below and click add.");
+		
+		ImGui::InputText("Artist", gui_.song_artist, 128);
+		ImGui::InputText("Title", gui_.song_title, 128);
+		ImGui::InputText("Source", gui_.song_source, 128);
+		
+		if (ImGui::Button("Add Song"))
+		{
+			if (std::string(gui_.song_artist) != std::string() &&
+				std::string(gui_.song_title) != std::string() &&
+				std::string(gui_.song_source) != std::string()) // No fields may be empty
+			{
+				auto song_to_add = Song(gui_.song_artist, gui_.song_title, gui_.song_source);
+				if (songs_.count(song_to_add) == 0)
+				{
+					if (boost::filesystem::exists(song_directory + song_to_add.source_file_name_))
+					{
+						songs_.emplace(song_to_add, std::set<Beatmap>());
+						Log::Message("Creating directory " + song_to_add.relative_path() + ".");
+						boost::filesystem::create_directory(song_to_add.relative_path());
+						boost::filesystem::rename(song_directory + song_to_add.source_file_name_, song_to_add.full_file_path());
+					}
+					else
+					{
+						Log::Error("Could not find the song source in the song directory. Make sure the source file is in the songs folder (not a subfolder). RhythMIR will create the song folder and move the source file to it.");
+					}
+				}
+				else
+				{
+					Log::Error("Song already exists in song list. Duplicates with the same artist - tile are not allowed.");
+				}
+			}
+			else
+			{
+				Log::Error("Artist, Title and Source are all required to add a song.");
+			}
+		}
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Add a song to the songlist using the text boxes below.");
+		ImGui::SameLine();
+		
+		if (ImGui::Button("Delete Song"))
+		{
+			if (!songs_.empty())
+			{
+				gui_.song_to_delete = selected_.song;
+				gui_.delete_song_popup = "Delete " + selected_.song->first.song_name() + "?";
+				ImGui::OpenPopup(gui_.delete_song_popup.c_str());
+			}
+			else
+			{
+				Log::Message("No songs to delete.");
+			}
+		}
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Deletes the selected song from the songlist, optionally deleting it from disk too.");
+		if (ImGui::BeginPopupModal(gui_.delete_song_popup.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Are you sure?\n");
+			ImGui::Separator();
+
+			static bool also_delete_from_disk = false;
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+			ImGui::Checkbox("Also delete from disk", &also_delete_from_disk);
+			ImGui::PopStyleVar();
+
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				if (also_delete_from_disk)
+				{
+					boost::filesystem::remove_all(gui_.song_to_delete->first.relative_path());
+				}
+				if (selected_.song == --songs_.end()) // If its the last song we have to set the selected song to before the end manually
+				{
+					songs_.erase(gui_.song_to_delete);
+					selected_.song = --songs_.end();
+				}
+				else
+					selected_.song = songs_.erase(gui_.song_to_delete);
+				song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+				selected_.beatmap = selected_.song->second.begin();
+				beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
+	}
+
+	if (!songs_.empty())
+	{
+		if (ImGui::CollapsingHeader("Beatmap UI"))
+		{
+
+			ImGui::TextWrapped("This UI is for adding, loading, saving and deleting beatmaps in RhythMIR.");
+			ImGui::TextWrapped("To load a beatmap simply select it ");
+
+			ImGui::InputText("Artist", gui_.song_artist, 128);
+			ImGui::InputText("Title", gui_.song_title, 128);
+			ImGui::InputText("Source", gui_.song_source, 128);
+
+			if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
+			{
+				if (ImGui::Button("Load Beatmap"))
+				{
+					if (!generating_beatmap_) LoadBeatmap(*selected_.beatmap);
+				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Loads the selected beatmap from file.");
+				ImGui::SameLine();
+				if (ImGui::Button("Save Beatmap"))
+				{
+					if (!generating_beatmap_)
+					{
+						if (beatmap_)
+							SaveBeatmap(*beatmap_);
+						else
+							Log::Message("No beatmap to save.");
+					}
+				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Saves the current beatmap to file.");
+				if (generating_beatmap_)
+				{
+					ImGui::SameLine();
+					ImGui::TextDisabled("Disabled while generating a beatmap.");
+				}
+			}
+			else
+			{
+				ImGui::TextWrapped("There are no beatmaps for the selected song.");
+			}
+
+			ImGui::Separator();
+
+
+			aubio_->UpdateGUI();
+
+			if (!generating_beatmap_)
+			{
+				if (ImGui::Button("Generate Beatmap"))
+				{
+					if (!generating_beatmap_)
+					{
+						//if(selected_.song->second.find())
+						beatmap_ = aubio_->GenerateBeatmap(selected_.song->first, gui_.beatmap_name, gui_.beatmap_description);
+					}
+				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Generates a beatmap using current settings for the selected song.");
+			}
+			else
+			{
+
+			}
+
+
+		}
+
+		if(ImGui::CollapsingHeader("Play UI"))
+		{
+			std::string current_beatmap;
+			if (beatmap_)
+			{
+				current_beatmap = "Current Loaded Beatmap: " + beatmap_->song_.song_name() + " [" + beatmap_->name_ + "]";
+				ImGui::TextWrapped(current_beatmap.c_str());
+			}
+			else
+			{
+				current_beatmap = "Current Loaded Beatmap: None.";
+				ImGui::TextDisabled(current_beatmap.c_str());
+			}
+
+			if (ImGui::Button("Play"))
+			{
+				if (beatmap_)
+				{
+					if (!generating_beatmap_)
+					{
+						ChangeState<GameState>(beatmap_);
+					}
+					else
+						Log::Message("Beatmap generation in progress. Waiting for it to finish.");
+				}
+				else
+					Log::Message("No beatmap loaded. A beatmap is required to play. Generate or load one.");
+			}
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Play the currently loaded beatmap.");
+		}
+	}
+	else
+	{
+		ImGui::TextWrapped("It appears you have no songs! Use the song UI to add songs.");
+	}
+	gui_.input_focus = ImGui::IsAnyItemActive();
 
 	ImGui::End();
 }
@@ -400,7 +656,7 @@ void MenuState::LoadSongList(const std::string& _file_name)
 					path_overwrite = std::string();
 				else
 					path_overwrite = beatmap_list_path;*/
-				auto pair = songs_.emplace(Song(source_file, artist, title/*, path_overwrite*/), std::set<Beatmap>());
+				auto pair = songs_.emplace(Song(artist, title, source_file/*, path_overwrite*/), std::set<Beatmap>());
 				if (pair.second)
 				{
 					Log::Message("Added " + pair.first->first.song_name() + " to songs.");
@@ -452,12 +708,15 @@ void MenuState::SaveSongList(const std::string& _file_name)
 
 	for (auto &song : songs_)
 	{
-		xml_node<>* song_node = doc.allocate_node(node_element, "song");
-		song_node->append_attribute(doc.allocate_attribute("source", song.first.source_file_name_.c_str()));
-		song_node->append_attribute(doc.allocate_attribute("artist", song.first.artist_.c_str()));
-		song_node->append_attribute(doc.allocate_attribute("title", song.first.title_.c_str()));
-		//song_node->append_attribute(doc.allocate_attribute("beatmap_list_path", song.first.relative_path().c_str()));
-		root_node->append_node(song_node);
+		if (song.first.source_file_name_ != ".test") // Skip test songs
+		{
+			xml_node<>* song_node = doc.allocate_node(node_element, "song");
+			song_node->append_attribute(doc.allocate_attribute("artist", song.first.artist_.c_str()));
+			song_node->append_attribute(doc.allocate_attribute("title", song.first.title_.c_str()));
+			song_node->append_attribute(doc.allocate_attribute("source", song.first.source_file_name_.c_str()));
+			//song_node->append_attribute(doc.allocate_attribute("beatmap_list_path", song.first.relative_path().c_str()));
+			root_node->append_node(song_node);
+		}
 	}
 
 	// Don't need to check for directory here. If there is no song directory the song list load function will have created one.
@@ -538,7 +797,7 @@ void MenuState::LoadBeatmapList(const Song& _song, bool _force_load)
 			}
 			else
 			{
-				if (boost::filesystem::exists(song_list_default_filename))
+				if (boost::filesystem::exists(_song.relative_path() + beatmap_list_default_filename))
 					Log::Error("Beatmap list file for " + selected_.song->first.song_name() + " exists but could not be opened.");
 				else
 				{
@@ -566,12 +825,15 @@ void MenuState::SaveBeatmapList(const Song& _song)
 
 	for (auto &beatmap : songs_.find(_song)->second)
 	{
-		xml_node<>* beatmap_node = doc.allocate_node(node_element, "beatmap");
-		beatmap_node->append_attribute(doc.allocate_attribute("name", beatmap.name_.c_str()));
-		auto type = doc.allocate_string(std::to_string(beatmap.play_mode_).c_str());
-		beatmap_node->append_attribute(doc.allocate_attribute("type", type));
-		beatmap_node->append_attribute(doc.allocate_attribute("description", beatmap.description_.c_str()));
-		root_node->append_node(beatmap_node);
+		if (!beatmap.play_mode_ == TEST) // Skip test beatmaps
+		{
+			xml_node<>* beatmap_node = doc.allocate_node(node_element, "beatmap");
+			beatmap_node->append_attribute(doc.allocate_attribute("name", beatmap.name_.c_str()));
+			auto type = doc.allocate_string(std::to_string(beatmap.play_mode_).c_str());
+			beatmap_node->append_attribute(doc.allocate_attribute("type", type));
+			beatmap_node->append_attribute(doc.allocate_attribute("description", beatmap.description_.c_str()));
+			root_node->append_node(beatmap_node);
+		}
 	}
 
 	if (!boost::filesystem::exists(_song.relative_path()))
@@ -599,26 +861,23 @@ void MenuState::LoadBeatmap(const Beatmap& _beatmap, bool _force_load)
 {
 	if (!beatmap_ || *beatmap_ != _beatmap || _force_load)
 	{
-		beatmap_ = aubio_.LoadBeatmap(_beatmap);
+		beatmap_ = aubio_->LoadBeatmap(_beatmap);
 	}
 }
 
 void MenuState::SaveBeatmap(const Beatmap& _beatmap)
 {
-	aubio_.SaveBeatmap(_beatmap);
+	aubio_->SaveBeatmap(_beatmap);
 }
 
-void MenuState::GenerateTestBeatmaps()
+void MenuState::GenerateTestBeatmap()
 {
 	if (!songs_.empty())
 	{
-		for (int i = 0; i < 5; ++i)
+		auto pair = selected_.song->second.emplace( selected_.song->first, TEST, RandomString(6) );
+		if (pair.second)
 		{
-			auto pair = selected_.song->second.emplace( selected_.song->first, SINGLE, RandomString(6) );
-			if (pair.second)
-			{
-				selected_.beatmap = pair.first;
-			}
+			selected_.beatmap = pair.first;
 		}
 		beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
 	}
@@ -628,17 +887,13 @@ void MenuState::GenerateTestBeatmaps()
 	}
 }
 
-void MenuState::GenerateTestSongs()
+void MenuState::GenerateTestSong()
 {
-	for (int i = 0; i < 5; ++i)
+	Song song = Song(RandomString(3), RandomString(6), ".test");
+	auto pair = songs_.emplace(song, std::set<Beatmap>());
+	if (pair.second)
 	{
-		auto random = RandomString(6);
-		Song song = Song(random + ".random", RandomString(3), random);
-		auto pair = songs_.emplace(song, std::set<Beatmap>());
-		if (pair.second)
-		{
-			selected_.song = pair.first;
-		}
+		selected_.song = pair.first;
 	}
 	song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
 }

@@ -57,6 +57,7 @@ Beatmap::Beatmap(const Song& _song,
 
 Beatmap::~Beatmap()
 {
+	if(music_)
 		Global::AudioManager.UnloadMusic(song_.full_file_path());
 	if (sections_)
 	{

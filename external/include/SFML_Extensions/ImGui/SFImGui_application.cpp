@@ -8,7 +8,7 @@ namespace sfx
 		clock_(),
 		font_(),
 		hud_(clock_, font_),
-		console_(),
+		console_(_window),
 		display_hud_(true),
 		display_test_window_(false)
 	{
@@ -34,7 +34,7 @@ namespace sfx
 			}
 			if (Global::Input.KeyPressed(sf::Keyboard::F10))
 			{
-				display_hud_ = !display_hud_;
+				ToggleHUD();
 			}
 			if (Global::Input.KeyPressed(sf::Keyboard::F11))
 			{
@@ -64,6 +64,16 @@ namespace sfx
 		CleanUp();
 		Global::UnloadGlobalResources();
 		window_.close();
+	}
+
+	void ImGuiApplication::ToggleHUD()
+	{
+		display_hud_ = !display_hud_;
+	}
+
+	bool ImGuiApplication::IsHUDActive()
+	{
+		return display_hud_;
 	}
 
 	void ImGuiApplication::EventLoop()

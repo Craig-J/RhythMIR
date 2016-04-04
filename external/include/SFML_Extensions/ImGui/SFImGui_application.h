@@ -24,6 +24,9 @@ namespace sfx
 		sf::RenderWindow& window_;
 		sf::Font font_;
 
+		void ToggleHUD();
+		bool IsHUDActive();
+
 	private:
 
 		virtual bool Initialize() = 0;
