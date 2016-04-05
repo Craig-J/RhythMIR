@@ -51,17 +51,22 @@ private:
 	{
 		bool input_focus;
 
-		char song_artist[128];
-		char song_title[128];
-		char song_source[128];
-		char beatmap_name[128];
-		char beatmap_description[1024];
+		char song_artist[256];
+		char song_title[256];
+		char song_source[256];
 
 		std::map<Song, std::set<Beatmap>>::iterator song_to_delete;
 		std::string delete_song_popup;
 
+		char beatmap_name[256];
+		char beatmap_description[2048];
+		PLAYMODE play_mode_;
+
+		std::set<Beatmap>::iterator beatmap_to_delete;
+		std::string delete_beatmap_popup;
+
 	} gui_;
-	void UpdateGUI();
+	bool UpdateGUI();
 	
 	// Song List I/O
 	void LoadSongList(const std::string&);

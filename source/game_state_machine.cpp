@@ -2,10 +2,11 @@
 #include "menu_state.h"
 #include <SFML_Extensions\global.h>
 
-GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font) :
+GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font, bool& _display_hud) :
 	window_(_window),
 	clock_(_clock),
-	font_(_font)
+	font_(_font),
+	display_hud_(_display_hud)
 {
 	options_.music_ = true;
 	options_.sound_effects_ = true;

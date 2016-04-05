@@ -23,9 +23,7 @@ namespace sfx
 		sfx::FrameClock clock_;
 		sf::RenderWindow& window_;
 		sf::Font font_;
-
-		void ToggleHUD();
-		bool IsHUDActive();
+		bool display_hud_;
 
 	private:
 
@@ -40,7 +38,6 @@ namespace sfx
 
 		ImGuiConsole console_;
 		SystemHUD hud_;
-		bool display_hud_;
 		bool display_test_window_;
 		bool running_;
 	};

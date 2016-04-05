@@ -63,7 +63,8 @@ namespace sfx
 		// If your items are of variable size you may want to implement code similar to what CalcListClipping() does. Or split your data into fixed height items to allow random-seeking into your list.
 		ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
-		for (int i = 0; i < items_.size(); i++)
+		ImGuiListClipper clipper(items_.size(), ImGui::GetTextLineHeight());
+		for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
 		{
 			const char* item = items_[i].msg.c_str();
 			if (!filter.PassFilter(item))
@@ -95,6 +96,7 @@ namespace sfx
 		if (scroll_to_bottom_)
 			ImGui::SetScrollHere();
 		scroll_to_bottom_ = false;
+		clipper.End();
 		ImGui::PopStyleVar();
 		ImGui::EndChild();
 		ImGui::End();

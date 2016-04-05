@@ -98,6 +98,8 @@ void GameState::InitializeState()
 	beatmap_->music_->setPlayingOffset(sf::Time::Zero);
 
 	srand(time(0));
+
+	machine_.display_hud_ = false;
 }
 
 void GameState::TerminateState()

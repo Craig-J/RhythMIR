@@ -17,6 +17,16 @@ class Aubio
 {
 public:
 
+	Aubio(std::atomic<bool>& _generating);
+	~Aubio();
+
+	void UpdateGUI();
+	Beatmap* GenerateBeatmap(const Song& _song, PLAYMODE& _play_mode, std::string _beatmap_name, std::string _beatmap_description = std::string());
+	Beatmap* LoadBeatmap(const Beatmap& _beatmap);
+	void SaveBeatmap(const Beatmap& _beatmap);
+
+private:
+
 	struct Function
 	{
 		char_t* name;
@@ -35,27 +45,6 @@ public:
 		aubio_onset_t* object;
 	};
 
-	struct Settings
-	{
-		unsigned int samplerate;
-		unsigned int hop_size;
-		PLAYMODE play_mode_;
-
-		bool train_functions;
-		int training_threshold;
-
-		// Tempo
-		bool assume_constant_tempo;
-		unsigned int candidate_tempo_count;
-		float BPM_epsilon;
-
-		// Onset
-		unsigned int filter_count;
-		unsigned int filterbank_window_size;
-		unsigned int onset_function_count;
-		std::vector<std::pair<float, float>> filter_ranges;
-	};
-
 	struct TempoEstimate
 	{
 		float BPM;
@@ -71,17 +60,30 @@ public:
 		}
 	};
 
-	Aubio(std::atomic<bool>& _generating);
-	~Aubio();
+	struct GUI
+	{
+		
+	} gui_;
 
-	void UpdateGUI();
-	Beatmap* GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description = std::string());
-	Beatmap* LoadBeatmap(const Beatmap& _beatmap);
-	void SaveBeatmap(const Beatmap& _beatmap);
+	struct Settings
+	{
+		unsigned int samplerate;
+		unsigned int hop_size;
 
-private:
+		bool train_functions;
+		int training_threshold;
 
-	Settings settings_;
+		// Tempo
+		bool assume_constant_tempo;
+		unsigned int candidate_tempo_count;
+		float BPM_epsilon;
+
+		// Onset
+		unsigned int filter_count;
+		unsigned int filterbank_window_size;
+		unsigned int onset_function_count;
+		std::vector<std::pair<float, float>> filter_ranges;
+	} settings_;
 
 	Function tempo_function_;
 	std::vector<TempoEstimate> beats_;

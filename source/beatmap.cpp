@@ -80,3 +80,8 @@ void Beatmap::LoadMusic()
 {
 	music_ = Global::AudioManager.LoadMusic(song_.full_file_path());
 }
+
+void Beatmap::UnloadMusic()
+{
+	Global::AudioManager.UnloadMusic(song_.full_file_path());
+}

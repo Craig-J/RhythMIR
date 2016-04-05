@@ -1,3 +1,5 @@
 /output_log.txt
 *.RhythMIR
 /imgui.ini
+/songs/
+/temp/

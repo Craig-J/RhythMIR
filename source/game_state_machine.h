@@ -8,7 +8,7 @@ class GameStateMachine
 {
 public:
 
-	GameStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&);
+	GameStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&, bool&);
 	~GameStateMachine() {}
 
 	bool Start();
@@ -34,9 +34,7 @@ private:
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
 	sf::Font& font_;
-
-	void ToggleHUD();
-	bool IsHUDActive();
+	bool& display_hud_;
 
 	struct Options
 	{

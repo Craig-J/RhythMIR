@@ -2,7 +2,7 @@
 
 RhythMIR::RhythMIR(sf::RenderWindow& _window) :
 	ImGuiApplication(_window),
-	machine_(window_, clock_, font_)
+	machine_(window_, clock_, font_, display_hud_)
 {}
 
 RhythMIR::~RhythMIR()

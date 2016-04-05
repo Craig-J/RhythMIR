@@ -28,15 +28,15 @@ namespace sfx
 			ImGui::SFML::UpdateImGuiRendering();
 			sfx::Global::Input.Update();
 			EventLoop();
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			if (Keyboard::isKeyPressed(Keyboard::LAlt) && Keyboard::isKeyPressed(Keyboard::Escape))
 			{
 				running_ = false;
 			}
-			if (Global::Input.KeyPressed(sf::Keyboard::F10))
+			if (Global::Input.KeyPressed(Keyboard::F10))
 			{
-				ToggleHUD();
+				display_hud_ = !display_hud_;
 			}
-			if (Global::Input.KeyPressed(sf::Keyboard::F11))
+			if (Global::Input.KeyPressed(Keyboard::F11))
 			{
 				display_test_window_ = !display_test_window_;
 			}
@@ -64,16 +64,6 @@ namespace sfx
 		CleanUp();
 		Global::UnloadGlobalResources();
 		window_.close();
-	}
-
-	void ImGuiApplication::ToggleHUD()
-	{
-		display_hud_ = !display_hud_;
-	}
-
-	bool ImGuiApplication::IsHUDActive()
-	{
-		return display_hud_;
 	}
 
 	void ImGuiApplication::EventLoop()

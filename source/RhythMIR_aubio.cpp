@@ -4,22 +4,6 @@ namespace
 {
 	sf::Time song_duration;
 
-	struct BPMCompare
-	{
-		constexpr bool operator()(const Aubio::TempoEstimate& a, const Aubio::TempoEstimate& b) const
-		{
-			return(a.BPM < b.BPM);
-		}
-	};
-
-	struct TimeCompare
-	{
-		constexpr bool operator()(const Aubio::TempoEstimate& a, const Aubio::TempoEstimate& b) const
-		{
-			return(a.time < b.time);
-		}
-	};
-
 	namespace SpecDesc
 	{
 		const auto energy = std::make_pair("Energy", "energy");
@@ -42,7 +26,6 @@ Aubio::Aubio(std::atomic<bool>& _generating) :
 {
 	settings_.samplerate = 44100;
 	settings_.hop_size = 256;
-	settings_.play_mode_ = SINGLE;
 
 	settings_.train_functions = true;
 	settings_.training_threshold = 350;
@@ -57,7 +40,7 @@ Aubio::Aubio(std::atomic<bool>& _generating) :
 	// Onset
 	settings_.onset_function_count = 1;
 	Function default_function;
-	default_function.name = "specdiff";
+	default_function.name = "complex";
 	default_function.window_size = 1024;
 	default_function.hop_size = 256;
 	onset_functions_.push_back(default_function);
@@ -66,6 +49,8 @@ Aubio::Aubio(std::atomic<bool>& _generating) :
 	settings_.filterbank_window_size = 1024;
 	settings_.filter_ranges.reserve(settings_.filter_count);
 	onset_objects_.resize(settings_.filter_count, { onset_functions_.front(), nullptr });
+
+	gui_ = {}; // Default initialize all gui stuff
 }
 
 Aubio::~Aubio()
@@ -76,14 +61,16 @@ Aubio::~Aubio()
 
 void Aubio::UpdateGUI()
 {
+
+	
 	ImGui::ProgressBar(progress_);
 }
 
-Beatmap* Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description)
+Beatmap* Aubio::GenerateBeatmap(const Song& _song, PLAYMODE& _play_mode, std::string _beatmap_name, std::string _beatmap_description)
 {
 	if (!generating_)
 	{
-		Beatmap* beatmap = new Beatmap(_song, settings_.play_mode_, _beatmap_name, _beatmap_description);
+		Beatmap* beatmap = new Beatmap(_song, _play_mode, _beatmap_name, _beatmap_description);
 
 		beatmap->LoadMusic();
 
@@ -254,6 +241,9 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		if (source_)
 			del_aubio_source(source_);
 		aubio_cleanup();
+
+		SaveBeatmap(*_beatmap); // Saves the beatmap to disk
+
 		generating_ = false;
 	}
 }
@@ -372,7 +362,7 @@ void Aubio::SaveBeatmap(const Beatmap& _beatmap)
 
 	if (_beatmap.sections_)
 	{
-		for (auto &section : *_beatmap.sections_)
+		for (auto section : *_beatmap.sections_)
 		{
 			xml_node<>* section_node = doc.allocate_node(node_element, "section");
 			auto bpm = doc.allocate_string(std::to_string(section.BPM).c_str());
@@ -380,7 +370,7 @@ void Aubio::SaveBeatmap(const Beatmap& _beatmap)
 			section_node->append_attribute(doc.allocate_attribute("BPM", bpm));
 			section_node->append_attribute(doc.allocate_attribute("offset", offset));
 
-			for (auto &notequeue : section.notes)
+			for (auto notequeue : section.notes)
 			{
 				xml_node<>* notequeue_node = doc.allocate_node(node_element, "notequeue");
 

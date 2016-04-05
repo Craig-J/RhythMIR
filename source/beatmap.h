@@ -82,6 +82,7 @@ public:
 	std::queue<TimingSection> CopyTimingSections();
 
 	void LoadMusic();
+	void UnloadMusic();
 
 	const Song song_;
 	PLAYMODE play_mode_;
@@ -96,15 +97,15 @@ public:
 
 	bool operator<(const Beatmap& _other) const
 	{
-		return(std::tie(song_, name_, play_mode_) < std::tie(_other.song_, _other.name_, _other.play_mode_));
+		return(std::tie(song_, name_) < std::tie(_other.song_, _other.name_));
 	}
 	bool operator==(const Beatmap& _other) const
 	{
-		return(std::tie(song_, name_, play_mode_) == std::tie(_other.song_, _other.name_, _other.play_mode_));
+		return(std::tie(song_, name_) == std::tie(_other.song_, _other.name_));
 	}
 	bool operator!=(const Beatmap& _other) const
 	{
-		return(std::tie(song_, name_, play_mode_) != std::tie(_other.song_, _other.name_, _other.play_mode_));
+		return(std::tie(song_, name_) != std::tie(_other.song_, _other.name_));
 	}
 
 private:
