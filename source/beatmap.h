@@ -29,10 +29,13 @@ struct TimingSection
 enum PLAYMODE		// Generally corresponds to number of note paths for a beatmap
 {
 	UNKNOWN = -1,
-	TEST = 0,		// Internal test type. Will never be exported.
+	VISUALIZATION = 0,	// Catch-all for maps that don't have a play mode.
 	SINGLE = 1,		// One synchronization path. Simplest case.
 	FOURKEY = 4,	// Four note paths, similar to DDR style games.
-	PIANO = 88		// Eighty-eight note paths. Mimics a standard piano.
+	PIANO = 88,		// Eighty-eight note paths. Mimics a standard piano.
+	
+
+	PLAYMODE_COUNT
 };
 
 // NoteObject implements a game object for notes when they are to be used to create gameplay
@@ -74,12 +77,13 @@ class Beatmap
 public:
 
 	Beatmap(const Song& _song,
-			const PLAYMODE& _mode,
 			const std::string& _name,
-			const std::string& _description = std::string());
+			const std::string& _description = std::string(),
+			const PLAYMODE& _mode = SINGLE);
 	~Beatmap();
 
 	std::queue<TimingSection> CopyTimingSections();
+	std::unique_ptr<std::queue<Note>> CopyBeats();
 
 	void LoadMusic();
 	void UnloadMusic();
@@ -113,5 +117,6 @@ private:
 	// Aubio has direct access to a beatmaps sections for beatmap generation.
 	friend class Aubio;
 
-	std::vector<TimingSection>* sections_;
+	std::unique_ptr<std::queue<Note>> beats_;
+	std::unique_ptr<std::vector<TimingSection>> sections_;
 };

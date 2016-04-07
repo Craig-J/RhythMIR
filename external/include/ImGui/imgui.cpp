@@ -6673,7 +6673,7 @@ bool ImGui::DragIntRange2(const char* label, int* v_current_min, int* v_current_
     return value_changed;
 }
 
-void ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
+void ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, const char* (*string_labels_getter)(void* data, int idx), float (*float_labels_getter)(void* data, int idx), void* labels_data)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -6727,10 +6727,31 @@ void ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_ge
 
         const float v0 = values_getter(data, (v_idx + values_offset) % values_count);
         const float v1 = values_getter(data, (v_idx + 1 + values_offset) % values_count);
-        if (plot_type == ImGuiPlotType_Lines)
+       /*if (plot_type == ImGuiPlotType_Lines)
             ImGui::SetTooltip("%d: %8.4g\n%d: %8.4g", v_idx, v0, v_idx+1, v1);
         else if (plot_type == ImGuiPlotType_Histogram)
-            ImGui::SetTooltip("%d: %8.4g", v_idx, v0);
+            ImGui::SetTooltip("%d: %8.4g", v_idx, v0);*/
+		if (!string_labels_getter && !float_labels_getter)
+		{
+			if (plot_type == ImGuiPlotType_Lines)
+				ImGui::SetTooltip("%d: %8.4g\n%d: %8.4g", v_idx, v0, v_idx + 1, v1);
+			else if (plot_type == ImGuiPlotType_Histogram)
+				ImGui::SetTooltip("%d: %8.4g", v_idx, v0);
+		}
+		else if(string_labels_getter)
+		{
+			if (plot_type == ImGuiPlotType_Lines)
+				ImGui::SetTooltip("%s: %8.4g\n%s: %8.4g", string_labels_getter(labels_data, v_idx), v0, string_labels_getter(labels_data, v_idx + 1), v1);
+			else if (plot_type == ImGuiPlotType_Histogram)
+				ImGui::SetTooltip("%s: %8.4g", string_labels_getter(labels_data, v_idx), v0);
+		}
+		else if (float_labels_getter)
+		{
+			if (plot_type == ImGuiPlotType_Lines)
+				ImGui::SetTooltip("%8.4g: %8.4g\n%8.4g: %8.4g", float_labels_getter(labels_data, v_idx), v0, float_labels_getter(labels_data, v_idx + 1), v1);
+			else if (plot_type == ImGuiPlotType_Histogram)
+				ImGui::SetTooltip("%8.4g: %8.4g", float_labels_getter(labels_data, v_idx), v0);
+		}
         v_hovered = v_idx;
     }
 
@@ -6795,24 +6816,34 @@ static float Plot_ArrayGetter(void* data, int idx)
 void ImGui::PlotLines(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
 {
     ImGuiPlotArrayGetterData data(values, stride);
-    PlotEx(ImGuiPlotType_Lines, label, &Plot_ArrayGetter, (void*)&data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    PlotEx(ImGuiPlotType_Lines, label, &Plot_ArrayGetter, (void*)&data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, NULL, NULL, NULL);
 }
 
 void ImGui::PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
 {
-    PlotEx(ImGuiPlotType_Lines, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    PlotEx(ImGuiPlotType_Lines, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, NULL, NULL, NULL);
 }
 
 void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
 {
     ImGuiPlotArrayGetterData data(values, stride);
-    PlotEx(ImGuiPlotType_Histogram, label, &Plot_ArrayGetter, (void*)&data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    PlotEx(ImGuiPlotType_Histogram, label, &Plot_ArrayGetter, (void*)&data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, NULL, NULL, NULL);
 }
 
 void ImGui::PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
 {
-    PlotEx(ImGuiPlotType_Histogram, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+    PlotEx(ImGuiPlotType_Histogram, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, NULL, NULL, NULL);
 }
+
+void ImGui::PlotHistogram(const char * label, float(*values_getter)(void *data, int idx), float(*labels_getter)(void *data, int idx), void * data, void * labels_data, int values_count, int values_offset, const char * overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
+{
+	PlotEx(ImGuiPlotType_Histogram, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, NULL, labels_getter, labels_data);
+}
+
+/*void ImGui::PlotHistogram(const char * label, float(*values_getter)(void *data, int idx), const char *(*labels_getter)(void *data, int idx), void * data, void * labels_data, int values_count, int values_offset, const char * overlay_text, float scale_min, float scale_max, ImVec2 graph_size)
+{
+	PlotEx(ImGuiPlotType_Histogram, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, labels_getter, NULL, labels_data);
+}*/
 
 // size_arg (for each axis) < 0.0f: align to end, 0.0f: auto, > 0.0f: specified size
 void ImGui::ProgressBar(float fraction, const ImVec2& size_arg, const char* overlay)
@@ -6848,6 +6879,55 @@ void ImGui::ProgressBar(float fraction, const ImVec2& size_arg, const char* over
     ImVec2 overlay_size = CalcTextSize(overlay, NULL);
     if (overlay_size.x > 0.0f)
         RenderTextClipped(ImVec2(ImClamp(fill_br.x + style.ItemSpacing.x, bb.Min.x, bb.Max.x - overlay_size.x - style.ItemInnerSpacing.x), bb.Min.y), bb.Max, overlay, NULL, &overlay_size, ImGuiAlign_Left|ImGuiAlign_VCenter, &bb.Min, &bb.Max);
+}
+
+bool ImGui::Checkbox(const char* label, const bool& pressed)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiState& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+	const ImRect check_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(label_size.y + style.FramePadding.y * 2, label_size.y + style.FramePadding.y * 2));
+	ItemSize(check_bb, style.FramePadding.y);
+
+	ImRect total_bb = check_bb;
+	if (label_size.x > 0)
+		SameLine(0, style.ItemInnerSpacing.x);
+	const ImRect text_bb(window->DC.CursorPos + ImVec2(0, style.FramePadding.y), window->DC.CursorPos + ImVec2(0, style.FramePadding.y) + label_size);
+	if (label_size.x > 0)
+	{
+		ItemSize(ImVec2(text_bb.GetWidth(), check_bb.GetHeight()), style.FramePadding.y);
+		total_bb = ImRect(ImMin(check_bb.Min, text_bb.Min), ImMax(check_bb.Max, text_bb.Max));
+	}
+
+	if (!ItemAdd(total_bb, &id))
+		return false;
+
+	bool hovered, held;
+	ButtonBehavior(total_bb, id, &hovered, &held);
+	//if (pressed) This checkbox cannot modify v
+	//	*v = !(*v);
+
+	RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
+	if (pressed)
+	{
+		const float check_sz = ImMin(check_bb.GetWidth(), check_bb.GetHeight());
+		const float pad = ImMax(1.0f, (float)(int)(check_sz / 6.0f));
+		window->DrawList->AddRectFilled(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad), GetColorU32(ImGuiCol_CheckMark), style.FrameRounding);
+	}
+
+	if (g.LogEnabled)
+		LogRenderedText(text_bb.GetTL(), pressed ? "[x]" : "[ ]");
+	ImGui::PushStyleColor(ImGuiCol_Text, GImGui->Style.Colors[ImGuiCol_TextDisabled]);
+	if (label_size.x > 0.0f)
+		RenderText(text_bb.GetTL(), label);
+	ImGui::PopStyleColor();
+	return pressed;
 }
 
 bool ImGui::Checkbox(const char* label, bool* v)

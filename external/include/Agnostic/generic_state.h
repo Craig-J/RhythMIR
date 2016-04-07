@@ -28,9 +28,9 @@ namespace agn
 		// Static Initialize function
 		// 
 		template <class _ConcreteState, class ... _Types>
-		static void Initialize(_StateMachine& _state_machine, UniqueStatePtr<_State>& _state, _Types& ... _args)
+		static void Initialize(_StateMachine& _state_machine, UniqueStatePtr<_State>& _state, _Types&& ... _args)
 		{
-			_state = UniqueStatePtr<_State>(new _ConcreteState(_state_machine, _state, _args...));
+			_state = UniqueStatePtr<_State>(new _ConcreteState(_state_machine, _state, std::forward<_Types>(_args)...));
 			_state->InitializeState();
 		}
 
@@ -39,12 +39,12 @@ namespace agn
 		// Basic state transition implementation.
 		// Terminate current state and calls the static initialize to create a new state.
 		template <class _ConcreteState, class ... _Types>
-		void ChangeState(_Types& ... _args)
+		void ChangeState(_Types&& ... _args)
 		{
 			// Terminate current state.
 			TerminateState();
 			// Initialize new one.
-			Initialize<_ConcreteState, _Types...>(machine_, state_, _args...);
+			Initialize<_ConcreteState, _Types...>(machine_, state_, std::forward<_Types>(_args)...);
 		}
 
 		// RenewState

@@ -93,10 +93,10 @@ namespace sfx
 			ImGui::TextWrapped(item);
 			ImGui::PopStyleColor();
 		}
+		clipper.End();
 		if (scroll_to_bottom_)
 			ImGui::SetScrollHere();
 		scroll_to_bottom_ = false;
-		clipper.End();
 		ImGui::PopStyleVar();
 		ImGui::EndChild();
 		ImGui::End();

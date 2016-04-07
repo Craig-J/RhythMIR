@@ -28,10 +28,10 @@ namespace sfx
 			ImGui::SFML::UpdateImGuiRendering();
 			sfx::Global::Input.Update();
 			EventLoop();
-			if (Keyboard::isKeyPressed(Keyboard::LAlt) && Keyboard::isKeyPressed(Keyboard::Escape))
+			/*if (Keyboard::isKeyPressed(Keyboard::LAlt) && Keyboard::isKeyPressed(Keyboard::Escape))
 			{
 				running_ = false;
-			}
+			}*/
 			if (Global::Input.KeyPressed(Keyboard::F10))
 			{
 				display_hud_ = !display_hud_;

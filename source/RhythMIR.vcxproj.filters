@@ -89,5 +89,8 @@
     <ClInclude Include="..\external\include\RapidXML\rapidxml_print.hpp">
       <Filter>RapidXML</Filter>
     </ClInclude>
+    <ClInclude Include="game_settings.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

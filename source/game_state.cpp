@@ -4,30 +4,33 @@
 
 namespace
 {
-	
-	sf::Time play_offset = sf::seconds(3);
-	sf::Time approach_time = sf::milliseconds(900);
 	sf::Vector2f window_centre;
+	sf::Vector2f window_size;
 
-	int path_count;
 	float path_start_y;
 	float path_end_y;
 	float path_x;
 	float path_x_offset;
+	float note_length;
+
+	bool interpolate_beats;
 
 	const int hit_counter_statistic_count = 5;
 	const int hit_counter_y_offset = 24.0f;
 	
 }
 
-GameState::GameState(GameStateMachine& _state_machine, UniqueStatePtr<AppState>& _state, Beatmap* _beatmap) :
+GameState::GameState(GameStateMachine& _state_machine,
+					 UniqueStatePtr<AppState>& _state,
+					 std::unique_ptr<Beatmap> _beatmap,
+					 GameSettings _settings) :
 	AppState(_state_machine, _state),
-	beatmap_(_beatmap),
+	beatmap_(std::move(_beatmap)),
+	settings_(std::move(_settings)),
 	play_clock_(),
 	paused_(false),
 	finished_(false),
 	hit_counters_(true),
-	duncan_factor_(true),
 	current_section_(nullptr)
 {
 }
@@ -38,13 +41,23 @@ void GameState::InitializeState()
 	{
 		{ machine_.background_texture_, "play_background.png" },
 		{ pause_background_texture_, "pause_background.png" },
-		{ white_circle_texture_, "circle_white.png" }
+		{ white_circle_texture_, "circle_white.png", },
+		{ beat_texture_, "beat.png" }
 	};
 	Global::TextureManager.Load(textures_);
 
 	machine_.background_.setTexture(*machine_.background_texture_);
 
+	sounds_ = SoundFileVector
+	{
+		{ deep_hit_sound_, "deep_hit.wav" },
+		{ soft_hit_sound_, "soft_hit.wav" },
+		{ miss_sound_, "combobreak.wav" }
+	};
+	Global::AudioManager.Load(sounds_);
+
 	window_centre = sf::Vector2f(machine_.window_.getSize().x * 0.5, machine_.window_.getSize().y * 0.5);
+	window_size = sf::Vector2f(machine_.window_.getSize());
 
 	pause_background_ = sfx::Sprite(window_centre, pause_background_texture_);
 
@@ -52,7 +65,7 @@ void GameState::InitializeState()
 	clock_text_.setFont(machine_.font_);
 	clock_text_.setCharacterSize(45);
 	clock_text_.setColor(sf::Color::Color(255, 69, 0));
-	clock_text_.setPosition(sf::Vector2f(machine_.window_.getSize().x, 0.0f));
+	clock_text_.setPosition(sf::Vector2f(window_size.x, 0.0f));
 
 	// Countdown text initialization
 	countdown_text_.setFont(machine_.font_);
@@ -64,183 +77,277 @@ void GameState::InitializeState()
 	score_text_.setFont(machine_.font_);
 	score_text_.setCharacterSize(60);
 	score_text_.setColor(sf::Color::Color(255, 69, 0));
-	score_text_.setPosition(sf::Vector2f(machine_.window_.getSize().x, 0.0f));
+	score_text_.setPosition(sf::Vector2f(window_size.x, 0.0f));
 	score_ = 0;
 
 	// Hit counters initialization
 	hit_counters_text_.setFont(machine_.font_);
 	hit_counters_text_.setCharacterSize(30);
-	hit_counters_text_.setPosition(sf::Vector2f(5.0f, machine_.window_.getSize().y - hit_counter_y_offset * 5 - 5.0f));
+	hit_counters_text_.setPosition(sf::Vector2f(5.0f, window_size.y - hit_counter_y_offset * 10 - 5.0f));
 	perfect_hits_ = 0;
 	great_hits_ = 0;
 	good_hits_ = 0;
 	misses_ = 0;
 	hit_combo_ = 0;
 
-	switch (beatmap_->play_mode_)
-	{
-	case FOURKEY:
-		InitializeFourKeyMode();
-		break;
-	case PIANO:
-		InitializePianoMode();
-		break;
-	default:
-		InitializeFourKeyMode();
-		break;
-	}
-
 	// Beatmap initialization
 	sections_ = beatmap_->CopyTimingSections();
 
+	interpolate_beats = false;
+	switch (settings_.beat_style)
+	{
+	case GameSettings::HIDDEN:
+		break;
+	case GameSettings::INTERPOLATED:
+		interpolate_beats = true;
+		break;
+	case GameSettings::GENERATED:
+		beatqueue_ = beatmap_->CopyBeats();
+		break;
+	}
+	
 	if (!beatmap_->music_)
 		beatmap_->LoadMusic();
 	beatmap_->music_->setPlayingOffset(sf::Time::Zero);
-
 	srand(time(0));
 
 	machine_.display_hud_ = false;
+
+	switch (beatmap_->play_mode_)
+	{
+	case VISUALIZATION:
+		settings_.path_count = sections_.front().notes.size();
+		InitializeVisualizerMode();
+		break;
+	case SINGLE:
+		InitializeFourKeyMode();
+		break;
+	case FOURKEY:
+		InitializeFourKeyMode();
+		break;
+	}
 }
 
 void GameState::TerminateState()
 {
 	Global::TextureManager.Unload(textures_);
 	textures_.clear();
-
-	delete current_section_;
+	Global::AudioManager.Unload(sounds_);
+	sounds_.clear();
 }
 
 bool GameState::Update(const float _delta_time)
 {
-	if (Global::Input.KeyPressed(Keyboard::Escape))
+	if (finished_)
 	{
-		paused_ = !paused_;
-	}
-
-	if (paused_)
-	{
-		play_clock_.Stop();
-		if (beatmap_->music_->getStatus() == sf::Music::Playing)
-			beatmap_->music_->pause();
 		if (Global::Input.KeyPressed(Keyboard::BackSpace))
 		{
-			ChangeState<MenuState>(beatmap_);
+			ChangeState<MenuState>(std::move(beatmap_));
+			return true;
 		}
 		if (Global::Input.KeyPressed(Keyboard::Return))
 		{
-			ChangeState<GameState>(beatmap_);
+			ChangeState<GameState>(std::move(beatmap_), std::move(settings_));
+			return true;
+		}
+		if (!PauseMenu())
+		{
+			return true;
 		}
 	}
 	else
 	{
-		play_clock_.Start();
-
-		auto time_elapsed = play_clock_.GetTimeElapsed();
-
-		// If more than the play offset (intro time) seconds and
-		// less than the duration of the music + play offset seconds has elapsed then...
-		if (time_elapsed > play_offset && time_elapsed < beatmap_->music_->getDuration() + play_offset)
+		if (Global::Input.KeyPressed(Keyboard::Escape))
 		{
-			auto current_offset = time_elapsed - play_offset;
-			auto current_approach_offset = current_offset + approach_time;
+			paused_ = !paused_;
+		}
 
-			// Play music if it's not already playing
-			if(beatmap_->music_->getStatus() != sf::Music::Playing)
-				beatmap_->music_->play();
+		if (settings_.music_volume != beatmap_->music_->getVolume())
+			beatmap_->music_->setVolume(settings_.music_volume);
 
-			// If sections isn't empty
-			if (!sections_.empty())
+		if (paused_)
+		{
+			play_clock_.Stop();
+			if (beatmap_->music_->getStatus() == sf::Music::Playing)
+				beatmap_->music_->pause();
+			if (Global::Input.KeyPressed(Keyboard::BackSpace))
 			{
-				// See if the next one's offset is less than the current approach offset
-				auto next_section = sections_.front();
-				if (current_approach_offset > next_section.offset)
-				{
-					current_section_ = new TimingSection(next_section);
-					sections_.pop();
-				}
+				ChangeState<MenuState>(std::move(beatmap_));
+				return true;
 			}
-			else if (current_section_ == nullptr)
+			if (Global::Input.KeyPressed(Keyboard::Return))
 			{
-				Log::Error("Current timing section is nullptr. Beatmap is invalid.");
+				ChangeState<GameState>(std::move(beatmap_), std::move(settings_));
+				return true;
 			}
-
-			if (!current_section_->notes.empty())
+			if (!PauseMenu())
 			{
-				for (auto notequeue = current_section_->notes.begin(); notequeue != current_section_->notes.end(); ++notequeue)
+				return true;
+			}
+		}
+		else
+		{
+			play_clock_.Start();
+
+			auto time_elapsed = play_clock_.GetTimeElapsed();
+
+			// If more than the play offset (intro time) seconds and
+			// less than the duration of the music + play offset seconds has elapsed then...
+			if (time_elapsed > settings_.countdown_time && time_elapsed < beatmap_->music_->getDuration() + settings_.countdown_time)
+			{
+				auto current_offset = time_elapsed - settings_.countdown_time + settings_.play_offset;
+				auto current_approach_offset = current_offset + settings_.approach_time;
+
+				// Play music if it's not already playing
+				if (beatmap_->music_->getStatus() != sf::Music::Playing)
+					beatmap_->music_->play();
+
+				// If sections isn't empty
+				if (!sections_.empty())
 				{
-					int index = notequeue - current_section_->notes.begin();
-					// If there are any notes remaining in the current section
-					if (!notequeue->empty())
+					// See if the next one's offset is less than the current approach offset
+					auto next_section = sections_.front();
+					if (current_approach_offset > next_section.offset)
 					{
-						// Get the next one
-						auto next_onset_offset = notequeue->front().offset;
+						current_section_.reset(new TimingSection(next_section));
+						sections_.pop();
+					}
+				}
+				else if (!current_section_)
+				{
+					Log::Error("Current timing section is nullptr. Beatmap is invalid.");
+				}
 
-						// If the next notes offset is less than the current approach offset
-						if (current_approach_offset > next_onset_offset)
+				if (beatqueue_)
+				{
+					if (!beatqueue_->empty())
+					{
+						auto next_beat_offset = beatqueue_->front().offset;
+
+						if (current_approach_offset > next_beat_offset)
 						{
-							// Just spawn a random note
-							if(duncan_factor_)
-								SpawnNote(note_paths_[rand() % note_paths_.size()]);
-							else
-								SpawnNote(note_paths_[index]);
-							notequeue->pop();
+							SpawnBeat();
+							beatqueue_->pop();
 						}
 					}
 				}
-			}
-			else
-			{
-				Log::Error("Notequeue vector is empty.");
-			}
 
-			// INPUT
-			switch (beatmap_->play_mode_)
-			{
-			case FOURKEY:
-				FourKeyInput();
-				break;
-			case PIANO:
-				break;
-			default:
-				FourKeyInput();
-				break;
-			}
-
-
-			// Update note positions and remove offscreen notes
-			for (auto &path : note_paths_)
-			{
-				for (auto &note : path.notes)
+				if (!current_section_->notes.empty())
 				{
-					note.UpdatePosition(_delta_time);
-					note.offset_from_perfect -= sf::seconds(_delta_time);
-					note.VerifyPosition(machine_.window_);
-				}
-				auto path_index = path.notes.begin();
-				while (path_index != path.notes.end())
-				{
-					if (path_index->visibility() == false)
+					for (auto notequeue = current_section_->notes.begin(); notequeue != current_section_->notes.end(); ++notequeue)
 					{
-						path_index = path.notes.erase(path_index);
-						hit_combo_ = 0;
-						misses_++;
+						int index = notequeue - current_section_->notes.begin();
+						// If there are any notes remaining in the current section
+						if (!notequeue->empty())
+						{
+							// Get the next one
+							auto next_onset_offset = notequeue->front().offset;
+
+							// If the next notes offset is less than the current approach offset
+							if (current_approach_offset > next_onset_offset)
+							{
+								// Just spawn a random note
+								if (settings_.duncan_factor)
+									SpawnNote(note_paths_[rand() % note_paths_.size()]);
+								else
+									SpawnNote(note_paths_[index]);
+								notequeue->pop();
+							}
+						}
 					}
-					else
-						++path_index;
+				}
+				else
+				{
+					Log::Error("Notequeue vector is empty.");
+				}
+
+
+				if (!settings_.auto_play)
+				{
+					for (int index = 0; index < note_paths_.size(); ++index)
+					{
+						if (Global::Input.KeyPressed(settings_.keybinds[index]))
+						{
+							AttemptNoteHit(note_paths_[index]);
+						}
+					}
+				}
+
+				
+				for (auto &beat : beats_)
+				{
+					beat.UpdatePosition(_delta_time);
+					beat.offset_from_perfect -= sf::seconds(_delta_time);
+				}
+				while (!beats_.empty() && beats_.front().offset_from_perfect < sf::Time::Zero)
+				{
+					beats_.erase(beats_.begin());
+				}
+
+				// Update note positions and remove offscreen notes
+				for (auto &path : note_paths_)
+				{
+					for (auto &note : path.notes)
+					{
+						note.UpdatePosition(_delta_time);
+						note.offset_from_perfect -= sf::seconds(_delta_time);
+						if (!note.VerifyPosition(machine_.window_))
+						{
+							// Note went offscreen, so it's a miss
+							if (hit_combo_ > 10)
+								PlayMissSound();
+							hit_combo_ = 0;
+							misses_++;
+						}
+						if (settings_.auto_play && note.offset_from_perfect < sf::Time::Zero)
+						{
+							AttemptNoteHit(path);
+						}
+					}
+					auto path_index = path.notes.begin();
+					while (path_index != path.notes.end())
+					{
+						if (path_index->visibility() == false)
+						{
+							path_index = path.notes.erase(path_index);
+						}
+						else
+							++path_index;
+					}
 				}
 			}
+			else if (time_elapsed > beatmap_->music_->getDuration() + settings_.countdown_time)
+			{
+				beatmap_->music_->stop();
+				play_clock_.Stop();
+				finished_ = true;
+			}
 		}
-		else if (time_elapsed > beatmap_->music_->getDuration() + play_offset)
+
+		if (!active_sounds_.empty())
 		{
-			beatmap_->music_->stop();
-			finished_ = true;
+			for (auto iterator = active_sounds_.begin(); iterator != active_sounds_.end();)
+			{
+				if ((*iterator)->getStatus() == sf::Sound::Stopped)
+				{
+					iterator = active_sounds_.erase(iterator);
+				}
+				if (iterator != active_sounds_.end())
+					iterator++;
+			}
 		}
+
 	}
+
 	return true;
 }
 
 void GameState::Render(const float _delta_time)
 {	
+	for (auto beat : beats_)
+	{
+		machine_.window_.draw(beat);
+	}
 	for (auto path : note_paths_)
 	{
 		machine_.window_.draw(path.target);
@@ -249,6 +356,38 @@ void GameState::Render(const float _delta_time)
 			machine_.window_.draw(note);
 		}
 	}
+
+	auto time_elapsed = play_clock_.GetTimeElapsed();
+	if (time_elapsed < settings_.countdown_time)
+	{
+		countdown_text_.setString("Countdown: " + agn::to_string_precise(settings_.countdown_time.asSeconds() - time_elapsed.asSeconds(), 1));
+		countdown_text_.setPosition(sf::Vector2f(0.0f, window_centre.y));
+		machine_.window_.draw(countdown_text_);
+	}
+
+	switch (settings_.progress_bar_position)
+	{
+	case GameSettings::TOPRIGHT:
+		ImGui::SetNextWindowPos(ImVec2(window_size.x * 0.9f, 120));
+		ImGui::SetNextWindowSize(ImVec2(window_size.x * 0.1f, 10));
+		break;
+	case GameSettings::ALONGTOP:
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(window_size.x, 10));
+		break;
+	case GameSettings::ALONGBOTTOM:
+		ImGui::SetNextWindowPos(ImVec2(0, window_size.y - 30));
+		ImGui::SetNextWindowSize(ImVec2(window_size.x , 10));
+		break;
+	}
+	
+	if (!ImGui::Begin("Progress", &settings_.show_progress_bar, ImVec2(0.0f, 0.0f), 0.3f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+	{
+		ImGui::End();
+		return;
+	}
+	ImGui::ProgressBar(time_elapsed / beatmap_->music_->getDuration());
+	ImGui::End();
 
 	score_text_.setString("Score: " + std::to_string(score_));
 	score_text_.move(-(score_text_.getGlobalBounds().width + 15.0f), (score_text_.getGlobalBounds().top));
@@ -260,6 +399,8 @@ void GameState::Render(const float _delta_time)
 	machine_.window_.draw(clock_text_);
 	clock_text_.move((clock_text_.getGlobalBounds().width + 15.0f), -(score_text_.getLocalBounds().height));
 
+	
+	hit_counters_text_.setPosition(sf::Vector2f(5.0f, window_size.y - hit_counter_y_offset * 10 - 5.0f));
 	for (int index = 0; index < hit_counter_statistic_count; ++index)
 	{
 		switch (index)
@@ -296,6 +437,94 @@ void GameState::Render(const float _delta_time)
 	}
 }
 
+void GameState::ProcessEvent(sf::Event& _event)
+{
+	switch (_event.type)
+	{
+	case sf::Event::Resized:
+		window_size = sf::Vector2f(_event.size.width, _event.size.height);
+		break;
+	}
+}
+
+bool GameState::PauseMenu()
+{
+	ImGui::SetNextWindowPos(ImVec2(window_centre.x - window_size.x * 0.2f, window_centre.y));
+	ImGui::SetNextWindowSize(ImVec2(window_size.x * 0.4f, 400));
+	if (!ImGui::Begin("Pause Menu", nullptr, ImVec2(0, 0), -1.f,
+					  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+					  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+	{
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return true;
+	}
+	if (!finished_)
+	{
+		if (ImGui::Button("Resume (Escape)", ImVec2(ImGui::GetWindowContentRegionWidth(), 60)))
+		{
+			paused_ = false;
+			ImGui::End();
+			return true;
+		}
+	}
+
+	if (ImGui::Button("Restart (Enter)", ImVec2(ImGui::GetWindowContentRegionWidth(), 60)))
+	{
+		ChangeState<GameState>(std::move(beatmap_), std::move(settings_));
+		ImGui::End();
+		return false;
+	}
+
+	if (ImGui::Button("Quit (Backspace)", ImVec2(ImGui::GetWindowContentRegionWidth(), 60)))
+	{
+		ChangeState<MenuState>(std::move(beatmap_));
+		ImGui::End();
+		return false;
+	}
+
+	ImGui::Spacing();
+
+	ImGui::Separator();
+
+	ImGui::Spacing();
+
+	const char* hitsounds[] = { "None", "Soft", "Deep" };
+	ImGui::Combo("Hitsound", &settings_.hitsound, hitsounds, 3);
+	ImGui::SliderFloat("Music Volume", &settings_.music_volume, 0, 100);
+	ImGui::SliderFloat("SFX Volume", &settings_.sfx_volume, 0, 100);
+
+	ImGui::Spacing();
+
+	const char* barpositions[] = { "Top Right", "Along Top", "Along Bottom" };
+	ImGui::Combo("Progress Bar Position", &settings_.progress_bar_position, barpositions, 3);
+
+	ImGui::End();
+	return true;
+}
+
+void GameState::SpawnBeat()
+{
+	if (beatmap_->play_mode_ == VISUALIZATION)
+	{
+		beats_.emplace_back(NoteObject(sf::Vector2f(path_x + window_size.x * 0.4f, path_start_y),
+									   sf::Vector2f(path_x + window_size.x * 0.4f, path_end_y),
+									   settings_.approach_time,
+									   beat_texture_,
+									   sf::Color(255, 69, 0, 128)));
+		beats_.back().SetDimensions(sf::Vector2f(window_size.x * 0.8f, 5.0f));
+	}
+	else
+	{
+		beats_.emplace_back(NoteObject(sf::Vector2f(path_x + window_size.x * 0.15f, path_start_y),
+									   sf::Vector2f(path_x + window_size.x * 0.15f, path_end_y),
+									   settings_.approach_time,
+									   beat_texture_,
+									   sf::Color(255, 69, 0, 128)));
+		beats_.back().SetDimensions(sf::Vector2f(window_size.x * 0.4f, 5.0f));
+	}
+}
+
 void GameState::SpawnNote(NotePath& _path)
 {
 	_path.notes.emplace_back(NoteObject(_path.start_position,
@@ -303,14 +532,15 @@ void GameState::SpawnNote(NotePath& _path)
 								  _path.approach_time,
 								  _path.note_texture,
 								  _path.note_color));
-	_path.notes.back().SetDimensions(_path.target);
+	if (settings_.path_count > 6)
+		_path.notes.back().SetDimensions(sf::Vector2f(note_length, note_length));
 }
 
 void GameState::AttemptNoteHit(NotePath& _path)
 {
 	if (!_path.notes.empty())
 	{
-		auto note = _path.notes.front();
+		auto& note = _path.notes.front();
 
 		// Note offset is the time (in ms) that the note is offset from a perfect hit
 		int note_offset = abs(note.offset_from_perfect.asMilliseconds());
@@ -318,47 +548,62 @@ void GameState::AttemptNoteHit(NotePath& _path)
 		// Ignore press when the offset is more than 300ms
 		if (note_offset < 300)
 		{
+			sf::Sound* hitsound;
 			if (note_offset < 30)
 			{
 				perfect_hits_++;
 				hit_combo_++;
 				score_ += hit_combo_ * 300;
+
+				PlayHitSound();
 			}
-			else if (note_offset < 80)
+			else if (note_offset < 60)
 			{
 				great_hits_++;
 				hit_combo_++;
 				score_ += hit_combo_ * 100;
+
+				PlayHitSound();
 			}
 			else if (note_offset < 120)
 			{
 				good_hits_++;
 				hit_combo_++;
 				score_ += hit_combo_ * 50;
+
+				PlayHitSound();
 			}
 			else
 			{
 				misses_++;
+				if(hit_combo_ > 10)
+					PlayMissSound();
 				hit_combo_ = 0;
 			}
 
-			// Erase the front note (the one we are testing)
-			_path.notes.erase(_path.notes.begin());
+			// Set not visible (will get erased at end of update)
+			note.SetVisibility(false);
 		}
 	}
 }
 
 void GameState::InitializeFourKeyMode()
 {
-	path_count = 4;
-
 	// NotePath initialization
-	note_paths_.reserve(path_count);
-	path_start_y = 0.0f;
-	path_end_y = machine_.window_.getSize().y * 0.9f;
-	path_x = machine_.window_.getSize().x * 0.2f;
-	path_x_offset = machine_.window_.getSize().x * 0.1f;
-	for (int index = 0; index < path_count; ++index)
+	note_paths_.reserve(settings_.path_count);
+	if (settings_.flipped)
+	{
+		path_start_y = window_size.y;
+		path_end_y = window_size.y * 0.1f;
+	}
+	else
+	{
+		path_start_y = 0.0f;
+		path_end_y = window_size.y * 0.9f;
+	}
+	path_x = window_size.x * 0.2f;
+	path_x_offset = window_size.x * 0.1f;
+	for (int index = 0; index < settings_.path_count; ++index)
 	{
 		sf::Color note_color;
 		switch (index)
@@ -370,72 +615,84 @@ void GameState::InitializeFourKeyMode()
 			note_color = sf::Color::Red;
 			break;
 		case 2:
-			note_color = sf::Color::Yellow;
+			note_color = sf::Color::Cyan;
 			break;
 		case 3:
-			note_color = sf::Color::Blue;
+			note_color = sf::Color(255, 69, 0);
 			break;
 		}
 		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
 										  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
-										  approach_time,
+										  settings_.approach_time,
 										  1,
 										  white_circle_texture_,
 										  note_color));
 	}
 }
 
-void GameState::InitializePianoMode()
+void GameState::InitializeVisualizerMode()
 {
-	path_count = 88;
-
 	// NotePath initialization
-	note_paths_.reserve(path_count);
-	path_start_y = 0.0f;
-	path_end_y = machine_.window_.getSize().y * 0.9f;
-	path_x = machine_.window_.getSize().x * 0.2f;
-	float length = (machine_.window_.getSize().x - path_x - path_x) / path_count;
-	path_x_offset = length + 2.0f;
-
-	for (int index = 0; index < path_count; ++index)
+	note_paths_.reserve(settings_.path_count);
+	if (settings_.flipped)
 	{
-		sf::Color note_color;
-		switch (index%2)
-		{
-		case 0:
-			note_color = sf::Color::White;
-			break;
-		case 1:
-			note_color = sf::Color::Black;
-			break;
-		}
+		path_start_y = window_size.y;
+		path_end_y = window_size.y * 0.1f;
+	}
+	else
+	{
+		path_start_y = 0.0f;
+		path_end_y = window_size.y * 0.9f;
+	}
+	path_x = window_size.x * 0.1f;
+	path_x_offset = window_size.x * 0.8f / settings_.path_count;
+	if(settings_.path_count > 5)
+		note_length = path_x_offset * 0.75f;
+	else if(settings_.path_count > 10)
+		note_length = path_x_offset - 5;
+	for (int index = 0; index < settings_.path_count; ++index)
+	{
+		int hue = (int)(((float)index / (float)settings_.path_count) * 360.0f);
+		sf::Color note_color(sfx::HSL(hue, 100, 50).HSLToRGB());
+
 		note_paths_.emplace_back(NotePath(sf::Vector2f(path_x + path_x_offset * index, path_start_y),
 										  sf::Vector2f(path_x + path_x_offset * index, path_end_y),
-										  approach_time,
+										  settings_.approach_time,
 										  1,
 										  white_circle_texture_,
 										  note_color));
-		
-		note_paths_[index].target.SetDimensions(sf::Vector2f(length, length));
+		if (settings_.path_count > 5)
+			note_paths_.back().target.SetDimensions(sf::Vector2f(note_length, note_length));
 	}
 }
 
-void GameState::FourKeyInput()
+void GameState::PlayHitSound()
 {
-	if (Global::Input.KeyPressed(Keyboard::Z))
+	sf::Sound* hitsound;
+	switch (settings_.hitsound)
 	{
-		AttemptNoteHit(note_paths_[0]);
+	case GameSettings::SOFT:
+		hitsound = new sf::Sound(*soft_hit_sound_);
+		break;
+	case GameSettings::DEEP:
+		hitsound = new sf::Sound(*deep_hit_sound_);
+		break;
 	}
-	if (Global::Input.KeyPressed(Keyboard::X))
+	if (!settings_.hitsound == GameSettings::NONE)
 	{
-		AttemptNoteHit(note_paths_[1]);
+		hitsound->setVolume(settings_.sfx_volume);
+		hitsound->play();
+		active_sounds_.emplace_back(hitsound);
 	}
-	if (Global::Input.KeyPressed(Keyboard::N))
+}
+
+void GameState::PlayMissSound()
+{
+	if (!settings_.hitsound == GameSettings::NONE)
 	{
-		AttemptNoteHit(note_paths_[2]);
-	}
-	if (Global::Input.KeyPressed(Keyboard::M))
-	{
-		AttemptNoteHit(note_paths_[3]);
+		sf::Sound* hitsound = new sf::Sound(*miss_sound_);
+		hitsound->setVolume(settings_.sfx_volume);
+		hitsound->play();
+		active_sounds_.emplace_back(hitsound);
 	}
 }

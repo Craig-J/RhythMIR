@@ -38,6 +38,7 @@
     <ClInclude Include="appstate.h" />
     <ClInclude Include="beatmap.h" />
     <ClInclude Include="game_object.h" />
+    <ClInclude Include="game_settings.h" />
     <ClInclude Include="game_state_machine.h" />
     <ClInclude Include="RhythMIR_application.h" />
     <ClInclude Include="game_state.h" />
@@ -52,6 +53,9 @@
     </ProjectReference>
     <ProjectReference Include="..\external\include\aubio\aubio.vcxproj">
       <Project>{92a60520-8725-43ce-90e6-3c8066156643}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\external\include\DspFilters\DSPFilters.vcxproj">
+      <Project>{7673b1aa-8d4a-482e-85dc-2f6c2ff8b076}</Project>
     </ProjectReference>
     <ProjectReference Include="..\external\include\SFML_Extensions\SFML_Extensions.vcxproj">
       <Project>{ebeadaa1-bc2f-4088-9146-a04a807d404e}</Project>
@@ -157,7 +161,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)external\lib\boost\Debug;$(SolutionDir)build\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Agnostic.lib;SFML_Extensions.lib;aubio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Agnostic-d.lib;SFML_Extensions-d.lib;aubio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference />
   </ItemDefinitionGroup>

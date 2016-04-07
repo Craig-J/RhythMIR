@@ -6,7 +6,7 @@
 namespace agn
 {
 	template<typename T>
-	std::string to_string_precise(const T _value, const int _precision = 6)
+	std::string to_string_precise(const T& _value, const int _precision = 6)
 	{
 		std::ostringstream out;
 		out.precision(_precision);

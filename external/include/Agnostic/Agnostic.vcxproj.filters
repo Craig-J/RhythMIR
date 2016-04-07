@@ -59,5 +59,8 @@
     <ClInclude Include="string.h">
       <Filter>Agnostic %28agn%29\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="histogram.h">
+      <Filter>Agnostic %28agn%29</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="DSP">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Bessel.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Biquad.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Butterworth.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Cascade.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="ChebyshevI.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="ChebyshevII.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Custom.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Design.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Documentation.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Elliptic.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Filter.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Legendre.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Param.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="PoleFilter.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="RBJ.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="RootFinder.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>DSP</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Bessel.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Biquad.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Butterworth.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Cascade.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="ChebyshevI.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="ChebyshevII.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Custom.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Design.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Dsp.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Elliptic.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Filter.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Layout.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Legendre.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="MathSupplement.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Params.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="PoleFilter.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="RBJ.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="RootFinder.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="SmoothedFilter.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>DSP</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

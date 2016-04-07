@@ -90,6 +90,8 @@ aubio_onset_t * new_aubio_onset (char_t * method,
 */
 void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
 
+void aubio_onset_do_filtered (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
+
 /** get the time of the latest onset detected, in samples
 
   \param o onset detection object as returned by new_aubio_onset()

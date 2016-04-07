@@ -44,7 +44,7 @@ namespace sfx
 
 		void Load(const TextureFileVector& _textures)
 		{
-			for (auto texture : _textures)
+			for (auto& texture : _textures)
 			{
 				texture.first = Load(texture.second);
 			}
@@ -57,7 +57,7 @@ namespace sfx
 
 		void Unload(const TextureFileVector& _textures)
 		{
-			for (auto texture : _textures)
+			for (auto& texture : _textures)
 			{
 				Unload(texture.second);
 				texture.first.reset();

@@ -3,12 +3,15 @@
 #include "RhythMIR_aubio.h"
 #include <SFML_Extensions\Graphics\button.h>
 #include <boost/filesystem.hpp>
+#include "game_settings.h"
 
 class MenuState : public AppState
 {
 public:
 
-	MenuState(GameStateMachine&, UniqueStatePtr<AppState>&, Beatmap* = nullptr);
+	MenuState(GameStateMachine&,
+			  UniqueStatePtr<AppState>&,
+			  std::unique_ptr<Beatmap> = nullptr);
 	virtual ~MenuState() {}
 	
 	void InitializeState();
@@ -20,19 +23,23 @@ public:
 private:
 
 	std::unique_ptr<Aubio> aubio_;
-	Beatmap* beatmap_; // Pointer to the current beatmap.
-	// Gets passed around between states so using naked pointer to avoid dealing with ownership.
-	// Should really be a shared ptr but we only ever have one so just passing it around is simpler.
+	std::unique_ptr<Beatmap> beatmap_;
 	std::atomic<bool> generating_beatmap_;
+	std::atomic<bool> canceling_generating_;
+
+	GameSettings play_settings_;
+	bool display_settings_window_;
+	void SettingsMenu();
+
+	bool LoadSettings();
+	void SaveSettings();
 
 	// Menu context objects
-	enum MENUCONTEXT { SONGS, BEATMAPS/*, ACTIONS */};
-	//enum ACTIONS_SELECTIONS { PLAY/*, GENERATE */};
+	enum MENUCONTEXT { SONGS, BEATMAPS};
 	struct MenuContext
 	{
 		std::map<Song, std::set<Beatmap>>::iterator song;
 		std::set<Beatmap>::iterator beatmap;
-		//ACTIONS_SELECTIONS action;
 		MENUCONTEXT context;
 	} selected_;
 	Sprite selector_;
@@ -42,10 +49,6 @@ private:
 	std::map<Song, std::set<Beatmap>> songs_;
 	sf::Text song_text_;
 	sf::Text beatmap_text_;
-
-	// Actions objects
-	//Sprite play_button_;
-	//Sprite generate_button_;
 
 	struct GUI
 	{
@@ -60,7 +63,6 @@ private:
 
 		char beatmap_name[256];
 		char beatmap_description[2048];
-		PLAYMODE play_mode_;
 
 		std::set<Beatmap>::iterator beatmap_to_delete;
 		std::string delete_beatmap_popup;

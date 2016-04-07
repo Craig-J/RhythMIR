@@ -19,10 +19,10 @@ namespace sfx
 			clock_.beginFrame();
 			sfx::Global::Input.Update();
 			EventLoop();
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			{
 				running_ = false;
-			}
+			}*/
 			if (running_)
 			{
 				running_ = Update();

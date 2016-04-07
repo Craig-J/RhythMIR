@@ -22,6 +22,7 @@
     <ClCompile Include="global.cpp" />
     <ClCompile Include="Graphics\animation.cpp" />
     <ClCompile Include="Graphics\button.cpp" />
+    <ClCompile Include="Graphics\hsl.cpp" />
     <ClCompile Include="Graphics\sprite.cpp" />
     <ClCompile Include="ImGui\console.cpp" />
     <ClCompile Include="ImGui\SFImGui_application.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="Graphics\animation.h" />
     <ClInclude Include="Graphics\button.h" />
+    <ClInclude Include="Graphics\hsl.h" />
     <ClInclude Include="Graphics\sprite.h" />
     <ClInclude Include="Graphics\texture_manager.h" />
     <ClInclude Include="ImGui\imconfig-events-SFML.h" />
@@ -219,6 +221,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">
     <OutDir>$(SolutionDir)build\lib\</OutDir>
     <IntDir>$(SolutionDir)build\lib\$(ProjectName)\$(Configuration)\intermediate\</IntDir>
+    <TargetName>$(ProjectName)-d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build\lib\</OutDir>

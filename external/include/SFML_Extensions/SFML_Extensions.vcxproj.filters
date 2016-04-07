@@ -72,6 +72,9 @@
     <ClCompile Include="ImGui\console.cpp">
       <Filter>ImGui\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\hsl.cpp">
+      <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h">
@@ -406,6 +409,9 @@
     </ClInclude>
     <ClInclude Include="ImGui\SFImGui.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\hsl.h">
+      <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

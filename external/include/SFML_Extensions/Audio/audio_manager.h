@@ -32,7 +32,7 @@ namespace sfx
 	};
 	typedef std::unique_ptr<SoundBuffer> UniqueSoundPtr;
 	typedef std::shared_ptr<SoundBuffer> SoundPtr;
-	typedef std::vector<std::pair<SoundBuffer&, const std::string>> SoundFileVector;
+	typedef std::vector<std::pair<SoundPtr&, const std::string>> SoundFileVector;
 
 	class Music : public sf::Music
 	{
@@ -65,7 +65,7 @@ namespace sfx
 		// LoadMusic
 		// IN:		String key - file name of music to load
 		// OUT:		Shared pointer to the music object
-		std::shared_ptr<Music> LoadMusic(const std::string& _file_name)
+		MusicPtr LoadMusic(const std::string& _file_name)
 		{
 			return music_manager_.Load(_file_name);
 		}
@@ -73,10 +73,18 @@ namespace sfx
 		// LoadSound
 		// IN:		String key - file name of sound to load
 		// OUT:		Shared pointer to the sound buffer
-		std::shared_ptr<SoundBuffer> LoadSound(const std::string& _file_name)
+		SoundPtr LoadSound(const std::string& _file_name)
 		{
 			// Construct a sound from the Sound buffer pointer and return it.
 			return sound_manager_.Load(_file_name);
+		}
+
+		void Load(const SoundFileVector& _sounds)
+		{
+			for (auto& sound : _sounds)
+			{
+				sound.first = LoadSound(sound.second);
+			}
 		}
 
 		// UnloadMusic
@@ -91,6 +99,15 @@ namespace sfx
 		void UnloadSound(const std::string& _file_name)
 		{
 			sound_manager_.Unload(_file_name);
+		}
+
+		void Unload(const SoundFileVector& _sounds)
+		{
+			for (auto& sound : _sounds)
+			{
+				UnloadSound(sound.second);
+				sound.first.reset();
+			}
 		}
 
 		// UnloadAllAudio

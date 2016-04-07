@@ -1,5 +1,6 @@
 #ifndef _AGNOSTIC_MATH_H_
 #define _AGNOSTIC_MATH_H_
+#include <cstdlib>
 #include <cmath>
 
 namespace agn
@@ -34,17 +35,34 @@ namespace agn
 			return start*(1.0f - time) + time*end;
 		}
 
+		template<typename _T>
 		struct approx
 		{
-			float epsilon;
+			_T epsilon;
 
-			approx(const float& _epsilon) :
+			approx(const _T& _epsilon) :
 				epsilon(_epsilon)
 			{}
 
-			bool operator()(const float &_lhs, const float &_rhs) const
+			bool operator()(const _T& _lhs, const _T& _rhs) const
 			{
-				return (std::fabs(_rhs - _lhs) < epsilon);
+				return (std::abs(_rhs - _lhs) < epsilon);
+			}
+		};
+
+		template<typename _T>
+		struct approx_less_than
+		{
+			_T epsilon;
+
+			approx_less_than(const _T& _epsilon) :
+				epsilon(_epsilon)
+			{}
+
+			bool operator()(const _T& _lhs, const _T& _rhs) const
+			{
+				//return (_lhs - epsilon < _rhs);
+				return (_rhs - _lhs) >((std::abs(_lhs) < std::abs(_rhs) ? std::abs(_rhs) : std::abs(_lhs)) * epsilon);
 			}
 		};
 	}
