@@ -14,6 +14,8 @@ namespace
 	float note_length;
 
 	bool interpolate_beats;
+	sf::Time beat_interval;
+	sf::Time beat_time;
 
 	const int hit_counter_statistic_count = 5;
 	const int hit_counter_y_offset = 24.0f;
@@ -99,7 +101,12 @@ void GameState::InitializeState()
 	case GameSettings::HIDDEN:
 		break;
 	case GameSettings::INTERPOLATED:
-		interpolate_beats = true;
+		if (!sections_.front().BPM == 0.0f && !sections_.front().offset == sf::Time::Zero)
+		{
+			interpolate_beats = true;
+			beat_interval = sf::milliseconds(1000 * 60 / sections_.front().BPM);
+			beat_time = beat_interval;
+		}
 		break;
 	case GameSettings::GENERATED:
 		beatqueue_ = beatmap_->CopyBeats();
@@ -211,108 +218,120 @@ bool GameState::Update(const float _delta_time)
 					{
 						current_section_.reset(new TimingSection(next_section));
 						sections_.pop();
+						SpawnBeat();
 					}
 				}
-				else if (!current_section_)
+				
+				if (current_section_)
 				{
-					Log::Error("Current timing section is nullptr. Beatmap is invalid.");
-				}
-
-				if (beatqueue_)
-				{
-					if (!beatqueue_->empty())
+					if (!interpolate_beats)
 					{
-						auto next_beat_offset = beatqueue_->front().offset;
-
-						if (current_approach_offset > next_beat_offset)
+						if (beatqueue_)
 						{
-							SpawnBeat();
-							beatqueue_->pop();
-						}
-					}
-				}
-
-				if (!current_section_->notes.empty())
-				{
-					for (auto notequeue = current_section_->notes.begin(); notequeue != current_section_->notes.end(); ++notequeue)
-					{
-						int index = notequeue - current_section_->notes.begin();
-						// If there are any notes remaining in the current section
-						if (!notequeue->empty())
-						{
-							// Get the next one
-							auto next_onset_offset = notequeue->front().offset;
-
-							// If the next notes offset is less than the current approach offset
-							if (current_approach_offset > next_onset_offset)
+							if (!beatqueue_->empty())
 							{
-								// Just spawn a random note
-								if (settings_.duncan_factor)
-									SpawnNote(note_paths_[rand() % note_paths_.size()]);
-								else
-									SpawnNote(note_paths_[index]);
-								notequeue->pop();
+								auto next_beat_offset = beatqueue_->front().offset;
+
+								if (current_approach_offset > next_beat_offset)
+								{
+									SpawnBeat();
+									beatqueue_->pop();
+								}
 							}
 						}
 					}
-				}
-				else
-				{
-					Log::Error("Notequeue vector is empty.");
-				}
-
-
-				if (!settings_.auto_play)
-				{
-					for (int index = 0; index < note_paths_.size(); ++index)
+					else
 					{
-						if (Global::Input.KeyPressed(settings_.keybinds[index]))
+						beat_time -= sf::seconds(_delta_time);
+						if (beat_time < sf::Time::Zero)
 						{
-							AttemptNoteHit(note_paths_[index]);
+							SpawnBeat();
+							beat_time += beat_interval;
 						}
 					}
-				}
 
-				
-				for (auto &beat : beats_)
-				{
-					beat.UpdatePosition(_delta_time);
-					beat.offset_from_perfect -= sf::seconds(_delta_time);
-				}
-				while (!beats_.empty() && beats_.front().offset_from_perfect < sf::Time::Zero)
-				{
-					beats_.erase(beats_.begin());
-				}
-
-				// Update note positions and remove offscreen notes
-				for (auto &path : note_paths_)
-				{
-					for (auto &note : path.notes)
+					if (!current_section_->notes.empty())
 					{
-						note.UpdatePosition(_delta_time);
-						note.offset_from_perfect -= sf::seconds(_delta_time);
-						if (!note.VerifyPosition(machine_.window_))
+						for (auto notequeue = current_section_->notes.begin(); notequeue != current_section_->notes.end(); ++notequeue)
 						{
-							// Note went offscreen, so it's a miss
-							if (hit_combo_ > 10)
-								PlayMissSound();
-							hit_combo_ = 0;
-							misses_++;
-						}
-						if (settings_.auto_play && note.offset_from_perfect < sf::Time::Zero)
-						{
-							AttemptNoteHit(path);
+							int index = notequeue - current_section_->notes.begin();
+							// If there are any notes remaining in the current section
+							if (!notequeue->empty())
+							{
+								// Get the next one
+								auto next_onset_offset = notequeue->front().offset;
+
+								// If the next notes offset is less than the current approach offset
+								if (current_approach_offset > next_onset_offset)
+								{
+									// Just spawn a random note
+									if (settings_.duncan_factor)
+										SpawnNote(note_paths_[rand() % note_paths_.size()]);
+									else
+										SpawnNote(note_paths_[index]);
+									notequeue->pop();
+								}
+							}
 						}
 					}
-					auto path_index = path.notes.begin();
-					while (path_index != path.notes.end())
+					else
 					{
-						if (path_index->visibility() == false)
+						Log::Error("Notequeue vector is empty.");
+					}
+
+
+					if (!settings_.auto_play)
+					{
+						for (int index = 0; index < note_paths_.size(); ++index)
 						{
-							path_index = path.notes.erase(path_index);
+							if (Global::Input.KeyPressed(settings_.keybinds[index]))
+							{
+								AttemptNoteHit(note_paths_[index]);
+							}
 						}
-						else
-							++path_index;
+					}
+
+
+					for (auto &beat : beats_)
+					{
+						beat.UpdatePosition(_delta_time);
+						beat.offset_from_perfect -= sf::seconds(_delta_time);
+					}
+					while (!beats_.empty() && beats_.front().offset_from_perfect < sf::Time::Zero)
+					{
+						beats_.erase(beats_.begin());
+					}
+
+					// Update note positions and remove offscreen notes
+					for (auto &path : note_paths_)
+					{
+						for (auto &note : path.notes)
+						{
+							note.UpdatePosition(_delta_time);
+							note.offset_from_perfect -= sf::seconds(_delta_time);
+							if (!note.VerifyPosition(machine_.window_))
+							{
+								// Note went offscreen, so it's a miss
+								if (hit_combo_ > 10)
+									PlayMissSound();
+								hit_combo_ = 0;
+								misses_++;
+							}
+							if (settings_.auto_play && note.offset_from_perfect < sf::Time::Zero)
+							{
+								AttemptNoteHit(path);
+							}
+						}
+						auto path_index = path.notes.begin();
+						while (path_index != path.notes.end())
+						{
+							if (path_index->visibility() == false)
+							{
+								path_index = path.notes.erase(path_index);
+							}
+							else
+								++path_index;
+						}
 					}
 				}
 			}

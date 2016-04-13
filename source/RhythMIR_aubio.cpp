@@ -515,6 +515,11 @@ void Aubio::GeneratingWindow()
 	{
 		ImGui::TextColored(ImColor(255, 69, 0),"BPM has not been selected yet.");
 	}
+	else
+	{
+		beatmap_->sections_->front().BPM = gui_.selected_BPM;
+		beatmap_->sections_->front().offset = sf::milliseconds(gui_.selected_offset);
+	}
 	
 	if (progress_ == 1.0f)
 	{
@@ -522,6 +527,10 @@ void Aubio::GeneratingWindow()
 		{
 			beatmap_->sections_->front().BPM = gui_.selected_BPM;
 			beatmap_->sections_->front().offset = sf::milliseconds(gui_.selected_offset);
+			if (!settings_.test_mode)
+			{
+				SaveBeatmap(*beatmap_); // Saves the beatmap to disk
+			}
 			beats_.clear();
 			gui_.Reset();
 			generating_ = false;
@@ -1062,10 +1071,6 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		del_aubio_source(source_);
 		aubio_cleanup();
 
-		if (!settings_.test_mode)
-		{
-			SaveBeatmap(*_beatmap); // Saves the beatmap to disk
-		}
 		if (canceling_)
 		{
 			_beatmap = nullptr;
