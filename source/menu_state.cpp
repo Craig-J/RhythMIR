@@ -498,7 +498,7 @@ bool MenuState::LoadSettings()
 			}
 
 			xml_node<>* countdown_time_node = settings_node->first_node("countdown_time");
-			if (approach_time_node)
+			if (countdown_time_node)
 			{
 				play_settings_.countdown_time = sf::milliseconds(std::stoi(countdown_time_node->value()));
 			}

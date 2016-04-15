@@ -1042,7 +1042,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			progress_ = progress_ + ((float)frames_read / (float)total_samples);
 		}
 		progress_ = progress_ + ((float)frames_read / (float)total_samples);
-		if (progress_ >= 0.999f)
+		if (progress_ >= 0.99f)
 			progress_ = 1.0f;
 
 		// CLEANUP
