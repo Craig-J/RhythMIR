@@ -43,6 +43,21 @@ namespace
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz";
 
+	const std::vector<std::string> illegal_filename_characters{
+		"/",
+		"\\",
+		",",
+		"*",
+		".",
+		"[",
+		"]",
+		":",
+		";",
+		"|",
+		"=",
+		","
+	};
+
 	std::string RandomString(unsigned int _random_chars_to_append)
 	{
 		std::string string;
@@ -761,7 +776,7 @@ bool MenuState::UpdateGUI()
 
 	ImGui::TextWrapped("This UI is for adding and deleting songs in RhythMIR.");
 	ImGui::TextWrapped("Place the source file for the song in the songs directory (songs/). RhythMIR currently only supports .wav files.");
-	ImGui::TextWrapped("Once the song source file is in the songs directory, enter the artist, title and source file name (e.g. \"example.wav\" in the text boxes below and click add.");
+	ImGui::TextWrapped("Once the song source file is in the songs directory, enter the artist, title and source file name (e.g. \"example.wav\") in the text boxes below and click add.");
 		
 	ImGui::InputText("Artist", gui_.song_artist, 256);
 	ImGui::InputText("Title", gui_.song_title, 256);
@@ -773,37 +788,62 @@ bool MenuState::UpdateGUI()
 			std::string(gui_.song_title) != std::string() &&
 			std::string(gui_.song_source) != std::string()) // No fields may be empty
 		{
-			auto song_to_add = Song(gui_.song_artist, gui_.song_title, gui_.song_source);
-			if (songs_.count(song_to_add) == 0)
+			auto artist = std::string(gui_.song_artist);
+			agn::trim(artist);
+			strcpy(gui_.song_artist, artist.c_str());
+
+			auto title = std::string(gui_.song_title);
+			agn::trim(title);
+			strcpy(gui_.song_title, title.c_str());
+
+			auto artist_iterator = std::find_if(illegal_filename_characters.begin(), illegal_filename_characters.end(),
+												[&](const std::string& s)
 			{
-				if (boost::filesystem::exists(song_directory + song_to_add.source_file_name_))
+				return artist.find(s) != std::string::npos;
+			});
+			auto title_iterator = std::find_if(illegal_filename_characters.begin(), illegal_filename_characters.end(),
+												[&](const std::string& s)
+			{
+				return title.find(s) != std::string::npos;
+			});
+			if (artist_iterator == illegal_filename_characters.end() && title_iterator == illegal_filename_characters.end())
+			{
+				auto song_to_add = Song(gui_.song_artist, gui_.song_title, gui_.song_source);
+				if (songs_.count(song_to_add) == 0)
 				{
-					auto pair = songs_.emplace(song_to_add, std::set<Beatmap>());
-					if (pair.second)
+					if (boost::filesystem::exists(song_directory + song_to_add.source_file_name_))
 					{
-						selected_.song = pair.first;
-						song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
-						selected_.beatmap = selected_.song->second.begin();
+						auto pair = songs_.emplace(song_to_add, std::set<Beatmap>());
+						if (pair.second)
+						{
+							selected_.song = pair.first;
+							song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+							selected_.beatmap = selected_.song->second.begin();
 
-						SaveSongList(song_list_default_filename);
+							SaveSongList(song_list_default_filename);
 
-						Log::Message("Creating directory " + song_to_add.relative_path() + ".");
-						boost::filesystem::create_directory(song_to_add.relative_path());
-						boost::filesystem::rename(song_directory + song_to_add.source_file_name_, song_to_add.full_file_path());
+							Log::Message("Creating directory " + song_to_add.relative_path() + ".");
+							boost::filesystem::create_directory(song_to_add.relative_path());
+							boost::filesystem::rename(song_directory + song_to_add.source_file_name_, song_to_add.full_file_path());
+						}
+						else
+						{
+							Log::Error("Failed to emplace " + song_to_add.song_name() + " in the songs map.");
+						}
 					}
 					else
 					{
-						Log::Error("Failed to emplace " + song_to_add.song_name() + " in the songs map.");
+						Log::Error("Could not find the song source in the song directory. Make sure the source file is in the songs folder (not a subfolder). RhythMIR will create the song folder and move the source file to it.");
 					}
 				}
 				else
 				{
-					Log::Error("Could not find the song source in the song directory. Make sure the source file is in the songs folder (not a subfolder). RhythMIR will create the song folder and move the source file to it.");
+					Log::Error("Song already exists in song list. Duplicates with the same artist - title are not allowed.");
 				}
 			}
 			else
 			{
-				Log::Error("Song already exists in song list. Duplicates with the same artist - title are not allowed.");
+				Log::Error("Invalid characters. Artist and title may not contain * . \" / \\ [ ] : ; | = ,");
 			}
 		}
 		else
@@ -1012,25 +1052,40 @@ bool MenuState::UpdateGUI()
 			{
 				if (gui_.beatmap_name != std::string())
 				{
-					if (selected_.song->second.count(Beatmap(selected_.song->first, gui_.beatmap_name)) == 0)
-					{
-						beatmap_.reset(aubio_->GenerateBeatmap(selected_.song->first, gui_.beatmap_name, gui_.beatmap_description));
-						auto pair = selected_.song->second.emplace(selected_.song->first, gui_.beatmap_name);
-						if (pair.second)
-						{
-							selected_.beatmap = pair.first;
-							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+					auto name = std::string(gui_.beatmap_name);
+					agn::trim(name);
+					strcpy(gui_.beatmap_name, name.c_str());
 
-							SaveBeatmapList(selected_.song->first);
+					auto name_iterator = std::find_if(illegal_filename_characters.begin(), illegal_filename_characters.end(),
+													   [&](const std::string& s)
+					{
+						return name.find(s) != std::string::npos;
+					});
+
+					if (name_iterator == illegal_filename_characters.end())
+					{
+						if (selected_.song->second.count(Beatmap(selected_.song->first, gui_.beatmap_name)) == 0)
+						{
+							beatmap_.reset(aubio_->GenerateBeatmap(selected_.song->first, gui_.beatmap_name, gui_.beatmap_description));
+							auto pair = selected_.song->second.emplace(selected_.song->first, gui_.beatmap_name);
+							if (pair.second)
+							{
+								selected_.beatmap = pair.first;
+								beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+
+								SaveBeatmapList(selected_.song->first);
+							}
+							else
+							{
+								Log::Error("Failed to emplace " + selected_.song->first.song_name() + " [" + selected_.beatmap->name_ + "] in the beatmap set.");
+							}
+
 						}
 						else
-						{
-							Log::Error("Failed to emplace " + selected_.song->first.song_name() + " [" + selected_.beatmap->name_ + "] in the beatmap set.");
-						}
-							
+							Log::Error("Choose a different beatmap name. A beatmap with this name already exists.");
 					}
 					else
-						Log::Error("Choose a different beatmap name. A beatmap with this name already exists.");
+						Log::Error("Invalid characters. Beatmap name may not contain * . \" / \\ [ ] : ; | = ,");
 				}
 				else
 					Log::Error("Enter a beatmap name.");

@@ -101,7 +101,7 @@ void GameState::InitializeState()
 	case GameSettings::HIDDEN:
 		break;
 	case GameSettings::INTERPOLATED:
-		if (!sections_.front().BPM == 0.0f && !sections_.front().offset == sf::Time::Zero)
+		if (sections_.front().BPM != 0.0f && sections_.front().offset != sf::Time::Zero)
 		{
 			interpolate_beats = true;
 			beat_interval = sf::milliseconds(1000 * 60 / sections_.front().BPM);
@@ -232,7 +232,7 @@ bool GameState::Update(const float _delta_time)
 							{
 								auto next_beat_offset = beatqueue_->front().offset;
 
-								if (current_approach_offset > next_beat_offset)
+								if (current_approach_offset - settings_.play_offset > next_beat_offset)
 								{
 									SpawnBeat();
 									beatqueue_->pop();

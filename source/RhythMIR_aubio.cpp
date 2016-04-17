@@ -210,7 +210,7 @@ void Aubio::SettingsWindow()
 			ImGui::RadioButton(label.c_str(), &tempo_function_.window_size, i);
 			if (ImGui::IsItemHovered())
 			{
-				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2*i)) + "hz");
+				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
 				ImGui::SetTooltip(time_resolution.c_str());
 			}
 		}
@@ -244,14 +244,17 @@ void Aubio::SettingsWindow()
 			ImGui::RadioButton(label.c_str(), &onset_function.window_size, i);
 			if (ImGui::IsItemHovered())
 			{
-				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2*i)) + "hz");
+				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
 				ImGui::SetTooltip(time_resolution.c_str());
 			}
 		}
 
 		ImGui::SliderFloat("Peak-picking Threshold", &settings_.onset_threshold, 0.0f, 1.0f, "%.1f");
 		//ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, 0.0f, "%.2f");
-		ImGui::Checkbox("Use Delay Threshold", &settings_.use_delay);
+		if(ImGui::Checkbox("Use Delay Threshold", &settings_.use_delay))
+		{
+			settings_.delay_threshold = 4.3*settings_.hop_size;
+		}
 		if (settings_.use_delay)
 		{
 			ImGui::SameLine();
