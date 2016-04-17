@@ -50,16 +50,16 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 {
 	settings_.display_window = false;
 	settings_.samplerate = 44100;
-	settings_.hop_size = 512;
+	settings_.hop_size = 128;
 	settings_.play_mode = SINGLE;
 	settings_.generate_mode = 0;
 	settings_.test_mode = false;
 	settings_.train_functions = true;
-	settings_.training_threshold = 350;
+	settings_.training_threshold = 200;
 
 	// Tempo
 	tempo_function_.name = "default";
-	tempo_function_.window_size = 1024;
+	tempo_function_.window_size = 512;
 	settings_.assume_constant_tempo = true;
 	settings_.store_beats = false;
 	settings_.BPM_epsilon = 0.5f;
@@ -68,7 +68,7 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	settings_.onset_function_count = 1;
 	Function default_function;
 	default_function.name = "complex";
-	default_function.window_size = 1024;
+	default_function.window_size = 512;
 	onset_functions_.push_back(default_function);
 
 	settings_.use_delay = false;
@@ -76,8 +76,8 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	settings_.onset_threshold = 0.3f;
 	//settings_.silence_threshold = -70.0f;
 	settings_.filterbank_type = Settings::FOUR;
-	settings_.filter_count = 2;
-	settings_.filterbank_window_size = 1024;
+	settings_.filter_count = 4;
+	settings_.filterbank_window_size = 512;
 	// GUI
 	gui_.Reset();
 }
@@ -140,7 +140,7 @@ void Aubio::SettingsWindow()
 		// OVERALL SECTION
 
 		// Locals that are needed in advance
-		static int function_type = 0;
+		static int function_type = 4;
 
 		// Beatmap type
 		ImGui::Text("Generate Mode");
@@ -149,7 +149,7 @@ void Aubio::SettingsWindow()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use one onset function to generate one vector of onsets.");
 		ImGui::SameLine();
-		ImGui::RadioButton("Single Function using Filterbank", &settings_.generate_mode, 1);
+		ImGui::RadioButton("Single Function using Filters", &settings_.generate_mode, 1);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use one onset function on different frequency bands to generate several vectors of onsets.");
 		ImGui::SameLine();
@@ -157,11 +157,16 @@ void Aubio::SettingsWindow()
 			function_type = 0;
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use every onset function to generate one vector of onsets each.");
-		ImGui::Text("Gameplay is only available for the single function mode currently.\nThis is because other modes generate many vectors of notes.");
+		ImGui::Text("Gameplay is only available for the single function mode and 4-band filter mode currently.");
 
 		ImGui::Checkbox("Test Mode", &settings_.test_mode);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Don't automatically save the beatmap. Beatmap will be lost when loading/generating another or exiting RhythMIR.");
+		
+		ImGui::SameLine();
+		ImGui::Checkbox("Train Functions", &settings_.train_functions);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Runs the functions at the beginning for a few hops to avoid garbage results in the first few seconds. (Recommended)");
 
 		ImGui::Spacing();
 
@@ -169,7 +174,7 @@ void Aubio::SettingsWindow()
 		ImGui::Text("Hop Size");
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("The amount (in samples) to move forward between execution of tempo/onset functions.\nLower value generally means more onsets. Must be lower than window size.");
-		for (int i = 128; i <= 4096; i *= 2)
+		for (int i = 128; i <= 2048; i *= 2)
 		{
 			ImGui::SameLine();
 			if (ImGui::RadioButton(std::to_string(i).c_str(), &settings_.hop_size, i))
@@ -183,11 +188,6 @@ void Aubio::SettingsWindow()
 				ImGui::SetTooltip(time_resolution.c_str());
 			}
 		}
-
-		ImGui::Checkbox("Train Functions", &settings_.train_functions);
-		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Runs the functions at the beginning for a few hops to avoid garbage results in the first few seconds. (Recommended)");
-		//ImGui::DragInt("Training Threshold", &settings_.training_threshold, 0, 10);
 
 		ImGui::Separator();
 
@@ -203,15 +203,17 @@ void Aubio::SettingsWindow()
 			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\n However higher also decreases onset timing accuracy.");
 		if (tempo_function_.window_size < settings_.hop_size)
 			tempo_function_.window_size = settings_.hop_size;
-		for (int i = settings_.hop_size; i <= 4096; i *= 2)
+		for (int i = settings_.hop_size; i <= settings_.hop_size * 4; i *= 2)
 		{
 			ImGui::SameLine();
 			auto label = std::to_string(i) + "##tempo";
 			ImGui::RadioButton(label.c_str(), &tempo_function_.window_size, i);
 			if (ImGui::IsItemHovered())
 			{
-				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
-				ImGui::SetTooltip(time_resolution.c_str());
+				std::string time_resolution("Time resolution: " + std::to_string(i * 1000 / settings_.samplerate) + "ms");
+				std::string frequency_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
+				std::string tooltip(time_resolution + "\n" + frequency_resolution);
+				ImGui::SetTooltip(tooltip.c_str());
 			}
 		}
 		ImGui::Spacing();
@@ -237,15 +239,17 @@ void Aubio::SettingsWindow()
 		auto& onset_function = onset_functions_.front();
 		if (onset_function.window_size < settings_.hop_size)
 			onset_function.window_size = settings_.hop_size;
-		for (int i = settings_.hop_size; i <= 4096; i *= 2)
+		for (int i = settings_.hop_size; i <= settings_.hop_size * 4; i *= 2)
 		{
 			ImGui::SameLine();
 			auto label = std::to_string(i) + "##onset";
 			ImGui::RadioButton(label.c_str(), &onset_function.window_size, i);
 			if (ImGui::IsItemHovered())
 			{
-				std::string time_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
-				ImGui::SetTooltip(time_resolution.c_str());
+				std::string time_resolution("Time resolution: " + std::to_string(i * 1000 / settings_.samplerate) + "ms");
+				std::string frequency_resolution("Frequency resolution: " + std::to_string(settings_.samplerate / (2 * i)) + "hz");
+				std::string tooltip(time_resolution + "\n" + frequency_resolution);
+				ImGui::SetTooltip(tooltip.c_str());
 			}
 		}
 
@@ -807,7 +811,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		{
 		case 0:
 			{
-				_beatmap->play_mode_ = FOURKEY;
+				_beatmap->play_mode_ = SINGLE;
 				onset_objects_ = std::vector<OnsetObject>(1, { onset_functions_.front(), nullptr });
 				settings_.onset_function_count = 1;
 			}
