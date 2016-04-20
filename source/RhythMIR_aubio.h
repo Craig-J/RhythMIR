@@ -111,7 +111,8 @@ private:
 		bool use_delay;
 		int delay_threshold;
 		float onset_threshold;
-		//float silence_threshold;
+		float onset_minioi;
+		float silence_threshold;
 		unsigned int filterbank_window_size;
 		unsigned int onset_function_count;
 	} settings_;

@@ -74,7 +74,8 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	settings_.use_delay = false;
 	settings_.delay_threshold = 0;
 	settings_.onset_threshold = 0.3f;
-	//settings_.silence_threshold = -70.0f;
+	settings_.onset_minioi = 20.0f;
+	settings_.silence_threshold = -70.0f;
 	settings_.filterbank_type = Settings::FOUR;
 	settings_.filter_count = 4;
 	settings_.filterbank_window_size = 512;
@@ -254,7 +255,8 @@ void Aubio::SettingsWindow()
 		}
 
 		ImGui::SliderFloat("Peak-picking Threshold", &settings_.onset_threshold, 0.0f, 1.0f, "%.1f");
-		//ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, 0.0f, "%.2f");
+		ImGui::SliderFloat("Minimum Inter Onset Interval", &settings_.onset_minioi, 10.0f, 1000.0f, "%.1f", 3.0f);
+		ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, -50.0f, "%.2f");
 		if(ImGui::Checkbox("Use Delay Threshold", &settings_.use_delay))
 		{
 			settings_.delay_threshold = 4.3*settings_.hop_size;
@@ -896,7 +898,8 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 											settings_.samplerate);
 			aubio_onset_set_delay(object.object, settings_.delay_threshold);
 			aubio_onset_set_threshold(object.object, settings_.onset_threshold);
-			//aubio_onset_set_silence(object.object, settings_.silence_threshold);
+			aubio_onset_set_silence(object.object, settings_.silence_threshold);
+			aubio_onset_set_minioi_ms(object.object, settings_.onset_minioi);
 		}
 
 		// Buffers
