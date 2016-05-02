@@ -66,9 +66,12 @@ private:
 
 		std::set<Beatmap>::iterator beatmap_to_delete;
 		std::string delete_beatmap_popup;
+		std::string delete_all_beatmap_popup;
+		bool deleting_enabled;
 
 	} gui_;
 	bool UpdateGUI();
+	void Play();
 	
 	// Song List I/O
 	void LoadSongList(const std::string&);
@@ -80,7 +83,7 @@ private:
 	void GetSongBeatmaps();
 
 	// Individual beatmap I/O is delegated to the aubio object.
-	void LoadBeatmap(const Beatmap&, bool _force_load = false);
+	void LoadBeatmap(const Beatmap&, bool _partial_load = true, bool _force_load = false);
 	void SaveBeatmap(const Beatmap&);
 
 	void GenerateTestBeatmap();

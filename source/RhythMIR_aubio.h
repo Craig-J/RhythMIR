@@ -25,7 +25,7 @@ public:
 	void UpdateGUI();
 	void ExtraWindow();
 	Beatmap* GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description = std::string());
-	Beatmap* LoadBeatmap(const Beatmap& _beatmap);
+	Beatmap* LoadBeatmap(const Beatmap& _beatmap, bool _partial_load);
 	void SaveBeatmap(const Beatmap& _beatmap);
 
 private:
@@ -91,12 +91,13 @@ private:
 		// Tempo
 		bool assume_constant_tempo;
 		bool store_beats;
+		bool subdivide_beat_interval;
 		float BPM_epsilon;
 
 		// Onset
 		enum FilterbankType
 		{
-			//VARIABLE,
+			SINGLE,
 			FOUR,
 			EIGHT
 			//FIFTEEN
@@ -138,9 +139,6 @@ private:
 	std::vector<OnsetObject> onset_objects_;
 
 	aubio_source_t* source_;
-	//aubio_pvoc_t* phase_vocoder_;
-	//aubio_fft_t* fft_;
-	//aubio_filterbank_t* filterbank_;
 
 	std::atomic<bool>& generating_;
 	std::atomic<bool>& canceling_;
@@ -153,11 +151,5 @@ private:
 	void GeneratingWindow();
 
 	void FilterSource(fvec_t* _source_buffer, std::vector<fvec_t*>& _filter_buffers);
-	/*void SetLinearFilters(unsigned int);
-	void SetPianoFilters();
-	void SetFourBandFilters();
-	void SetEightBandFilters();
-	void SetFifteenBandFilters();
-	void SetThirtyOneBandFilters();*/
 };
 #endif // _RHYTHMIR_AUBIO_H_

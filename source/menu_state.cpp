@@ -224,67 +224,96 @@ bool MenuState::Update(const float _delta_time)
 		switch (selected_.context)
 		{
 		case SONGS:
-			if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
+			if (!generating_beatmap_)
 			{
-				selected_.context = BEATMAPS;
-				selector_.move(context_horizontal_spacing, 0.0f);
-				break;
-			}
-
-			if (!songs_.empty()) // Only allow up and down movement if the map isn't empty
-			{
-				if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+				if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
 				{
-					if (selected_.song != --songs_.end())
+					selected_.context = BEATMAPS;
+					selector_.move(context_horizontal_spacing, 0.0f);
+					if (!selected_.song->second.empty())
 					{
-						selected_.song++;
-						GetSongBeatmaps();
-						song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+						LoadBeatmap(*selected_.beatmap);
 					}
+					break;
 				}
-				if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
+
+				if (!songs_.empty()) // Only allow up and down movement if the map isn't empty
 				{
-					if (selected_.song != songs_.begin())
+					if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
 					{
-						selected_.song--;
-						GetSongBeatmaps();
-						song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+						if (selected_.song != --songs_.end())
+						{
+							selected_.song++;
+							GetSongBeatmaps();
+							song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+						}
+						if (!selected_.song->second.empty())
+						{
+							LoadBeatmap(*selected_.beatmap);
+						}
+					}
+					if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
+					{
+						if (selected_.song != songs_.begin())
+						{
+							selected_.song--;
+							GetSongBeatmaps();
+							song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+						}
+						if (!selected_.song->second.empty())
+						{
+							LoadBeatmap(*selected_.beatmap);
+						}
 					}
 				}
 			}
 			break;
 
 		case BEATMAPS:
-			if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
+			if (!generating_beatmap_)
 			{
-				selected_.context = SONGS;
-				selector_.move(-context_horizontal_spacing, 0.0f);
-				break;
-			}
-
-			if (!songs_.empty())
-			{
-				if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
+				if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
 				{
-					if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+					selected_.context = SONGS;
+					selector_.move(-context_horizontal_spacing, 0.0f);
+					break;
+				}
+
+				if (!songs_.empty())
+				{
+					if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
 					{
-						if (selected_.beatmap != --selected_.song->second.end())
+						if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
 						{
-							selected_.beatmap++;
-							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+							if (selected_.beatmap != --selected_.song->second.end())
+							{
+								selected_.beatmap++;
+								beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+								LoadBeatmap(*selected_.beatmap);
+							}
 						}
-					}
-					if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
-					{
-						if (selected_.beatmap != selected_.song->second.begin())
+						if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
 						{
-							selected_.beatmap--;
-							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+							if (selected_.beatmap != selected_.song->second.begin())
+							{
+								selected_.beatmap--;
+								beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+								LoadBeatmap(*selected_.beatmap);
+							}
+						}
+						if (Global::Input.KeyPressed(Keyboard::Space))
+						{
+							Play();
 						}
 					}
 				}
 			}
 			break;
+		}
+
+		if (Global::Input.KeyPressed(Keyboard::F9))
+		{
+			gui_.deleting_enabled = !gui_.deleting_enabled;
 		}
 	}
 	return running;
@@ -875,7 +904,7 @@ bool MenuState::UpdateGUI()
 		ImGui::Text("Are you sure?\n");
 		ImGui::Separator();
 
-		static bool also_delete_from_disk = false;
+		static bool also_delete_from_disk = true;
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 		ImGui::Checkbox("Also delete from disk", &also_delete_from_disk);
 		if (ImGui::IsItemHovered())
@@ -936,7 +965,7 @@ bool MenuState::UpdateGUI()
 		if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
 		{
 			// LOAD BEATMAP
-			if (ImGui::Button("Load Beatmap"))
+			/*if (ImGui::Button("Load Beatmap"))
 			{
 				if (!generating_beatmap_)
 					LoadBeatmap(*selected_.beatmap);
@@ -944,12 +973,12 @@ bool MenuState::UpdateGUI()
 					Log::Message("Disabled while generating a beatmap.");
 			}
 			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Loads the selected beatmap from file.");
+				ImGui::SetTooltip("Loads the selected beatmap from file.");*/
 
-			ImGui::SameLine();
+			//ImGui::SameLine();
 
 			// SAVE BEATMAP
-			if (ImGui::Button("Save Beatmap"))
+			/*if (ImGui::Button("Save Beatmap"))
 			{
 				if (!generating_beatmap_)
 				{
@@ -964,74 +993,141 @@ bool MenuState::UpdateGUI()
 				}
 			}
 			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Saves the current beatmap to file.");
+				ImGui::SetTooltip("Saves the current beatmap to file.");*/
 
-			ImGui::SameLine();
+			//ImGui::SameLine();
 
-			// DELETE BEATMAP
-			if (ImGui::Button("Delete Beatmap"))
+			if (gui_.deleting_enabled)
 			{
-				if (!generating_beatmap_)
+				// DELETE BEATMAP
+				if (ImGui::Button("Delete Beatmap"))
 				{
-					if (!selected_.song->second.empty())
+					if (!generating_beatmap_)
 					{
-						gui_.beatmap_to_delete = selected_.beatmap;
-						gui_.delete_beatmap_popup = "Delete " + selected_.song->first.song_name() + " [" + selected_.beatmap->name_ + "] ?";
-						ImGui::OpenPopup(gui_.delete_beatmap_popup.c_str());
-					}
-					else
-					{
-						Log::Message("No beatmap to delete.");
-					}
-				}
-				else
-				{
-					Log::Message("Disabled while generating a beatmap.");
-				}
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Deletes the selected beatmap, optionally deleting it from disk too.");
-			if (ImGui::BeginPopupModal(gui_.delete_beatmap_popup.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("Are you sure?\n");
-				ImGui::Separator();
-
-				static bool also_delete_from_disk = false;
-				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-				ImGui::Checkbox("Also delete from disk", &also_delete_from_disk);
-				if (ImGui::IsItemHovered())
-					ImGui::SetTooltip("This will delete the beatmap file from disk.");
-				ImGui::PopStyleVar();
-
-				if (ImGui::Button("OK", ImVec2(120, 0)))
-				{
-					if (also_delete_from_disk)
-					{
-						// IMPORTANT: BEATMAP FILE CANNOT BE OPENED OR REMOVE_ALL WILL THROW
-						boost::filesystem::remove_all(gui_.beatmap_to_delete->full_file_path() + ".RhythMIR");
-					}
-					if (selected_.beatmap == --selected_.song->second.end()) // If its the last beatmap we have to set the selected beatmap to before the end manually
-					{
-						selected_.song->second.erase(selected_.beatmap);
 						if (!selected_.song->second.empty())
-							selected_.beatmap = --selected_.song->second.end();
+						{
+							gui_.beatmap_to_delete = selected_.beatmap;
+							gui_.delete_beatmap_popup = "Delete " + selected_.song->first.song_name() + " [" + selected_.beatmap->name_ + "] ?";
+							ImGui::OpenPopup(gui_.delete_beatmap_popup.c_str());
+						}
+						else
+						{
+							Log::Message("No beatmap to delete.");
+						}
 					}
 					else
-						selected_.beatmap = selected_.song->second.erase(selected_.beatmap);
-					if (!selected_.song->second.empty())
-						beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
-					SaveBeatmapList(selected_.song->first);
-						
-					ImGui::CloseCurrentPopup();
+					{
+						Log::Message("Disabled while generating a beatmap.");
+					}
 				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Deletes the selected beatmap, optionally deleting it from disk too.");
+				if (ImGui::BeginPopupModal(gui_.delete_beatmap_popup.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::Text("Are you sure?\n");
+					ImGui::Separator();
+
+					static bool also_delete_from_disk = true;
+					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+					ImGui::Checkbox("Also delete from disk", &also_delete_from_disk);
+					if (ImGui::IsItemHovered())
+						ImGui::SetTooltip("This will delete the beatmap file from disk.");
+					ImGui::PopStyleVar();
+
+					if (ImGui::Button("OK", ImVec2(120, 0)))
+					{
+						if (also_delete_from_disk)
+						{
+							// IMPORTANT: BEATMAP FILE CANNOT BE OPENED OR REMOVE_ALL WILL THROW
+							boost::filesystem::remove_all(gui_.beatmap_to_delete->full_file_path() + ".RhythMIR");
+						}
+						if (selected_.beatmap == --selected_.song->second.end()) // If its the last beatmap we have to set the selected beatmap to before the end manually
+						{
+							selected_.song->second.erase(selected_.beatmap);
+							if (!selected_.song->second.empty())
+								selected_.beatmap = --selected_.song->second.end();
+						}
+						else
+							selected_.beatmap = selected_.song->second.erase(selected_.beatmap);
+						if (!selected_.song->second.empty())
+							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+						SaveBeatmapList(selected_.song->first);
+						LoadBeatmap(*selected_.beatmap);
+
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+					ImGui::EndPopup();
+				}
+
 				ImGui::SameLine();
-				if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-				ImGui::EndPopup();
-			}
-			if (generating_beatmap_)
-			{
-				ImGui::SameLine();
-				ImGui::TextDisabled("Disabled while generating a beatmap.");
+
+				// DELETE ALL BEATMAPS
+				if (ImGui::Button("Delete All Beatmaps"))
+				{
+					if (!generating_beatmap_)
+					{
+						if (!selected_.song->second.empty())
+						{
+							gui_.delete_all_beatmap_popup = "Delete all beatmaps for " + selected_.song->first.song_name() + "?";
+							ImGui::OpenPopup(gui_.delete_all_beatmap_popup.c_str());
+						}
+						else
+						{
+							Log::Message("No beatmaps to delete.");
+						}
+					}
+					else
+					{
+						Log::Message("Disabled while generating a beatmap.");
+					}
+				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Deletes all songs for the selected beatmap, optionally deleting them from disk too.");
+				if (ImGui::BeginPopupModal(gui_.delete_all_beatmap_popup.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::Text("Are you sure?\n");
+					ImGui::Separator();
+
+					static bool also_delete_from_disk = true;
+					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+					ImGui::Checkbox("Also delete from disk", &also_delete_from_disk);
+					if (ImGui::IsItemHovered())
+						ImGui::SetTooltip("This will delete the beatmap files from disk.");
+					ImGui::PopStyleVar();
+
+					if (ImGui::Button("OK", ImVec2(120, 0)))
+					{
+						if (also_delete_from_disk)
+						{
+							for (auto &beatmap : selected_.song->second)
+							{
+								// IMPORTANT: BEATMAP FILE CANNOT BE OPENED OR REMOVE_ALL WILL THROW
+								boost::filesystem::remove_all(beatmap.full_file_path() + ".RhythMIR");
+							}
+						}
+						while (!selected_.song->second.empty())
+						{
+							selected_.beatmap = --selected_.song->second.end();
+							selected_.song->second.erase(selected_.beatmap);
+
+							SaveBeatmapList(selected_.song->first);
+						}
+						beatmap_.reset();
+						beatmaps_vertical_offset = 0.0f;
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+					ImGui::EndPopup();
+				}
+
+				if (generating_beatmap_)
+				{
+					ImGui::SameLine();
+					ImGui::TextDisabled("Disabled while generating a beatmap.");
+				}
 			}
 		}
 		else
@@ -1131,19 +1227,9 @@ bool MenuState::UpdateGUI()
 
 		if (ImGui::Button("Play"))
 		{
-			if (beatmap_)
-			{
-				if (!generating_beatmap_)
-				{
-					ChangeState<GameState>(std::move(beatmap_), std::move(play_settings_));
-					ImGui::End();
-					return true;
-				}
-				else
-					Log::Message("Beatmap generation in progress. Waiting for it to finish.");
-			}
-			else
-				Log::Message("No beatmap loaded. A beatmap is required to play. Generate or load one.");
+			Play();
+			ImGui::End();
+			return true;
 		}
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Play the currently loaded beatmap.");
@@ -1163,6 +1249,23 @@ bool MenuState::UpdateGUI()
 	aubio_->ExtraWindow();
 
 	return true;
+}
+
+void MenuState::Play()
+{
+	if (beatmap_)
+	{
+		if (!generating_beatmap_)
+		{
+			LoadBeatmap(*selected_.beatmap, false, true);
+			ChangeState<GameState>(std::move(beatmap_), std::move(play_settings_));
+			return;
+		}
+		else
+			Log::Message("Beatmap generation in progress. Waiting for it to finish.");
+	}
+	else
+		Log::Message("No beatmap loaded. A beatmap is required to play. Generate or load one.");
 }
 
 void MenuState::LoadSongList(const std::string& _file_name)
@@ -1376,11 +1479,11 @@ void MenuState::GetSongBeatmaps()
 	beatmaps_vertical_offset = 0.0f;
 }
 
-void MenuState::LoadBeatmap(const Beatmap& _beatmap, bool _force_load)
+void MenuState::LoadBeatmap(const Beatmap& _beatmap, bool _partial_load, bool _force_load)
 {
 	if (!beatmap_ || *beatmap_ != _beatmap || _force_load)
 	{
-		beatmap_.reset(aubio_->LoadBeatmap(_beatmap));
+		beatmap_.reset(aubio_->LoadBeatmap(_beatmap, _partial_load));
 	}
 }
 
@@ -1394,11 +1497,11 @@ void MenuState::GenerateTestBeatmap()
 	if (!songs_.empty())
 	{
 		auto pair = selected_.song->second.emplace( selected_.song->first, RandomString(6), "", UNKNOWN );
-		if (pair.second)
+		//if (pair.second)
 		{
-			selected_.beatmap = pair.first;
+			//selected_.beatmap = pair.first;
 		}
-		beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
+		//beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
 	}
 	else
 	{
@@ -1410,9 +1513,9 @@ void MenuState::GenerateTestSong()
 {
 	Song song = Song(RandomString(3), RandomString(6), ".test");
 	auto pair = songs_.emplace(song, std::set<Beatmap>());
-	if (pair.second)
+	//if (pair.second)
 	{
-		selected_.song = pair.first;
+		//selected_.song = pair.first;
 	}
-	song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
+	//song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
 }

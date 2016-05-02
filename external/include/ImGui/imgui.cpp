@@ -6750,7 +6750,7 @@ void ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_ge
 			if (plot_type == ImGuiPlotType_Lines)
 				ImGui::SetTooltip("%8.4g: %8.4g\n%8.4g: %8.4g", float_labels_getter(labels_data, v_idx), v0, float_labels_getter(labels_data, v_idx + 1), v1);
 			else if (plot_type == ImGuiPlotType_Histogram)
-				ImGui::SetTooltip("%8.4g: %8.4g", float_labels_getter(labels_data, v_idx), v0);
+				ImGui::SetTooltip("%8.3f: %8.4g", float_labels_getter(labels_data, v_idx), v0);
 		}
         v_hovered = v_idx;
     }

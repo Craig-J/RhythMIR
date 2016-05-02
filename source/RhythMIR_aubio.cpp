@@ -4,6 +4,14 @@ namespace
 {
 	sf::Time song_duration;
 
+	const float min_BPM = 40.0f;
+	const float max_BPM = 240.0f;
+	const size_t min_overlap = 2;
+	const size_t max_overlap = 8;
+	const size_t min_hop = 16;
+	const size_t max_hop = 2048;
+	const float hist_min_range = 1.0f;
+
 	namespace SpecDesc
 	{
 		const auto energy = std::make_pair("Energy", "energy");
@@ -40,9 +48,6 @@ namespace
 Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	aubio_thread_(nullptr),
 	source_(nullptr),
-	//phase_vocoder_(nullptr),
-	//fft_(nullptr),
-	//filterbank_(nullptr),
 	beatmap_(nullptr),
 	progress_(0),
 	generating_(_generating),
@@ -62,6 +67,7 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	tempo_function_.window_size = 512;
 	settings_.assume_constant_tempo = true;
 	settings_.store_beats = false;
+	settings_.subdivide_beat_interval = false;
 	settings_.BPM_epsilon = 0.5f;
 
 	// Onset
@@ -71,8 +77,8 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 	default_function.window_size = 512;
 	onset_functions_.push_back(default_function);
 
-	settings_.use_delay = false;
-	settings_.delay_threshold = 0;
+	settings_.use_delay = true;
+	settings_.delay_threshold = 550;
 	settings_.onset_threshold = 0.3f;
 	settings_.onset_minioi = 20.0f;
 	settings_.silence_threshold = -70.0f;
@@ -150,7 +156,7 @@ void Aubio::SettingsWindow()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use one onset function to generate one vector of onsets.");
 		ImGui::SameLine();
-		ImGui::RadioButton("Single Function using Filters", &settings_.generate_mode, 1);
+		ImGui::RadioButton("Single Function with Filtering", &settings_.generate_mode, 1);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use one onset function on different frequency bands to generate several vectors of onsets.");
 		ImGui::SameLine();
@@ -158,7 +164,7 @@ void Aubio::SettingsWindow()
 			function_type = 0;
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Use every onset function to generate one vector of onsets each.");
-		ImGui::Text("Gameplay is only available for the single function mode and 4-band filter mode currently.");
+		//ImGui::Text("Gameplay is only available for the single function mode and 4-band filter mode currently.");
 
 		ImGui::Checkbox("Test Mode", &settings_.test_mode);
 		if (ImGui::IsItemHovered())
@@ -175,7 +181,7 @@ void Aubio::SettingsWindow()
 		ImGui::Text("Hop Size");
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("The amount (in samples) to move forward between execution of tempo/onset functions.\nLower value generally means more onsets. Must be lower than window size.");
-		for (int i = 128; i <= 2048; i *= 2)
+		for (int i = min_hop; i <= max_hop; i *= 2)
 		{
 			ImGui::SameLine();
 			if (ImGui::RadioButton(std::to_string(i).c_str(), &settings_.hop_size, i))
@@ -202,9 +208,11 @@ void Aubio::SettingsWindow()
 		ImGui::Text("Window Size");
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\n However higher also decreases onset timing accuracy.");
-		if (tempo_function_.window_size < settings_.hop_size)
-			tempo_function_.window_size = settings_.hop_size;
-		for (int i = settings_.hop_size; i <= settings_.hop_size * 4; i *= 2)
+		if (tempo_function_.window_size < settings_.hop_size * min_overlap)
+			tempo_function_.window_size = settings_.hop_size * min_overlap;
+		if (tempo_function_.window_size > settings_.hop_size * max_overlap)
+			tempo_function_.window_size = settings_.hop_size * max_overlap;
+		for (int i = settings_.hop_size * min_overlap; i <= settings_.hop_size * max_overlap; i *= 2)
 		{
 			ImGui::SameLine();
 			auto label = std::to_string(i) + "##tempo";
@@ -219,10 +227,11 @@ void Aubio::SettingsWindow()
 		}
 		ImGui::Spacing();
 
-		ImGui::Checkbox("Assume Constant Tempo", settings_.assume_constant_tempo);	ImGui::SameLine();
+		ImGui::Checkbox("Assume Constant Tempo", settings_.assume_constant_tempo);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Automatically enabled for now. In future, variable tempo esimation may be implemented.");
-		ImGui::Checkbox("Store Beats", &settings_.store_beats);						ImGui::SameLine();
+			ImGui::SetTooltip("Automatically enabled for now. In future, variable tempo esimation may be attempted.");
+		ImGui::SameLine();
+		ImGui::Checkbox("Store Beats", &settings_.store_beats);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Stores the beats from the tempo estimation phase as part of the beatmap.");
 
@@ -238,9 +247,11 @@ void Aubio::SettingsWindow()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\nHowever higher also decreases onset timing accuracy.");
 		auto& onset_function = onset_functions_.front();
-		if (onset_function.window_size < settings_.hop_size)
-			onset_function.window_size = settings_.hop_size;
-		for (int i = settings_.hop_size; i <= settings_.hop_size * 4; i *= 2)
+		if (onset_function.window_size < settings_.hop_size * min_overlap)
+			onset_function.window_size = settings_.hop_size * min_overlap;
+		if (onset_function.window_size > settings_.hop_size * max_overlap)
+			onset_function.window_size = settings_.hop_size * max_overlap;
+		for (int i = settings_.hop_size * min_overlap; i <= settings_.hop_size * max_overlap; i *= 2)
 		{
 			ImGui::SameLine();
 			auto label = std::to_string(i) + "##onset";
@@ -255,8 +266,8 @@ void Aubio::SettingsWindow()
 		}
 
 		ImGui::SliderFloat("Peak-picking Threshold", &settings_.onset_threshold, 0.0f, 1.0f, "%.1f");
-		ImGui::SliderFloat("Minimum Inter Onset Interval", &settings_.onset_minioi, 10.0f, 1000.0f, "%.1f", 3.0f);
-		ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, -50.0f, "%.2f");
+		ImGui::SliderFloat("Minimum Inter Onset Interval", &settings_.onset_minioi, 10.0f, 1000.0f, "%.1fms", 3.0f);
+		ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, -50.0f, "%.2fdB");
 		if(ImGui::Checkbox("Use Delay Threshold", &settings_.use_delay))
 		{
 			settings_.delay_threshold = 4.3*settings_.hop_size;
@@ -322,28 +333,33 @@ void Aubio::SettingsWindow()
 		if (settings_.generate_mode == 1)
 		{
 			static int filterbank_type = (int)settings_.filterbank_type;
-			//ImGui::RadioButton("Linear Variable", &filterbank_type, (int)Settings::VARIABLE);
-			//ImGui::SameLine();
+			ImGui::RadioButton("1-Band", &filterbank_type, (int)Settings::SINGLE);
+			ImGui::SameLine();
 			ImGui::RadioButton("4-Band", &filterbank_type, (int)Settings::FOUR);
 			ImGui::SameLine();
 			ImGui::RadioButton("8-Band", &filterbank_type, (int)Settings::EIGHT);
-			//ImGui::SameLine();
-			//ImGui::RadioButton("15-Band", &filterbank_type, (int)Settings::FIFTEEN);
 
-			//ImGui::RadioButton("31-Band", &filterbank_type, (int)Settings::THIRTYONE);
-			//ImGui::SameLine();
-			//ImGui::RadioButton("Slaney", &filterbank_type, (int)Settings::SLANEY);
-			//ImGui::SameLine();
-			//ImGui::RadioButton("Standard Piano", &filterbank_type, (int)Settings::PIANO);
 			settings_.filterbank_type = (Settings::FilterbankType)filterbank_type;
 
 			//static bool customize_filters = false;
 			//ImGui::Checkbox("Customize Filter Ranges", &customize_filters);
 			switch (settings_.filterbank_type)
 			{
-			/*case Settings::VARIABLE:
-				ImGui::SliderInt("##filtercount", &settings_.filter_count, 2, 42, "%.0f filters");
-				break;*/
+			case Settings::SINGLE:
+			{
+				settings_.filter_count = 1;
+				if (settings_.filter_params.size() != settings_.filter_count)
+				{
+					settings_.filter_params.clear();
+					settings_.filter_params.reserve(settings_.filter_count);
+				}
+				static float single_filter_frequency = 500;
+				static float single_filter_width = 600;
+				ImGui::SliderFloat("Filter Centre Frequency", &single_filter_frequency, 0.0f, settings_.samplerate * 0.5f, "%.2fHz");
+				ImGui::SliderFloat("Filter Width", &single_filter_width, 0.0f, settings_.samplerate * 0.5f, "%.2fHz");
+				settings_.filter_params.push_back(std::make_pair(single_filter_frequency, single_filter_width));
+				break;
+			}
 			case Settings::FOUR:
 				settings_.filter_count = 4;
 				settings_.filter_lowpass_frequency = 300;
@@ -372,20 +388,7 @@ void Aubio::SettingsWindow()
 				settings_.filter_params.push_back(std::make_pair(3750, 3500));
 				settings_.filter_params.push_back(std::make_pair(7500, 5000));
 				break;
-			/*case Settings::FIFTEEN:
-				settings_.filter_count = 15;
-				break;
-			case Settings::THIRTYONE:
-				settings_.filter_count = 31;
-				break;
-			case Settings::SLANEY:
-				settings_.filter_count = 42;
-				break;
-			case Settings::PIANO:
-				settings_.filter_count = 88;
-				break;*/
 			}
-			//ImGui::Text(std::string("Filter Count: " + to_string(settings_.filter_count)).c_str());
 		}
 
 		ImGui::End();
@@ -407,15 +410,32 @@ void Aubio::GeneratingWindow()
 		std::lock_guard<std::mutex> lock(gui_.bpm_mutex);
 		
 		ImGui::PlotLines("##BPMTimeline", &beats_.data()->BPM, beats_.size(), 0,
-							"BPM Timeline", gui_.min_BPM, gui_.max_BPM, ImVec2(0, 200), sizeof(TempoEstimate));
-				
-		auto histogram = agn::SortedVectorToHistogram<float>(gui_.bpms, 200, (float)gui_.min_BPM, (float)gui_.max_BPM);
+							"BPM Timeline", gui_.min_BPM, gui_.max_BPM, ImVec2(ImGui::GetWindowContentRegionWidth(), 200), sizeof(TempoEstimate));
+		
+
+		static float hist_range[2] = { min_BPM, max_BPM };
+		if (hist_range[0] > hist_range[1] - hist_min_range)
+			hist_range[0] = hist_range[1] - hist_min_range;
+		if (hist_range[0] < min_BPM)
+		{
+			hist_range[0] = min_BPM;
+			if (hist_range[1] < min_BPM + hist_min_range)
+				hist_range[1] = min_BPM + hist_min_range;
+		}
+
+		//auto histogram = agn::SortedVectorToHistogram<float>(gui_.bpms, 200, (float)gui_.min_BPM, (float)gui_.max_BPM);
+		auto histogram = agn::SortedVectorToHistogram<float>(gui_.bpms, 200, hist_range[0], hist_range[1]);
+		
 		auto counts = std::get<0>(histogram);
 		auto labels = std::get<1>(histogram);
 		auto max_count = std::get<2>(histogram);
 		ImGui::PlotHistogram("##BPMHistogram", FloatGetter, FloatGetter,
 								counts.data(), labels.data(), counts.size(), 0,
-								"BPM Histogram", 0, max_count, ImVec2(0, 200));
+								"BPM Histogram", 0, max_count, ImVec2(ImGui::GetWindowContentRegionWidth(), 200));
+
+		ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
+		ImGui::SliderFloat2("##BPMHistogramRange", hist_range, min_BPM, max_BPM, "%.2f");
+		ImGui::PopItemWidth();
 
 		static bool autoselect_tempo = false;
 		ImGui::Checkbox("Autoselect Tempo Estimate", &autoselect_tempo);
@@ -428,8 +448,12 @@ void Aubio::GeneratingWindow()
 		
 		if (!autoselect_tempo)
 		{
-			ImGui::SliderFloat("##SliderBPM", &gui_.selected_BPM, gui_.min_BPM, gui_.max_BPM, "Selected BPM = %.3f");
-			ImGui::DragFloat("##DragBPM", &gui_.selected_BPM, ((gui_.max_BPM - gui_.min_BPM) / 5000.0f), gui_.min_BPM, gui_.max_BPM, "Drag here for finer control.");
+			ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
+			ImGui::SliderFloat("##SliderBPM", &gui_.selected_BPM, min_BPM, max_BPM, "Selected BPM = %.3f");
+			ImGui::DragFloat("##DragBPM", &gui_.selected_BPM, ((max_BPM - min_BPM) / 5000.0f), min_BPM, max_BPM, "Drag here for finer control.");
+			ImGui::PopItemWidth();
+			//ImGui::SliderFloat("##SliderBPM", &gui_.selected_BPM, gui_.min_BPM, gui_.max_BPM, "Selected BPM = %.3f");
+			//ImGui::DragFloat("##DragBPM", &gui_.selected_BPM, ((gui_.max_BPM - gui_.min_BPM) / 5000.0f), gui_.min_BPM, gui_.max_BPM, "Drag here for finer control.");
 		}
 		else
 		{
@@ -440,6 +464,10 @@ void Aubio::GeneratingWindow()
 		
 		if (autoselect_offset)
 		{
+			//ImGui::Checkbox("Subdivide Beat Interval", &settings_.subdivide_beat_interval);
+			//if (ImGui::IsItemHovered())
+			//	ImGui::SetTooltip("The beat interval for generating offset values is subdivided by 4 to account for detected beats potentially being half beats or quarter beats.\nWARNING: Can make offset results more random if the detected beats are not aligned with the correct BPM.\nDon't use this unless you understand what this means.");
+
 			auto BPM = gui_.selected_BPM;
 			auto closest_bpm_past = std::lower_bound(gui_.bpms.begin(), gui_.bpms.end(), BPM);
 			//auto closest_bpm_before = std::lower_bound(gui_.bpms.rbegin(), gui_.bpms.rend(), BPM, [BPM](const float& other)
@@ -485,6 +513,8 @@ void Aubio::GeneratingWindow()
 					}
 
 					auto ms_interval = (float)(1000 * 60) / closest_bpm;
+					if(settings_.subdivide_beat_interval)
+						ms_interval /= 4;
 
 					auto closest_note_time = std::find(beats_.begin(), beats_.end(), closest_bpm);
 					if (closest_note_time != beats_.end())
@@ -570,68 +600,31 @@ void Aubio::FilterSource(fvec_t * _source_buffer, std::vector<fvec_t*>& _filter_
 	params[0] = settings_.samplerate;
 	params[1] = 2;		// order
 
-	params[2] = settings_.filter_lowpass_frequency;
-	left.setParams(params);
-	left.process(_source_buffer->length, &source_buffers[0]);
-
-	params[2] = settings_.filter_highpass_frequency;
-	right.setParams(params);
-	right.process(_source_buffer->length, &source_buffers[settings_.filter_count - 1]);
-
-	for (int mid_index = 0; mid_index < settings_.filter_count - 2; ++mid_index)
+	if (settings_.filter_count != 1)
 	{
-		params[2] = settings_.filter_params[mid_index].first;
-		params[3] = settings_.filter_params[mid_index].second;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[mid_index + 1]);
-	}
-
-	/*switch (settings_.filterbank_type)
-	{
-	case Settings::FOUR:
-	{
-		
-
-		
-
-		break;
-	}
-	case Settings::EIGHT:
-		Dsp::Params params;
-
-		params[0] = settings_.samplerate;
-		params[1] = 40;
-		params[2] = 2;
+		params[2] = settings_.filter_lowpass_frequency;
 		left.setParams(params);
 		left.process(_source_buffer->length, &source_buffers[0]);
 
-		params[1] = 10000;
+		params[2] = settings_.filter_highpass_frequency;
 		right.setParams(params);
-		right.process(_source_buffer->length, &source_buffers[7]);
+		right.process(_source_buffer->length, &source_buffers[settings_.filter_count - 1]);
 
-
-		params[2] = 4;
-		params[1] = 120;
+		for (int mid_index = 0; mid_index < settings_.filter_count - 2; ++mid_index)
+		{
+			params[2] = settings_.filter_params[mid_index].first;	// frequency centre
+			params[3] = settings_.filter_params[mid_index].second;	// band width
+			mid.setParams(params);
+			mid.process(_source_buffer->length, &source_buffers[mid_index + 1]);
+		}
+	}
+	else
+	{
+		params[2] = settings_.filter_params[0].first;
+		params[3] = settings_.filter_params[0].second;
 		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[1]);
-		params[1] = 250;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[2]);
-		params[1] = 500;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[3]);
-		params[1] = 1600;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[4]);
-		params[1] = 3200;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[5]);
-		params[1] = 6400;
-		mid.setParams(params);
-		mid.process(_source_buffer->length, &source_buffers[6]);
-
-		break;
-	}*/
+		mid.process(_source_buffer->length, &source_buffers[0]);
+	}
 
 	for (int i = 0; i < settings_.filter_count; ++i)
 	{
@@ -641,123 +634,6 @@ void Aubio::FilterSource(fvec_t * _source_buffer, std::vector<fvec_t*>& _filter_
 		}
 	}
 }
-
-/*void Aubio::SetLinearFilters(unsigned int _count)
-{
-	fvec_t* frequencies = new_fvec(_count + 2);
-	float spacing = (settings_.samplerate / 2) / _count;
-	const float lowest_frequency = 20.0f;
-	for (size_t i = 0; i < _count; i++)
-	{
-		frequencies->data[i] = lowest_frequency + i * spacing;
-	}
-	frequencies->data[_count] = (float)settings_.samplerate / 2;
-	frequencies->data[_count + 1] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}
-
-void Aubio::SetPianoFilters()
-{
-	fvec_t* frequencies = new_fvec(88 + 2);
-	float spacing = (settings_.samplerate / 2) / 88;
-	for (size_t i = 0; i < 88; i++)
-	{
-		frequencies->data[i] = std::pow(2, ((float)i - 49.0f) / 12.0f) * 440.f;
-	}
-	frequencies->data[88] = (float)settings_.samplerate / 2;
-	frequencies->data[88 + 1] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}
-
-void Aubio::SetFourBandFilters()
-{
-	fvec_t* frequencies = new_fvec(6);
-	frequencies->data[0] = 300.0f;
-	frequencies->data[1] = 800.0f;
-	frequencies->data[2] = 2500.0f;
-	frequencies->data[3] = 5000.0f;
-	frequencies->data[4] = (float)settings_.samplerate / 2;
-	frequencies->data[5] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}
-
-void Aubio::SetEightBandFilters()
-{
-	fvec_t* frequencies = new_fvec(10);
-	frequencies->data[0] = 40.0f;
-	frequencies->data[1] = 160.0f;
-	frequencies->data[2] = 300.0f;
-	frequencies->data[3] = 800.0f;
-	frequencies->data[4] = 2500.0f;
-	frequencies->data[5] = 5000.0f;
-	frequencies->data[6] = 10000.0f;
-	frequencies->data[7] = 20000.0f;
-	frequencies->data[8] = (float)settings_.samplerate / 2;
-	frequencies->data[9] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}
-
-void Aubio::SetFifteenBandFilters()
-{
-	fvec_t* frequencies = new_fvec(17);
-	frequencies->data[0] = 25.0f;
-	frequencies->data[1] = 40.0f;
-	frequencies->data[2] = 63.0f;
-	frequencies->data[3] = 100.0f;
-	frequencies->data[4] = 160.0f;
-	frequencies->data[5] = 250.0f;
-	frequencies->data[6] = 400.0f;
-	frequencies->data[7] = 630.0f;
-	frequencies->data[8] = 1000.0f;
-	frequencies->data[9] = 1600.0f;
-	frequencies->data[10] = 2500.0f;
-	frequencies->data[11] = 4000.0f;
-	frequencies->data[12] = 6300.0f;
-	frequencies->data[13] = 10000.0f;
-	frequencies->data[14] = 16000.0f;
-	frequencies->data[15] = (float)settings_.samplerate / 2;
-	frequencies->data[16] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}
-
-void Aubio::SetThirtyOneBandFilters()
-{
-	fvec_t* frequencies = new_fvec(33);
-	frequencies->data[0] = 20.0f;
-	frequencies->data[1] = 25.0f;
-	frequencies->data[2] = 31.5f;
-	frequencies->data[3] = 40.0f;
-	frequencies->data[4] = 50.0f;
-	frequencies->data[5] = 63.0f;
-	frequencies->data[6] = 80.0f;
-	frequencies->data[7] = 100.0f;
-	frequencies->data[8] = 125.0f;
-	frequencies->data[9] = 160.0f;
-	frequencies->data[10] = 200.0f;
-	frequencies->data[11] = 250.0f;
-	frequencies->data[12] = 315.0f;
-	frequencies->data[13] = 400.0f;
-	frequencies->data[14] = 500.0f;
-	frequencies->data[15] = 630.0f;
-	frequencies->data[16] = 800.0f;
-	frequencies->data[17] = 1000.0f;
-	frequencies->data[18] = 1250.0f;
-	frequencies->data[19] = 1600.0f;
-	frequencies->data[20] = 2000.0f;
-	frequencies->data[21] = 2500.0f;
-	frequencies->data[22] = 3150.0f;
-	frequencies->data[23] = 4000.0f;
-	frequencies->data[24] = 5000.0f;
-	frequencies->data[25] = 6300.0f;
-	frequencies->data[26] = 8000.0f;
-	frequencies->data[27] = 10000.0f;
-	frequencies->data[28] = 12500.0f;
-	frequencies->data[29] = 16000.0f;
-	frequencies->data[30] = 20000.0f;
-	frequencies->data[31] = (float)settings_.samplerate / 2;
-	frequencies->data[32] = ((float)settings_.samplerate / 2) + 1.0f;
-	aubio_filterbank_set_triangle_bands(filterbank_, frequencies, settings_.samplerate);
-}*/
 
 Beatmap* Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description)
 {
@@ -820,40 +696,16 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			break;
 		case 1:
 			{
-				if (settings_.filter_count != 4)
-					_beatmap->play_mode_ = VISUALIZATION;
-				else
+				if (settings_.filter_count == 4)
 					_beatmap->play_mode_ = FOURKEY;
+				else if (settings_.filter_count == 1)
+					_beatmap->play_mode_ = SINGLE;
+				else
+					_beatmap->play_mode_ = VISUALIZATION;
+
 				settings_.onset_function_count = settings_.filter_count;
 				onset_objects_ = std::vector<OnsetObject>(settings_.filter_count, { onset_functions_.front(), nullptr });
 				settings_.filterbank_window_size = onset_functions_[0].window_size;
-				//phase_vocoder_ = new_aubio_pvoc(settings_.filterbank_window_size, settings_.hop_size);
-				//fft_ = new_aubio_fft(settings_.filterbank_window_size);
-				//filterbank_ = new_aubio_filterbank(settings_.filter_count, settings_.filterbank_window_size);
-				/*switch (settings_.filterbank_type)
-				{
-				case Settings::VARIABLE:
-					SetLinearFilters(settings_.filter_count);
-					break;
-				case Settings::FOUR:
-					SetFourBandFilters();
-					break;
-				case Settings::EIGHT:
-					SetEightBandFilters();
-					break;
-				case Settings::FIFTEEN:
-					SetFifteenBandFilters();
-					break;
-				case Settings::THIRTYONE:
-					SetThirtyOneBandFilters();
-					break;
-				case Settings::SLANEY:
-					aubio_filterbank_set_mel_coeffs_slaney(filterbank_, settings_.samplerate);
-					break;
-				case Settings::PIANO:
-					SetPianoFilters();
-					break;
-				}*/
 			}
 			break;
 		case 2:
@@ -904,7 +756,6 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 
 		// Buffers
 		fvec_t* source_buffer = new_fvec(settings_.hop_size);
-		//cvec_t* spectrum_buffer = new_cvec(settings_.filterbank_window_size);
 		std::vector<fvec_t*> filter_buffers;
 		for (int i = 0; i < settings_.filter_count; ++i)
 		{
@@ -927,11 +778,11 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			// Read from source to source buffer
 			aubio_source_do(source_, source_buffer, &frames_read);
 
-			// Do tempo estimation for this hop
-			aubio_tempo_do(tempo_object, source_buffer, tempo_buffer);
-
 			if (trained)
 			{
+				// Do tempo estimation for this hop
+				aubio_tempo_do(tempo_object, source_buffer, tempo_buffer);
+
 				if (tempo_buffer->data[0] != 0)
 				{
 					float BPM = aubio_tempo_get_bpm(tempo_object);
@@ -983,11 +834,9 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			{
 				
 				FilterSource(source_buffer, filter_buffers);
-				//aubio_pvoc_do(phase_vocoder_, source_buffer, spectrum_buffer);
 
 				for (auto &object : onset_objects_)
 				{
-					//aubio_filterbank_do(filterbank_, spectrum_buffer, filter_buffers[index]);
 					aubio_onset_do(object.object, filter_buffers[index], onset_buffers[index]);
 
 					if (trained)
@@ -1002,46 +851,16 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 
 					++index;
 				}
-
-				/*for (int i = 0; i < settings_.hop_size; ++i)
-				{
-					auto source = new_fvec(1);
-					source->data[0] = source_buffer->data[i];
-					aubio_fft_do(fft_, source, spectrum_buffer);
-					del_fvec(source);
-					aubio_filterbank_do(filterbank_, spectrum_buffer, filter_buffers[i]);
-				}
-				for (int i = 0; i < settings_.filter_count; ++i)
-				{
-					auto buffer = new_fvec(settings_.hop_size);
-					for (int sample_index = 0; sample_index < settings_.hop_size; ++sample_index)
-					{
-						buffer->data[sample_index] = filter_buffers[i]->data[sample_index];
-					}
-
-					for (auto &object : onset_objects_)
-					{
-						aubio_onset_do(object.object, buffer, onset_buffers[index]);
-
-						if (trained)
-						{
-							if (onset_buffers[i]->data[0] != 0)
-							{
-								float last_onset = aubio_onset_get_last_s(object.object);
-								section.notes[i].push(sf::seconds(last_onset));
-								Log::Message("Onset at " + agn::to_string_precise(last_onset, 3) + "s");
-							}
-						}
-					}
-					del_fvec(buffer);
-				}*/
 			}
 
 			// Check if past training threshold
 			if (frame_count >= settings_.hop_size * settings_.training_threshold && !trained)
 			{
 				// Go back to start
-				aubio_source_seek(source_, 0);
+				del_aubio_source(source_);
+				source_ = new_aubio_source(const_cast<char*>(song_path.c_str()),
+										   settings_.samplerate,
+										   settings_.hop_size);
 				frames_read = 0;
 				frame_count = 0;
 				trained = true;
@@ -1050,10 +869,12 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			// Update count and increment progress
 			frame_count += frames_read;
 			progress_ = progress_ + ((float)frames_read / (float)total_samples);
+			if (progress_ >= 0.99f)
+				progress_ = 1.0f;
+			if (progress_ == 1.0f)
+				frames_read += 1;
 		}
-		progress_ = progress_ + ((float)frames_read / (float)total_samples);
-		if (progress_ >= 0.99f)
-			progress_ = 1.0f;
+		
 
 		// CLEANUP
 		for (auto &buffer : onset_buffers)
@@ -1061,22 +882,15 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			del_fvec(buffer);
 		}
 		del_fvec(tempo_buffer);
-		if (settings_.generate_mode == 1)
-		{
-			/*for (auto &buffer : filter_buffers)
-			{
-				del_fvec(buffer);
-			}*/
-			//del_aubio_filterbank(filterbank_);
-			//del_aubio_pvoc(phase_vocoder_);
-			//del_aubio_fft(fft_);
-		}
 		for (auto &object : onset_objects_)
 		{
 			del_aubio_onset(object.object);
 		}
 		del_aubio_tempo(tempo_object);
-		//del_cvec(spectrum_buffer);
+		for (auto &buffer : filter_buffers)
+		{
+			del_fvec(buffer);
+		}
 		del_fvec(source_buffer);
 		del_aubio_source(source_);
 		aubio_cleanup();
@@ -1088,7 +902,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 	}
 }
 
-Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap)
+Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap, bool _partial_load)
 {
 	using namespace rapidxml;
 	
@@ -1132,58 +946,61 @@ Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap)
 				description = description_node->value();
 			Beatmap* beatmap = new Beatmap(song, _beatmap.name_, description, mode);
 
-			xml_node<>* beats_node = beatmap_node->first_node("beats");
-			if (beats_node)
+			if (!_partial_load)
 			{
-				beatmap->beats_.reset(new std::queue<Note>());
-
-				xml_node<>* beat_node = beats_node->first_node("beat");
-				while (beat_node)
+				xml_node<>* beats_node = beatmap_node->first_node("beats");
+				if (beats_node)
 				{
-					beatmap->beats_->emplace(sf::milliseconds(std::stoi(beat_node->first_attribute("offset")->value())));
-					beat_node = beat_node->next_sibling();
-				}
-			}
+					beatmap->beats_.reset(new std::queue<Note>());
 
-			xml_node<>* section_node = beatmap_node->first_node("section");
-
-			while (section_node)
-			{
-				beatmap->sections_.reset(new std::vector<TimingSection>());
-				// Append section
-				beatmap->sections_->emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
-															   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
-				// Get this notequeue vector. Will always be the last section.
-				auto &notequeue_vector = beatmap->sections_->back().notes;
-
-				// Reserve space in the notequeue vector if we know the mode.
-				if (mode != UNKNOWN)
-				{
-					notequeue_vector.reserve(mode);
-				}
-				else
-				{
-					Log::Important("Notequeue vector could not be pre-allocated as beatmap type is unknown.");
-				}
-					
-				xml_node<>* notequeue_node = section_node->first_node("notequeue");
-				while (notequeue_node)
-				{
-					//auto frequency_cutoff = stof(notequeue_node->first_attribute("frequency_cutoff")->value());
-					notequeue_vector.emplace_back(); // Construct a notequeue at the back of the vector for this node
-					auto &notequeue = notequeue_vector.back();
-
-					xml_node<>* note_node = notequeue_node->first_node("note");
-					while (note_node)
+					xml_node<>* beat_node = beats_node->first_node("beat");
+					while (beat_node)
 					{
-						notequeue.emplace(sf::milliseconds(std::stoi(note_node->first_attribute("offset")->value())));
-						note_node = note_node->next_sibling("note");
+						beatmap->beats_->emplace(sf::milliseconds(std::stoi(beat_node->first_attribute("offset")->value())));
+						beat_node = beat_node->next_sibling();
+					}
+				}
+
+				xml_node<>* section_node = beatmap_node->first_node("section");
+
+				while (section_node)
+				{
+					beatmap->sections_.reset(new std::vector<TimingSection>());
+					// Append section
+					beatmap->sections_->emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
+																   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
+					// Get this notequeue vector. Will always be the last section.
+					auto &notequeue_vector = beatmap->sections_->back().notes;
+
+					// Reserve space in the notequeue vector if we know the mode.
+					if (mode != UNKNOWN)
+					{
+						notequeue_vector.reserve(mode);
+					}
+					else
+					{
+						Log::Important("Notequeue vector could not be pre-allocated as beatmap type is unknown.");
 					}
 
-					notequeue_node = notequeue_node->next_sibling("notequeue");
-				}
+					xml_node<>* notequeue_node = section_node->first_node("notequeue");
+					while (notequeue_node)
+					{
+						//auto frequency_cutoff = stof(notequeue_node->first_attribute("frequency_cutoff")->value());
+						notequeue_vector.emplace_back(); // Construct a notequeue at the back of the vector for this node
+						auto &notequeue = notequeue_vector.back();
 
-				section_node = section_node->next_sibling("section");
+						xml_node<>* note_node = notequeue_node->first_node("note");
+						while (note_node)
+						{
+							notequeue.emplace(sf::milliseconds(std::stoi(note_node->first_attribute("offset")->value())));
+							note_node = note_node->next_sibling("note");
+						}
+
+						notequeue_node = notequeue_node->next_sibling("notequeue");
+					}
+
+					section_node = section_node->next_sibling("section");
+				}
 			}
 			doc.clear();
 			return beatmap;

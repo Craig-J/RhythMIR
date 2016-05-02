@@ -17,8 +17,8 @@ namespace
 	sf::Time beat_interval;
 	sf::Time beat_time;
 
-	const int hit_counter_statistic_count = 5;
-	const int hit_counter_y_offset = 24.0f;
+	const int performance_statistic_count = 10;
+	const int performance_y_offset = 24.0f;
 	
 }
 
@@ -83,14 +83,20 @@ void GameState::InitializeState()
 	score_ = 0;
 
 	// Hit counters initialization
-	hit_counters_text_.setFont(machine_.font_);
-	hit_counters_text_.setCharacterSize(30);
-	hit_counters_text_.setPosition(sf::Vector2f(5.0f, window_size.y - hit_counter_y_offset * 10 - 5.0f));
+	performance_text_.setFont(machine_.font_);
+	performance_text_.setCharacterSize(30);
+	performance_text_.setPosition(sf::Vector2f(5.0f, window_size.y - performance_y_offset * 10 - 5.0f));
 	perfect_hits_ = 0;
 	great_hits_ = 0;
 	good_hits_ = 0;
 	misses_ = 0;
 	hit_combo_ = 0;
+	max_combo_ = 0;
+	average_hit_ = 0.0f;
+	unstable_rate_ = 0.0f;
+	earliest_hit_ = -300;
+	latest_hit_ = 300;
+	hits_.clear();
 
 	// Beatmap initialization
 	sections_ = beatmap_->CopyTimingSections();
@@ -419,36 +425,57 @@ void GameState::Render(const float _delta_time)
 	clock_text_.move((clock_text_.getGlobalBounds().width + 15.0f), -(score_text_.getLocalBounds().height));
 
 	
-	hit_counters_text_.setPosition(sf::Vector2f(5.0f, window_size.y - hit_counter_y_offset * 10 - 5.0f));
-	for (int index = 0; index < hit_counter_statistic_count; ++index)
+	performance_text_.setPosition(sf::Vector2f(5.0f, window_size.y - performance_y_offset * 15 - 5.0f));
+	for (int index = 0; index < performance_statistic_count; ++index)
 	{
 		switch (index)
 		{
 		case 0:
-			hit_counters_text_.setString("Combo: " + std::to_string(hit_combo_));
-			hit_counters_text_.setColor(sf::Color::White);
+			performance_text_.setString("Combo: " + std::to_string(hit_combo_));
+			performance_text_.setColor(sf::Color::White);
 			break;
 		case 1:
-			hit_counters_text_.setString("Perfect: " + std::to_string(perfect_hits_));
-			hit_counters_text_.setColor(sf::Color::Cyan);
+			performance_text_.setString("Max Combo: " + std::to_string(max_combo_));
+			performance_text_.setColor(sf::Color::White);
+			performance_text_.move(0.0f, (performance_y_offset));
 			break;
 		case 2:
-			hit_counters_text_.setString("Great: " + std::to_string(great_hits_));
-			hit_counters_text_.setColor(sf::Color::Green);
+			performance_text_.setString("Hits: " + std::to_string(hits_.size()));
+			performance_text_.setColor(sf::Color::White);
 			break;
 		case 3:
-			hit_counters_text_.setString("Good: " + std::to_string(good_hits_));
-			hit_counters_text_.setColor(sf::Color::Yellow);
+			performance_text_.setString("Perfect: " + std::to_string(perfect_hits_));
+			performance_text_.setColor(sf::Color::Cyan);
 			break;
 		case 4:
-			hit_counters_text_.setString("Miss: " + std::to_string(misses_));
-			hit_counters_text_.setColor(sf::Color::Red);
+			performance_text_.setString("Great: " + std::to_string(great_hits_));
+			performance_text_.setColor(sf::Color::Green);
+			break;
+		case 5:
+			performance_text_.setString("Good: " + std::to_string(good_hits_));
+			performance_text_.setColor(sf::Color::Yellow);
+			break;
+		case 6:
+			performance_text_.setString("Miss: " + std::to_string(misses_));
+			performance_text_.setColor(sf::Color::Red);
+			break;
+		case 7:
+			performance_text_.setString("-" + std::to_string(std::abs(earliest_hit_)) + "ms ~ +" + std::to_string(std::abs(latest_hit_)) + "ms");
+			performance_text_.setColor(sf::Color::White);
+			performance_text_.move(0.0f, (performance_y_offset));
+			break;
+		case 8:
+			performance_text_.setString("Average: " + agn::to_string_precise(average_hit_, 2));
+			performance_text_.setColor(sf::Color::White);
+			break;
+		case 9:
+			performance_text_.setString("Deviation: " + agn::to_string_precise(unstable_rate_, 2));
+			performance_text_.setColor(sf::Color::White);
 			break;
 		}
-		machine_.window_.draw(hit_counters_text_);
-		hit_counters_text_.move(0.0f, (hit_counter_y_offset));
+		machine_.window_.draw(performance_text_);
+		performance_text_.move(0.0f, (performance_y_offset));
 	}
-	hit_counters_text_.move(0.0f, -(hit_counter_y_offset * 5));
 
 	if (paused_)
 	{
@@ -562,13 +589,14 @@ void GameState::AttemptNoteHit(NotePath& _path)
 		auto& note = _path.notes.front();
 
 		// Note offset is the time (in ms) that the note is offset from a perfect hit
-		int note_offset = abs(note.offset_from_perfect.asMilliseconds());
+		int note_offset = note.offset_from_perfect.asMilliseconds();
+		int abs_note_offset = abs(note.offset_from_perfect.asMilliseconds());
 
 		// Ignore press when the offset is more than 300ms
-		if (note_offset < 300)
+		if (abs_note_offset < 300)
 		{
 			sf::Sound* hitsound;
-			if (note_offset < 30)
+			if (abs_note_offset < 30)
 			{
 				perfect_hits_++;
 				hit_combo_++;
@@ -576,7 +604,7 @@ void GameState::AttemptNoteHit(NotePath& _path)
 
 				PlayHitSound();
 			}
-			else if (note_offset < 60)
+			else if (abs_note_offset < 60)
 			{
 				great_hits_++;
 				hit_combo_++;
@@ -584,7 +612,7 @@ void GameState::AttemptNoteHit(NotePath& _path)
 
 				PlayHitSound();
 			}
-			else if (note_offset < 120)
+			else if (abs_note_offset < 120)
 			{
 				good_hits_++;
 				hit_combo_++;
@@ -595,10 +623,42 @@ void GameState::AttemptNoteHit(NotePath& _path)
 			else
 			{
 				misses_++;
+				if (hit_combo_ > max_combo_)
+					max_combo_ = hit_combo_;
 				if(hit_combo_ > 10)
 					PlayMissSound();
 				hit_combo_ = 0;
 			}
+			if (hit_combo_ > max_combo_)
+				max_combo_ = hit_combo_;
+
+			if (note_offset < latest_hit_)
+				latest_hit_ = note_offset;
+			if (note_offset > earliest_hit_)
+				earliest_hit_ = note_offset;
+
+			hits_.emplace_back(note_offset);
+
+			int mean;
+			for (auto hit : hits_)
+			{
+				mean += hit;
+			}
+			average_hit_ = (float)mean / (float)hits_.size();
+
+			std::vector<float> sqdiffs;
+			for (auto hit : hits_)
+			{
+				float sqdiff;
+				sqdiff = std::pow((float)hit - average_hit_, 2);
+				sqdiffs.push_back(sqdiff);
+			}
+			for (auto v : sqdiffs)
+			{
+				unstable_rate_ += v;
+			}
+			unstable_rate_ /= sqdiffs.size();
+			unstable_rate_ = std::sqrt(unstable_rate_);
 
 			// Set not visible (will get erased at end of update)
 			note.SetVisibility(false);

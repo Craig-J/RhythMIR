@@ -56,11 +56,16 @@ private:
 	sf::Text clock_text_;
 	sf::Text countdown_text_;
 	sf::Text score_text_;
-	sf::Text hit_counters_text_;
+	sf::Text performance_text_;
 
+	std::vector<int> hits_;
 	int perfect_hits_, great_hits_, good_hits_, misses_;
-	int hit_combo_;
+	int hit_combo_, max_combo_;
 	unsigned long score_;
+	int earliest_hit_, latest_hit_;
+	float average_hit_;
+	float unstable_rate_;
+
 	bool paused_;
 	bool finished_;
 	bool hit_counters_;
