@@ -10,12 +10,14 @@ namespace sfx
 		hud_(clock_, font_),
 		console_(_window),
 		display_hud_(true),
-		display_test_window_(false)
+		display_test_window_(false),
+		unlimited_framerate_(false)
 	{
 		ImGui::SFML::SetRenderTarget(window_);
 		ImGui::SFML::InitImGuiRendering();
 		ImGui::SFML::SetWindow(window_);
 		ImGui::SFML::InitImGuiEvents();
+		window_.setFramerateLimit(60);
 	}
 
 	void ImGuiApplication::Run()
@@ -28,10 +30,14 @@ namespace sfx
 			ImGui::SFML::UpdateImGuiRendering();
 			sfx::Global::Input.Update();
 			EventLoop();
-			/*if (Keyboard::isKeyPressed(Keyboard::LAlt) && Keyboard::isKeyPressed(Keyboard::Escape))
+			if (Global::Input.KeyPressed(Keyboard::F7))
 			{
-				running_ = false;
-			}*/
+				unlimited_framerate_ = !unlimited_framerate_;
+				if(unlimited_framerate_)
+					window_.setFramerateLimit(0);
+				else
+					window_.setFramerateLimit(60);
+			}
 			if (Global::Input.KeyPressed(Keyboard::F10))
 			{
 				display_hud_ = !display_hud_;

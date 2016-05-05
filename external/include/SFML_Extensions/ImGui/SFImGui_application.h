@@ -40,6 +40,7 @@ namespace sfx
 		SystemHUD hud_;
 		bool display_test_window_;
 		bool running_;
+		bool unlimited_framerate_;
 	};
 }
 
