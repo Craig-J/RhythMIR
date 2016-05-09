@@ -556,6 +556,19 @@ p.tagline {
   background: transparent url(../images/code.png) no-repeat 0 2px;
   padding-left: 35px;
   margin-top: 8px;
+  margin-left: 35px;
+  display: block;
+  float: left;
+  text-indent: 0;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  filter:alpha(opacity=100);  /* IE 5-7 */
+}
+
+.download-bar a.back-button {
+  padding-left: 35px;
+  margin-top: 8px;
   display: block;
   float: left;
   text-indent: 0;
