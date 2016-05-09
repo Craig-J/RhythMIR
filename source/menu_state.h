@@ -23,7 +23,7 @@ public:
 private:
 
 	std::unique_ptr<Aubio> aubio_;
-	std::unique_ptr<Beatmap> beatmap_;
+	std::unique_ptr<Beatmap> loaded_beatmap_;
 	std::atomic<bool> generating_beatmap_;
 	std::atomic<bool> canceling_generating_;
 

@@ -14,10 +14,10 @@ namespace
 
 	namespace SpecDesc
 	{
-		const auto energy = std::make_pair("Energy", "energy");
+		const auto energy = std::make_pair("Time Domain Magnitude", "energy");
 		const auto hfc = std::make_pair("High Frequency Content", "hfc");
 		const auto complex = std::make_pair("Complex Domain", "complex");
-		const auto phase = std::make_pair("Phase Based", "phase");
+		const auto phase = std::make_pair("Phase Deviation", "phase");
 		const auto specdiff = std::make_pair("Spectral Difference", "specdiff");
 		const auto kl = std::make_pair("Kullback-Liebler", "kl");
 		const auto mkl = std::make_pair("Modified Kullback-Liebler", "mkl");
@@ -154,33 +154,28 @@ void Aubio::SettingsWindow()
 		ImGui::SameLine();
 		ImGui::RadioButton("Single Function", &settings_.generate_mode, 0);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Use one onset function to generate one vector of onsets.");
+			ImGui::SetTooltip("Use one onset function to generate one vector of onsets.\nRecommended mode for non-expert users.");
 		ImGui::SameLine();
 		ImGui::RadioButton("Single Function with Filtering", &settings_.generate_mode, 1);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Use one onset function on different frequency bands to generate several vectors of onsets.");
+			ImGui::SetTooltip("Use one onset function on different frequency bands to generate several vectors of onsets.\nGenerates a number of lanes equal to the number of filters used.\nNot recommended as filtering is ineffective, very difficult to get good output.\n\nNOTE: Only Complex and Kullback-Liebler functions are recommended when filtering.");
 		ImGui::SameLine();
 		if (ImGui::RadioButton("Run All Functions", &settings_.generate_mode, 2))
 			function_type = 0;
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Use every onset function to generate one vector of onsets each.");
+			ImGui::SetTooltip("Use every onset function to generate one vector of onsets each.\nGenerates an 8-lane Visualization beatmap. Not for playing.");
 		//ImGui::Text("Gameplay is only available for the single function mode and 4-band filter mode currently.");
 
-		ImGui::Checkbox("Test Mode", &settings_.test_mode);
-		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Don't automatically save the beatmap. Beatmap will be lost when loading/generating another or exiting RhythMIR.");
-		
-		ImGui::SameLine();
-		ImGui::Checkbox("Train Functions", &settings_.train_functions);
-		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Runs the functions at the beginning for a few hops to avoid garbage results in the first few seconds. (Recommended)");
+		//ImGui::Checkbox("Test Mode", &settings_.test_mode);
+		//if (ImGui::IsItemHovered())
+			//ImGui::SetTooltip("Don't automatically save the beatmap. Beatmap will be lost when loading/generating another or exiting RhythMIR.");
 
 		ImGui::Spacing();
 
 		// Hop size
 		ImGui::Text("Hop Size");
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("The amount (in samples) to move forward between execution of tempo/onset functions.\nLower value generally means more onsets. Must be lower than window size.");
+			ImGui::SetTooltip("The amount (in samples) to move forward between execution of tempo/onset functions.\nLower value generally means more onsets. Must be lower than window size.\nRecommended 128 for most accurate notes, or 16 for most accurate BPM.");
 		for (int i = min_hop; i <= max_hop; i *= 2)
 		{
 			ImGui::SameLine();
@@ -207,7 +202,7 @@ void Aubio::SettingsWindow()
 
 		ImGui::Text("Window Size");
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\n However higher also decreases onset timing accuracy.");
+			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\nHowever higher also decreases onset timing accuracy.\nRecommended to be 4x hop size in all cases.");
 		if (tempo_function_.window_size < settings_.hop_size * min_overlap)
 			tempo_function_.window_size = settings_.hop_size * min_overlap;
 		if (tempo_function_.window_size > settings_.hop_size * max_overlap)
@@ -233,7 +228,7 @@ void Aubio::SettingsWindow()
 		ImGui::SameLine();
 		ImGui::Checkbox("Store Beats", &settings_.store_beats);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Stores the beats from the tempo estimation phase as part of the beatmap.");
+			ImGui::SetTooltip("Stores the beats from the tempo estimation phase as part of the beatmap.\nNot recommended.");
 
 		ImGui::Spacing();
 
@@ -245,7 +240,7 @@ void Aubio::SettingsWindow()
 
 		ImGui::Text("Window Size");
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\nHowever higher also decreases onset timing accuracy.");
+			ImGui::SetTooltip("The resolution of the fast fourier transform (FFT) algorithm which splits a time domain signal into frequency domain.\nHigher means more detailed spectral content possibly leading to better results.\nHowever higher also decreases onset timing accuracy.\nRecommended to be 4x hop size in all cases.");
 		auto& onset_function = onset_functions_.front();
 		if (onset_function.window_size < settings_.hop_size * min_overlap)
 			onset_function.window_size = settings_.hop_size * min_overlap;
@@ -266,8 +261,14 @@ void Aubio::SettingsWindow()
 		}
 
 		ImGui::SliderFloat("Peak-picking Threshold", &settings_.onset_threshold, 0.0f, 1.0f, "%.1f");
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("The threshold for picking notes from the onset function output.\nRecommendation is dependent on the function. See function tooltips.");
 		ImGui::SliderFloat("Minimum Inter Onset Interval", &settings_.onset_minioi, 10.0f, 1000.0f, "%.1fms", 3.0f);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("The minimum time between onsets. Put higher to force less notes. Too low may allow double detections.");
 		ImGui::SliderFloat("Silence Threshold", &settings_.silence_threshold, -90.0f, -50.0f, "%.2fdB");
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("The relative sound level to determine what is considered silence.\nIncrease if a song is outputting many onsets at very quiet sections.");
 		if(ImGui::Checkbox("Use Delay Threshold", &settings_.use_delay))
 		{
 			settings_.delay_threshold = 4.3*settings_.hop_size;
@@ -278,18 +279,52 @@ void Aubio::SettingsWindow()
 			ImGui::SliderInt("##delaythreshold", &settings_.delay_threshold, -settings_.hop_size * 5, settings_.hop_size * 5, std::string("%.0f samples (" + std::to_string(settings_.delay_threshold * 1000 / (int)settings_.samplerate) + "ms)").c_str());
 		}
 
+		ImGui::Checkbox("Train Functions", &settings_.train_functions);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Runs the functions at the beginning for a few hops to avoid detections from oversensitivity in the first few seconds.\nRecommended on.");
+
 		ImGui::Spacing();
 
 		if (settings_.generate_mode != 2)
 		{
-			ImGui::RadioButton(SpecDesc::energy.first, &function_type, 0); ImGui::SameLine();
-			ImGui::RadioButton(SpecDesc::hfc.first, &function_type, 1); ImGui::SameLine();
-			ImGui::RadioButton(SpecDesc::phase.first, &function_type, 2); ImGui::SameLine();
+			ImGui::RadioButton(SpecDesc::energy.first, &function_type, 0);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Uses energy of sound directly.\nVery bad function, not recommended.");
+
+			ImGui::SameLine();
+			ImGui::RadioButton(SpecDesc::hfc.first, &function_type, 1);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Weights higher frequencies more.\nGood at detecting percussive instruments, e.g. drums.\nRecommended 0.3 peak picking threshold.");
+
+			ImGui::SameLine();
+			ImGui::RadioButton(SpecDesc::phase.first, &function_type, 2);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Uses phase of audio signal.\nBad function overall in this implementation, not recommended.");
+			
+			ImGui::SameLine();
 			ImGui::RadioButton(SpecDesc::specdiff.first, &function_type, 3);
-			ImGui::RadioButton(SpecDesc::complex.first, &function_type, 4); ImGui::SameLine();
-			ImGui::RadioButton(SpecDesc::kl.first, &function_type, 5); ImGui::SameLine();
-			ImGui::RadioButton(SpecDesc::mkl.first, &function_type, 6); ImGui::SameLine();
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Compares energy difference between frames.\nPoor function, Spectral Flux is similar but better. Not recommended.");
+
+			ImGui::RadioButton(SpecDesc::complex.first, &function_type, 4);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Compares phase and magnitude using a distance function between frames.\nEssentially phase combined with spectral difference.\nGood function overall. Recommended in general cases.\nRecommended 0.3 peak picking threshold.");
+
+			ImGui::SameLine();
+			ImGui::RadioButton(SpecDesc::kl.first, &function_type, 5);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Similar to Complex but weights differences in distance logarithmically.\nGood function overall, slightly better than Complex. Recommended in general cases.\nRecommended 0.6 peak picking threshold.");
+
+			ImGui::SameLine();
+			ImGui::RadioButton(SpecDesc::mkl.first, &function_type, 6);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Variation of KL. Recommended in general cases.\nRecommended 0.1 peak picking threshold. This function's behaviour with higher PPT is different from others, >0.2 not recommended.");
+			
+			ImGui::SameLine();
 			ImGui::RadioButton(SpecDesc::specflux.first, &function_type, 7);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Similar to spectral difference but better overall.\nRecommended 0.6 peak picking threshold.");
+
 			switch (function_type)
 			{
 			case 0:
@@ -405,6 +440,8 @@ void Aubio::GeneratingWindow()
 		return;
 	}
 
+	ImGui::TextWrapped("This window helps with tempo estimation. When generation is done, press finish generating.");
+
 	if (!beats_.empty())
 	{
 		std::lock_guard<std::mutex> lock(gui_.bpm_mutex);
@@ -437,14 +474,14 @@ void Aubio::GeneratingWindow()
 		ImGui::SliderFloat2("##BPMHistogramRange", hist_range, min_BPM, max_BPM, "%.2f");
 		ImGui::PopItemWidth();
 
-		static bool autoselect_tempo = false;
+		static bool autoselect_tempo = true;
 		ImGui::Checkbox("Autoselect Tempo Estimate", &autoselect_tempo);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Automatically selects the highest confidence BPM.");
+			ImGui::SetTooltip("Automatically selects the highest confidence BPM.\nRecommended for non-expert users.");
 		static bool autoselect_offset = true;
 		ImGui::Checkbox("Autoselect First Beat Offset", &autoselect_offset);
 		if (ImGui::IsItemHovered())
-			ImGui::SetTooltip("Estimates the first beat location by interpolating back in intervals of the closest BPM.");
+			ImGui::SetTooltip("Estimates the first beat location by interpolating back in intervals of the closest BPM.\nRecommended for non-expert users.");
 		
 		if (!autoselect_tempo)
 		{

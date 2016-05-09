@@ -639,7 +639,7 @@ void GameState::AttemptNoteHit(NotePath& _path)
 
 			hits_.emplace_back(note_offset);
 
-			int mean;
+			auto mean = int();
 			for (auto hit : hits_)
 			{
 				mean += hit;
@@ -649,7 +649,7 @@ void GameState::AttemptNoteHit(NotePath& _path)
 			std::vector<float> sqdiffs;
 			for (auto hit : hits_)
 			{
-				float sqdiff;
+				auto sqdiff = float();
 				sqdiff = std::pow((float)hit - average_hit_, 2);
 				sqdiffs.push_back(sqdiff);
 			}

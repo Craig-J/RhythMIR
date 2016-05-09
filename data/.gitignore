@@ -1,6 +1,5 @@
-/output_log.txt
+songs/
+memes/
 *.RhythMIR
-/imgui.ini
-/songs/
-/temp/
-/memes/
+output_log.txt
+imgui.ini
