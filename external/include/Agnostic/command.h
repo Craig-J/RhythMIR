@@ -1,9 +1,6 @@
-#ifndef _AGNOSTIC_COMMAND_H_
-#define _AGNOSTIC_COMMAND_H_
+#pragma once
 
 namespace agn
 {
 	// NYI
 }
-
-#endif // _AGNOSTIC_COMMAND_H_

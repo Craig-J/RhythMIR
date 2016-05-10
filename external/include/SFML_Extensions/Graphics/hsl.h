@@ -1,7 +1,7 @@
-#ifndef _SFX_HSL_COLOR_H_
-#define _SFX_HSL_COLOR_H_
+#pragma once
 
 #include <SFML/Graphics/Color.hpp>
+
 #include <algorithm>
 #include <cmath>
 
@@ -27,4 +27,3 @@ namespace sfx
 	HSL RGBToHSL(const sf::Color& _color);
 
 }
-#endif // _SFX_HSL_COLOR_H_

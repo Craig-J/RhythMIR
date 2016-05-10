@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="global.cpp" />
     <ClCompile Include="Graphics\animation.cpp" />
-    <ClCompile Include="Graphics\button.cpp" />
     <ClCompile Include="Graphics\hsl.cpp" />
     <ClCompile Include="Graphics\sprite.cpp" />
     <ClCompile Include="ImGui\console.cpp" />
@@ -26,16 +25,12 @@
     <ClInclude Include="Audio\audio_manager.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="Graphics\animation.h" />
-    <ClInclude Include="Graphics\button.h" />
     <ClInclude Include="Graphics\hsl.h" />
     <ClInclude Include="Graphics\sprite.h" />
     <ClInclude Include="Graphics\texture_manager.h" />
-    <ClInclude Include="ImGui\imconfig-events-SFML.h" />
-    <ClInclude Include="ImGui\imconfig-rendering-SFML.h" />
     <ClInclude Include="ImGui\imgui-events-SFML.h" />
     <ClInclude Include="ImGui\imgui-rendering-SFML.h" />
     <ClInclude Include="ImGui\console.h" />
-    <ClInclude Include="ImGui\SFImGui.h" />
     <ClInclude Include="ImGui\SFImGui_application.h" />
     <ClInclude Include="include\SFML\Audio.hpp" />
     <ClInclude Include="include\SFML\Audio\AlResource.hpp" />

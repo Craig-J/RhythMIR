@@ -1,5 +1,4 @@
-#ifndef _AGNOSTIC_LOGGER_H_
-#define _AGNOSTIC_LOGGER_H_
+#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -185,5 +184,3 @@ namespace agn
 		}
 	};
 }
-
-#endif // _AGNOSTIC_LOGGER_H_

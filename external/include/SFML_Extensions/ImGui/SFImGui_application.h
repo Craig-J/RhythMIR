@@ -1,11 +1,12 @@
-#ifndef _SFX_SFIMGUI_APPLICATION_H_
-#define _SFX_SFIMGUI_APPLICATION_H_
-#include <SFML_Extensions\ImGui\SFImGui.h>
-#include <SFML_Extensions\ImGui\imgui-events-SFML.h>
-#include <SFML_Extensions\ImGui\imgui-rendering-SFML.h>
-#include <SFML_Extensions\System\frame_clock.h>
-#include <SFML_Extensions\System\system_HUD.h>
-#include <SFML_Extensions\ImGui\console.h>
+#pragma once
+
+#include <SFML_Extensions/System/frame_clock.h>
+#include <SFML_Extensions/System/system_HUD.h>
+
+#include <SFML_Extensions/ImGui/imgui-events-SFML.h>
+#include <SFML_Extensions/ImGui/imgui-rendering-SFML.h>
+#include <SFML_Extensions/ImGui/console.h>
+#include <ImGui/imgui.h>
 
 namespace sfx
 {
@@ -43,5 +44,3 @@ namespace sfx
 		bool unlimited_framerate_;
 	};
 }
-
-#endif //_SFX_SFIMGUI_APPLICATION_H_

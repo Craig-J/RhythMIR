@@ -1,5 +1,6 @@
-#include "console.h"
-#include <Agnostic\logger.h>
+#include <SFML_Extensions/ImGui/console.h>
+
+#include <Agnostic/logger.h>
 
 namespace sfx
 {
@@ -39,9 +40,9 @@ namespace sfx
 	{
 		UpdateStream();
 
-		ImGui::SetNextWindowPos(ImVec2(220, 10));
+		ImGui::SetNextWindowPos(ImVec2(220.0f, 10.0f));
 		
-		if (!ImGui::Begin(title, opened, ImVec2(window_.getSize().x - 230, window_.getSize().y * 0.2f), -1.f,
+		if (!ImGui::Begin(title, opened, ImVec2(window_.getSize().x - 230.0f, window_.getSize().y * 0.2f), -1.0f,
 						  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
 			ImGui::End();
@@ -49,12 +50,10 @@ namespace sfx
 		}
 
 		if (ImGui::SmallButton("Clear")) ClearLog();
-		ImGui::SameLine();
-		ImGui::TextWrapped("Press F10 to toggle the console and frame measures.");
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 		static ImGuiTextFilter filter;
-		filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+		filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180.0f);
 		ImGui::PopStyleVar();
 		ImGui::Separator();
 

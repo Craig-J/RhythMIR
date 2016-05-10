@@ -1,5 +1,5 @@
-#ifndef _AGNOSTIC_MATH_H_
-#define _AGNOSTIC_MATH_H_
+#pragma once
+
 #include <cstdlib>
 #include <cmath>
 
@@ -67,5 +67,3 @@ namespace agn
 		};
 	}
 };
-
-#endif // _AGNOSTIC_MATH_H_

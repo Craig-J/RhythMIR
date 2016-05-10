@@ -1,8 +1,11 @@
 #pragma once
-#include <SFML_Extensions\ImGui\SFImGui.h>
-#include <SFML_Extensions\global.h>
+
+#include <SFML_Extensions/global.h>
+#include <ImGui/imgui.h>
+
 #include <sstream>
 #include <vector>
+
 namespace sfx
 {
 	struct LogMsg

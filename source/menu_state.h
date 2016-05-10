@@ -1,15 +1,15 @@
 #pragma once
+
+#include "game_settings.h"
 #include "appstate.h"
 #include "RhythMIR_aubio.h"
-#include <SFML_Extensions\Graphics\button.h>
-#include <boost/filesystem.hpp>
-#include "game_settings.h"
+#include "RhythMIR_filesystem.h"
 
 class MenuState : public AppState
 {
 public:
 
-	MenuState(GameStateMachine&,
+	MenuState(AppStateMachine&,
 			  UniqueStatePtr<AppState>&,
 			  std::unique_ptr<Beatmap> = nullptr);
 	virtual ~MenuState() {}
@@ -19,20 +19,20 @@ public:
 	bool Update(const float _delta_time);
 	void Render(const float _delta_time);
 	void ProcessEvent(sf::Event & _event);
+	void ReloadSkin();
 	
 private:
 
+	// Beatmap stuff
 	std::unique_ptr<Aubio> aubio_;
 	std::unique_ptr<Beatmap> loaded_beatmap_;
 	std::atomic<bool> generating_beatmap_;
 	std::atomic<bool> canceling_generating_;
 
-	GameSettings play_settings_;
+	// Game settings stuff
+	GameSettings game_settings_;
 	bool display_settings_window_;
 	void SettingsMenu();
-
-	bool LoadSettings();
-	void SaveSettings();
 
 	// Menu context objects
 	enum MENUCONTEXT { SONGS, BEATMAPS};
@@ -42,16 +42,17 @@ private:
 		std::set<Beatmap>::iterator beatmap;
 		MENUCONTEXT context;
 	} selected_;
-	Sprite selector_;
+	sfx::Sprite selector_;
 	sf::Text heading_;
 
 	// Song/beatmap objects
-	std::map<Song, std::set<Beatmap>> songs_;
+	SongList songs_;
 	sf::Text song_text_;
 	sf::Text beatmap_text_;
 
 	struct GUI
 	{
+		bool main_window_;
 		bool input_focus;
 
 		char song_artist[256];
@@ -72,19 +73,6 @@ private:
 	} gui_;
 	bool UpdateGUI();
 	void Play();
-	
-	// Song List I/O
-	void LoadSongList(const std::string&);
-	void SaveSongList(const std::string&);
-
-	// Beatmap List I/O
-	void LoadBeatmapList(const Song&, bool _force_load = false);
-	void SaveBeatmapList(const Song&);
-	void GetSongBeatmaps();
-
-	// Individual beatmap I/O is delegated to the aubio object.
-	void LoadBeatmap(const Beatmap&, bool _partial_load = true, bool _force_load = false);
-	void SaveBeatmap(const Beatmap&);
 
 	void GenerateTestBeatmap();
 	void GenerateTestSong();

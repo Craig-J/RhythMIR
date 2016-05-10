@@ -1,11 +1,11 @@
-#include "animation.h"
+#include <SFML_Extensions/Graphics/animation.h>
 
 namespace sfx
 {
 	sf::IntRect Animation::GetFrame() const
 	{
 		sf::IntRect rect;
-		DynamicFrame frame = GetDynamicFrame();
+		auto frame = GetDynamicFrame();
 		rect.left = frame.u - frame.uv_width / 2;
 		rect.width = frame.uv_width;
 		rect.top = frame.v - frame.uv_height / 2;

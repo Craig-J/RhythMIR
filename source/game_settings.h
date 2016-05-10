@@ -1,11 +1,17 @@
 #pragma once
+
+#include <SFML/System/Time.hpp>
+#include <SFML/Window/Keyboard.hpp>
+
+#include <vector>
+
 struct GameSettings
 {
 	sf::Time play_offset;
 	sf::Time approach_time;
 	sf::Time countdown_time;
 
-	std::vector<Keyboard::Key> keybinds;
+	std::vector<sf::Keyboard::Key> keybinds;
 	size_t path_count;
 
 	bool auto_play;

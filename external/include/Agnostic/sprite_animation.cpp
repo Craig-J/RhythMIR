@@ -1,5 +1,6 @@
-#include "sprite_animation.h"
-#include "logger.h"
+#include <Agnostic/sprite_animation.h>
+
+#include <Agnostic/logger.h>
 
 namespace agn
 {

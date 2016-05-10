@@ -1,4 +1,4 @@
-#include "hsl.h"
+#include <SFML_Extensions/Graphics/hsl.h>
 
 namespace
 {
@@ -61,11 +61,11 @@ namespace sfx
 		double saturation = saturation_ / 100.0;
 		double luminance = luminance_ / 100.0;
 
-		float arg1, arg2;
+		double arg1, arg2;
 
 		if (saturation <= D_EPSILON)
 		{
-			sf::Color C(luminance * 255, luminance * 255, luminance * 255);
+			sf::Color C(static_cast<int>(luminance) * 255, static_cast<int>(luminance) * 255, static_cast<int>(luminance) * 255);
 			return C;
 		}
 		else
@@ -74,9 +74,9 @@ namespace sfx
 			else { arg2 = (luminance + saturation) - (saturation * luminance); }
 			arg1 = 2 * luminance - arg2;
 
-			sf::Uint8 r = (255 * HueToRGB(arg1, arg2, (hue + 1.0 / 3.0)));
-			sf::Uint8 g = (255 * HueToRGB(arg1, arg2, hue));
-			sf::Uint8 b = (255 * HueToRGB(arg1, arg2, (hue - 1.0 / 3.0)));
+			sf::Uint8 r = static_cast<sf::Uint8>((255 * HueToRGB(arg1, arg2, (hue + 1.0 / 3.0))));
+			sf::Uint8 g = static_cast<sf::Uint8>((255 * HueToRGB(arg1, arg2, hue)));
+			sf::Uint8 b = static_cast<sf::Uint8>((255 * HueToRGB(arg1, arg2, (hue - 1.0 / 3.0))));
 			sf::Color C(r, g, b);
 			return C;
 		}

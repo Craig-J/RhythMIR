@@ -1,7 +1,11 @@
 #pragma once
+
 #include "song.h"
 #include "game_object.h"
-#include <SFML_Extensions\global.h>
+
+#include <SFML_Extensions/Audio/audio_manager.h>
+#include <SFML_Extensions/Graphics/texture_manager.h>
+
 #include <queue>
 
 // STORAGE RELATED OBJECTS
@@ -12,6 +16,7 @@ public:
 	Note(sf::Time& _offset);
 
 	sf::Time offset;
+	sf::Time duration;
 	float frequency;
 };
 
@@ -45,7 +50,7 @@ public:
 	NoteObject(sf::Vector2f& _start_position,
 			   sf::Vector2f& _target_position,
 			   sf::Time& _approach_time,
-			   TexturePtr _texture,
+			   sfx::TexturePtr _texture,
 			   sf::Color _color = sf::Color::White);
 
 	sf::Time offset_from_perfect;
@@ -58,14 +63,14 @@ struct NotePath
 			 sf::Vector2f& _target_position,
 			 sf::Time& _approach_time,
 			 int _accuracy,
-			 TexturePtr _note_texture,
+			 sfx::TexturePtr _note_texture,
 			 sf::Color _note_color = sf::Color::White);
 
 	sf::Vector2f start_position;
 	sf::Vector2f target_position;
 	sf::Time approach_time;
 	int accuracy;
-	TexturePtr note_texture;
+	sfx::TexturePtr note_texture;
 	sf::Color note_color;
 	std::vector<NoteObject> notes;
 	GameObject target;
@@ -80,17 +85,16 @@ public:
 			const std::string& _name,
 			const std::string& _description = std::string(),
 			const PLAYMODE& _mode = SINGLE);
-	~Beatmap();
 
-	std::queue<TimingSection> CopyTimingSections();
-	std::unique_ptr<std::queue<Note>> CopyBeats();
+	std::queue<TimingSection> CopyTimingSections() const;
+	std::unique_ptr<std::queue<Note>> CopyBeats() const;
 
 	void LoadMusic();
 	void UnloadMusic();
 
 	const Song song_;
 	PLAYMODE play_mode_;
-	MusicPtr music_;
+	sfx::MusicPtr music_;
 	std::string name_;
 	std::string description_;
 
@@ -120,3 +124,5 @@ private:
 	std::unique_ptr<std::queue<Note>> beats_;
 	std::unique_ptr<std::vector<TimingSection>> sections_;
 };
+
+using SongList = std::map<Song, std::set<Beatmap>>;

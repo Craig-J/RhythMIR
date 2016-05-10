@@ -1,12 +1,13 @@
-#ifndef _SFX_SYSTEM_HUD_H_
-#define _SFX_SYSTEM_HUD_H_
+#pragma once
+
+#include <SFML_Extensions/System/frame_clock.h>
+
+#include <SFML/Graphics.hpp>
+
 #include <vector>
 #include <string>
 #include <sstream>
 #include <iomanip>
-
-#include <SFML/Graphics.hpp>
-#include "frame_clock.h"
 
 namespace sfx
 {
@@ -89,5 +90,3 @@ namespace sfx
 		const sfx::FrameClock* clock_;
 	};
 }
-
-#endif // _SFX_SYSTEM_HUD_H_

@@ -1,18 +1,26 @@
 #include "beatmap.h"
 
+#include <SFML_Extensions/global.h>
+
+
+
 Note::Note(sf::Time & _offset) :
 	offset(_offset)
 {}
+
+
 
 TimingSection::TimingSection(float _BPM, sf::Time _offset) :
 	BPM(_BPM),
 	offset(_offset)
 {}
 
-NoteObject::NoteObject(sf::Vector2f & _start_position,
-		   sf::Vector2f & _target_position,
-		   sf::Time & _approach_time,
-		   TexturePtr _texture,
+
+
+NoteObject::NoteObject(sf::Vector2f& _start_position,
+		   sf::Vector2f& _target_position,
+		   sf::Time& _approach_time,
+		   sfx::TexturePtr _texture,
 		   sf::Color _color) :
 	GameObject(_start_position, _texture)
 {
@@ -23,11 +31,13 @@ NoteObject::NoteObject(sf::Vector2f & _start_position,
 	offset_from_perfect = _approach_time;
 }
 
-NotePath::NotePath(sf::Vector2f & _start_position,
-				   sf::Vector2f & _target_position,
-				   sf::Time & _approach_time,
+
+
+NotePath::NotePath(sf::Vector2f& _start_position,
+				   sf::Vector2f&  _target_position,
+				   sf::Time& _approach_time,
 				   int _accuracy,
-				   TexturePtr _note_texture,
+				   sfx::TexturePtr _note_texture,
 				   sf::Color _note_color) :
 	start_position(_start_position),
 	target_position(_target_position),
@@ -43,6 +53,8 @@ NotePath::NotePath(sf::Vector2f & _start_position,
 							  128));
 }
 
+
+
 Beatmap::Beatmap(const Song& _song,
 				 const std::string& _name,
 				 const std::string& _description,
@@ -55,13 +67,7 @@ Beatmap::Beatmap(const Song& _song,
 	sections_(nullptr)
 {}
 
-Beatmap::~Beatmap()
-{
-	if (music_)
-		UnloadMusic();
-}
-
-std::queue<TimingSection> Beatmap::CopyTimingSections()
+std::queue<TimingSection> Beatmap::CopyTimingSections() const
 {
 	std::queue<TimingSection> copy;
 	for (auto section : *sections_)
@@ -71,7 +77,7 @@ std::queue<TimingSection> Beatmap::CopyTimingSections()
 	return copy;
 }
 
-std::unique_ptr<std::queue<Note>> Beatmap::CopyBeats()
+std::unique_ptr<std::queue<Note>> Beatmap::CopyBeats() const
 {
 	if (beats_)
 	{
@@ -84,10 +90,10 @@ std::unique_ptr<std::queue<Note>> Beatmap::CopyBeats()
 
 void Beatmap::LoadMusic()
 {
-	music_ = Global::AudioManager.LoadMusic(song_.full_file_path());
+	music_ = sfx::Global::AudioManager.LoadMusic(song_.full_file_path());
 }
 
 void Beatmap::UnloadMusic()
 {
-	Global::AudioManager.UnloadMusic(song_.full_file_path());
+	sfx::Global::AudioManager.UnloadMusic(song_.full_file_path());
 }

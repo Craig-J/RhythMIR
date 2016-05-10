@@ -1,9 +1,9 @@
-#ifndef _SFX_TEXTURE_MANAGER_H_
-#define _SFX_TEXTURE_MANAGER_H_
+#pragma once
 
-#include <agnostic\resource_manager.h>
-#include <SFML\Graphics\Texture.hpp>
-#include <agnostic\logger.h>
+#include <SFML/Graphics/Texture.hpp>
+
+#include <Agnostic/resource_manager.h>
+#include <Agnostic/logger.h>
 using agn::Log;
 
 namespace sfx
@@ -73,7 +73,3 @@ namespace sfx
 		agn::ResourceManager <std::string, Texture> manager_;
 	};
 }
-
-
-
-#endif // _SFX_TEXTURE_MANAGER_H_

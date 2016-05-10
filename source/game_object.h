@@ -1,9 +1,10 @@
-#ifndef _GAME_OBJECT_H
-#define _GAME_OBJECT_H
+#pragma once
 
-#include <SFML\Graphics.hpp>
-#include <SFML_Extensions\Graphics\sprite.h>
-#include <SFML_Extensions\System\vector2.h>
+#include <SFML_Extensions/Graphics/sprite.h>
+#include <SFML_Extensions/System/vector2.h>
+
+#include <SFML/Graphics.hpp>
+
 
 class GameObject : public sfx::Sprite
 {
@@ -23,18 +24,20 @@ public:
 	bool BoxCollisionTest(const GameObject& Object);
 	//bool CircleCollisionTest(const GameObject& Object); NYI
 
+	// Transform Functions
 	void Move(const sf::Vector2f& _vec, bool _relative = true);
 	void Rotate(const float _degrees, bool _relative = true);
 	void Accelerate(const sf::Vector2f& _velocity, bool _relative = true);
+	inline const sf::Vector2f velocity() const { return velocity_; }
 	
-	
+
 	inline const bool visibility() const { return visibility_; }
 	inline void SetVisibility(const bool visibility) { visibility_ = visibility; }
-	inline const sf::Vector2f velocity() const { return velocity_; }
+	
 
 protected:
-	bool visibility_; // flags object for updates, rendering and occasionally deletion
-	sf::Vector2f velocity_;
-};
 
-#endif // _GAME_OBJECT_H
+	bool visibility_; // Usually used to hide objects or flag them for deletion
+	sf::Vector2f velocity_;
+
+};

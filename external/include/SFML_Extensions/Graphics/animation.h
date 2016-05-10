@@ -1,8 +1,8 @@
-#ifndef _SFX_ANIMATION_H_
-#define _SFX_ANIMATION_H_
+#pragma once
 
-#include <agnostic\sprite_animation.h>
-#include <SFML\Graphics\Rect.hpp>
+#include <SFML/Graphics/Rect.hpp>
+
+#include <Agnostic/sprite_animation.h>
 
 namespace sfx
 {
@@ -18,5 +18,3 @@ namespace sfx
 		
 	};
 }
-
-#endif // _SFX_ANIMATION_H_

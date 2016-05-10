@@ -1,5 +1,4 @@
-#ifndef _AGNOSTIC_UPDATEABLE_H_
-#define _AGNOSTIC_UPDATEABLE_H_
+#pragma once
 
 namespace agn
 {
@@ -53,4 +52,3 @@ namespace agn
 
 	};
 }
-#endif // _AGNOSTIC_UPDATEABLE_H_

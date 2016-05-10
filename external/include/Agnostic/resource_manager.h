@@ -1,9 +1,9 @@
-#ifndef _AGNOSTIC_RESOURCE_MANAGER_H_
-#define _AGNOSTIC_RESOURCE_MANAGER_H_
+#pragma once
+
+#include <Agnostic/logger.h>
 
 #include <unordered_map>
 #include <memory>
-#include "logger.h"
 
 // Resource Manager
 // Generalized resource managed with a map storing shared pointers to the resources.
@@ -75,5 +75,3 @@ namespace agn
 		}
 	};
 }
-
-#endif // _AGNOSTIC_RESOURCE_MANAGER_H_

@@ -1,11 +1,14 @@
-#ifndef IMGUI_SFML_RENDERING_BACKEND
-#define IMGUI_SFML_RENDERING_BACKEND
-#include <vector>
+#pragma once
+
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <ImGui/imgui.h>
+
+#include <vector>
 #include <iostream>
 #include <memory>
+
 namespace ImGui
 {
     namespace ImImpl
@@ -123,4 +126,3 @@ namespace ImGui
         }
     }
 }
-#endif

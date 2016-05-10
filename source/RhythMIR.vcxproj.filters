@@ -7,10 +7,22 @@
     <Filter Include="Application\State Machine">
       <UniqueIdentifier>{505a8c66-ae83-457c-8f2e-4d017c44fa9e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\States">
-      <UniqueIdentifier>{1d107901-ea68-4d18-9162-7bf316d9dbe1}</UniqueIdentifier>
+    <Filter Include="Application\MIR Library Interfaces">
+      <UniqueIdentifier>{d51008fd-e8b7-4a69-a026-62242b512061}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RapidXML">
+    <Filter Include="Application\Beatmap/Song">
+      <UniqueIdentifier>{f355ad76-b1d3-421b-b7c2-11ad4cc702ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Game">
+      <UniqueIdentifier>{2c460914-736c-497d-a671-0aa6a06688aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Menu">
+      <UniqueIdentifier>{3455e118-d528-479d-979e-29914e603c4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{aa1d56a9-cb9c-41f8-b0e9-ac678fd44f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\RapidXML">
       <UniqueIdentifier>{df49ed2f-d5ad-4f66-918a-e0c60974f711}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -21,25 +33,28 @@
     <ClCompile Include="RhythMIR_application.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="game_state_machine.cpp">
-      <Filter>Application\State Machine</Filter>
-    </ClCompile>
     <ClCompile Include="appstate.cpp">
       <Filter>Application\State Machine</Filter>
     </ClCompile>
-    <ClCompile Include="menu_state.cpp">
-      <Filter>Application\States</Filter>
-    </ClCompile>
-    <ClCompile Include="game_state.cpp">
-      <Filter>Application\States</Filter>
-    </ClCompile>
-    <ClCompile Include="game_object.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
     <ClCompile Include="RhythMIR_aubio.cpp">
-      <Filter>Application</Filter>
+      <Filter>Application\MIR Library Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="app_state_machine.cpp">
+      <Filter>Application\State Machine</Filter>
     </ClCompile>
     <ClCompile Include="beatmap.cpp">
+      <Filter>Application\Beatmap/Song</Filter>
+    </ClCompile>
+    <ClCompile Include="game_object.cpp">
+      <Filter>Application\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="game_state.cpp">
+      <Filter>Application\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="menu_state.cpp">
+      <Filter>Application\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="RhythMIR_filesystem.cpp">
       <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,40 +65,46 @@
     <ClInclude Include="appstate.h">
       <Filter>Application\State Machine</Filter>
     </ClInclude>
-    <ClInclude Include="game_state_machine.h">
-      <Filter>Application\State Machine</Filter>
-    </ClInclude>
-    <ClInclude Include="menu_state.h">
-      <Filter>Application\States</Filter>
-    </ClInclude>
-    <ClInclude Include="game_state.h">
-      <Filter>Application\States</Filter>
-    </ClInclude>
-    <ClInclude Include="game_object.h">
-      <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="song.h">
-      <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="beatmap.h">
-      <Filter>Application</Filter>
-    </ClInclude>
-    <ClInclude Include="RhythMIR_aubio.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\include\RapidXML\rapidxml_utils.hpp">
-      <Filter>RapidXML</Filter>
+      <Filter>External\RapidXML</Filter>
     </ClInclude>
     <ClInclude Include="..\external\include\RapidXML\rapidxml.hpp">
-      <Filter>RapidXML</Filter>
+      <Filter>External\RapidXML</Filter>
     </ClInclude>
     <ClInclude Include="..\external\include\RapidXML\rapidxml_iterators.hpp">
-      <Filter>RapidXML</Filter>
+      <Filter>External\RapidXML</Filter>
     </ClInclude>
     <ClInclude Include="..\external\include\RapidXML\rapidxml_print.hpp">
-      <Filter>RapidXML</Filter>
+      <Filter>External\RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythMIR_aubio.h">
+      <Filter>Application\MIR Library Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythMIR_lib_interface.h">
+      <Filter>Application\MIR Library Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="app_state_machine.h">
+      <Filter>Application\State Machine</Filter>
+    </ClInclude>
+    <ClInclude Include="beatmap.h">
+      <Filter>Application\Beatmap/Song</Filter>
+    </ClInclude>
+    <ClInclude Include="song.h">
+      <Filter>Application\Beatmap/Song</Filter>
     </ClInclude>
     <ClInclude Include="game_settings.h">
+      <Filter>Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="game_object.h">
+      <Filter>Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="game_state.h">
+      <Filter>Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="menu_state.h">
+      <Filter>Application\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythMIR_filesystem.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>

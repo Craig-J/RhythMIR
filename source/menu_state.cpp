@@ -1,6 +1,9 @@
 #include "menu_state.h"
-#include "game_state_machine.h"
+
+#include "app_state_machine.h"
 #include "game_state.h"
+
+#include <SFML_Extensions/global.h>
 
 namespace
 {
@@ -20,18 +23,8 @@ namespace
 	sf::Vector2f window_centre;
 	sf::Vector2f window_size;
 
-	TexturePtr selector_texture_;
+	sfx::TexturePtr selector_texture_;
 
-	bool* show_GUI;
-
-	// Note: Song and beatmap function defaults should be the same directories/extensions as here
-	const std::string song_directory("songs/");
-	const std::string song_list_extension(".RhythMIR");
-	const std::string song_list_default_filename(song_directory + "_songs" + song_list_extension);
-	const std::string beatmap_list_extension(".RhythMIR");
-	const std::string beatmap_list_default_filename("_beatmaps" + beatmap_list_extension);
-	const std::string beatmap_extension(".RhythMIR");
-	const std::string settings_filename("settings.RhythMIR");
 
 	const char alphanum[] =
 		"0123456789"
@@ -65,7 +58,7 @@ namespace
 	}
 }
 
-MenuState::MenuState(GameStateMachine& _state_machine,
+MenuState::MenuState(AppStateMachine& _state_machine,
 					 UniqueStatePtr<AppState>& _state,
 					 std::unique_ptr<Beatmap> _beatmap) :
 	AppState(_state_machine, _state),
@@ -74,13 +67,7 @@ MenuState::MenuState(GameStateMachine& _state_machine,
 
 void MenuState::InitializeState()
 {
-	textures_ = TextureFileVector
-	{
-		{ machine_.background_texture_, "skins/default/menu_background.jpg" },
-		{ selector_texture_, "skins/default/selector.png" }
-	};
-	Global::TextureManager.Load(textures_);
-	machine_.background_.setTexture(*machine_.background_texture_);
+	ReloadSkin();
 
 	// Calculate various layout stuff
 	window_size = sf::Vector2f(machine_.window_.getSize().x, machine_.window_.getSize().y);
@@ -102,18 +89,14 @@ void MenuState::InitializeState()
 	selector_ = sfx::Sprite(sf::Vector2f(songs_x, window_centre.y),
 							selector_texture_);
 
-	heading_.setFont(machine_.font_);
 	heading_.setCharacterSize(60);
 	heading_.setColor(sf::Color::Color(255, 69, 0));
 	heading_.setPosition(sf::Vector2f(context_horizontal_spacing, window_size.y * 0.1f));
 
-	song_text_.setFont(machine_.font_);
 	song_text_.setCharacterSize(24);
 	song_text_.setColor(sf::Color::Color(192, 192, 192));
 	song_text_.setPosition(sf::Vector2f(songs_x, window_centre.y));
 	
-
-	beatmap_text_.setFont(machine_.font_);
 	beatmap_text_.setCharacterSize(24);
 	beatmap_text_.setColor(sf::Color::Color(192, 192, 192));
 	beatmap_text_.setPosition(sf::Vector2f(beatmaps_x, window_centre.y));
@@ -121,15 +104,13 @@ void MenuState::InitializeState()
 	// Song list and beatmap objects
 	selected_.context = SONGS;
 
-	LoadSongList(song_list_default_filename);
+	LoadSongList();
 	selected_.song = songs_.begin();
 
 	if (!songs_.empty())
 	{
 		GetSongBeatmaps();
 	}
-
-	//selected_.action = PLAY;
 
 	// Aubio/Beatmap state stuff
 	generating_beatmap_ = false;
@@ -140,40 +121,38 @@ void MenuState::InitializeState()
 	// GUI initialization
 	if (machine_.display_hud_ == false)
 		machine_.display_hud_ = true;
-	show_GUI = new bool(true);
 	gui_ = {}; // Default initialize everything
+	gui_.main_window_ = true;
 
 	// Play Settings initialization
 	display_settings_window_ = false;
 
-	if(!LoadSettings())
+	if(!LoadGameSettings(game_settings_))
 	{
 		// Default settings if we couldn't load the settings file
-		play_settings_.play_offset = sf::Time::Zero;
-		play_settings_.approach_time = sf::milliseconds(700);
-		play_settings_.countdown_time = sf::seconds(3);
-		play_settings_.keybinds.emplace_back(Keyboard::Key::Z);
-		play_settings_.keybinds.emplace_back(Keyboard::Key::X);
-		play_settings_.keybinds.emplace_back(Keyboard::Key::N);
-		play_settings_.keybinds.emplace_back(Keyboard::Key::M);
-		play_settings_.path_count = 4;
-		play_settings_.auto_play = false;
-		play_settings_.duncan_factor = true;
-		play_settings_.flipped = false;
-		play_settings_.music_volume = 100;
-		play_settings_.sfx_volume = 50;
-		play_settings_.hitsound = 1;
-		play_settings_.progress_bar_position = 2;
-		play_settings_.beat_style = 0;
+		game_settings_.play_offset = sf::Time::Zero;
+		game_settings_.approach_time = sf::milliseconds(700);
+		game_settings_.countdown_time = sf::seconds(3);
+		game_settings_.keybinds.emplace_back(sf::Keyboard::Key::Z);
+		game_settings_.keybinds.emplace_back(sf::Keyboard::Key::X);
+		game_settings_.keybinds.emplace_back(sf::Keyboard::Key::N);
+		game_settings_.keybinds.emplace_back(sf::Keyboard::Key::M);
+		game_settings_.path_count = 4;
+		game_settings_.auto_play = false;
+		game_settings_.duncan_factor = true;
+		game_settings_.flipped = false;
+		game_settings_.music_volume = 100;
+		game_settings_.sfx_volume = 50;
+		game_settings_.hitsound = 1;
+		game_settings_.progress_bar_position = 2;
+		game_settings_.beat_style = 0;
 	}
 }
 
 void MenuState::TerminateState()
 {
-	Global::TextureManager.Unload(textures_);
+	sfx::Global::TextureManager.Unload(textures_);
 	textures_.clear();
-
-	delete show_GUI;
 
 	for (auto &song : songs_)
 	{
@@ -189,13 +168,13 @@ void MenuState::TerminateState()
 		}
 	}
 
-	SaveSongList(song_list_default_filename);
-	SaveSettings();
+	SaveSongList();
+	SaveGameSettings(game_settings_);
 }
 
 bool MenuState::Update(const float _delta_time)
 {
-	if (Global::Input.KeyPressed(Keyboard::F10))
+	if (sfx::Global::Input.KeyPressed(sf::Keyboard::F10))
 	{
 		if (machine_.display_hud_)
 			context_vertical_padding = window_size.y * 0.2f;
@@ -207,12 +186,12 @@ bool MenuState::Update(const float _delta_time)
 	bool running = UpdateGUI();
 	if (!gui_.input_focus)
 	{
-		if (Global::Input.KeyPressed(Keyboard::Num1))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::Num1))
 		{
 			GenerateTestSong();
 		}
 
-		if (Global::Input.KeyPressed(Keyboard::Num2))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::Num2))
 		{
 			GenerateTestBeatmap();
 		}
@@ -221,7 +200,7 @@ bool MenuState::Update(const float _delta_time)
 		case SONGS:
 			if (!generating_beatmap_)
 			{
-				if (Global::Input.KeyPressed(Keyboard::D) || Global::Input.KeyPressed(Keyboard::Right))
+				if (sfx::Global::Input.KeyPressed(sf::Keyboard::D) || sfx::Global::Input.KeyPressed(sf::Keyboard::Right))
 				{
 					selected_.context = BEATMAPS;
 					selector_.move(context_horizontal_spacing, 0.0f);
@@ -234,7 +213,7 @@ bool MenuState::Update(const float _delta_time)
 
 				if (!songs_.empty()) // Only allow up and down movement if the map isn't empty
 				{
-					if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+					if (sfx::Global::Input.KeyPressed(sf::Keyboard::S) || sfx::Global::Input.KeyPressed(sf::Keyboard::Down))
 					{
 						if (selected_.song != --songs_.end())
 						{
@@ -247,7 +226,7 @@ bool MenuState::Update(const float _delta_time)
 							LoadBeatmap(*selected_.beatmap);
 						}
 					}
-					if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
+					if (sfx::Global::Input.KeyPressed(sf::Keyboard::W) || sfx::Global::Input.KeyPressed(sf::Keyboard::Up))
 					{
 						if (selected_.song != songs_.begin())
 						{
@@ -267,7 +246,7 @@ bool MenuState::Update(const float _delta_time)
 		case BEATMAPS:
 			if (!generating_beatmap_)
 			{
-				if (Global::Input.KeyPressed(Keyboard::A) || Global::Input.KeyPressed(Keyboard::Left))
+				if (sfx::Global::Input.KeyPressed(sf::Keyboard::A) || sfx::Global::Input.KeyPressed(sf::Keyboard::Left))
 				{
 					selected_.context = SONGS;
 					selector_.move(-context_horizontal_spacing, 0.0f);
@@ -278,7 +257,7 @@ bool MenuState::Update(const float _delta_time)
 				{
 					if (!selected_.song->second.empty()) // Only allow beatmap input if there are beatmaps
 					{
-						if (Global::Input.KeyPressed(Keyboard::S) || Global::Input.KeyPressed(Keyboard::Down))
+						if (sfx::Global::Input.KeyPressed(sf::Keyboard::S) || sfx::Global::Input.KeyPressed(sf::Keyboard::Down))
 						{
 							if (selected_.beatmap != --selected_.song->second.end())
 							{
@@ -287,7 +266,7 @@ bool MenuState::Update(const float _delta_time)
 								LoadBeatmap(*selected_.beatmap);
 							}
 						}
-						if (Global::Input.KeyPressed(Keyboard::W) || Global::Input.KeyPressed(Keyboard::Up))
+						if (sfx::Global::Input.KeyPressed(sf::Keyboard::W) || sfx::Global::Input.KeyPressed(sf::Keyboard::Up))
 						{
 							if (selected_.beatmap != selected_.song->second.begin())
 							{
@@ -296,7 +275,7 @@ bool MenuState::Update(const float _delta_time)
 								LoadBeatmap(*selected_.beatmap);
 							}
 						}
-						if (Global::Input.KeyPressed(Keyboard::Space))
+						if (sfx::Global::Input.KeyPressed(sf::Keyboard::Space))
 						{
 							Play();
 						}
@@ -306,7 +285,7 @@ bool MenuState::Update(const float _delta_time)
 			break;
 		}
 
-		if (Global::Input.KeyPressed(Keyboard::F9) && Global::Input.KeyDown(Keyboard::LControl))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::F9) && sfx::Global::Input.KeyDown(sf::Keyboard::LControl))
 		{
 			gui_.deleting_enabled = !gui_.deleting_enabled;
 		}
@@ -322,9 +301,7 @@ void MenuState::Render(const float _delta_time)
 	for (auto &heading : headings_)
 	{
 		heading_.setString(heading);
-		//heading_.move(-(heading_.getGlobalBounds().width * 0.5f), 0.0f);
 		machine_.window_.draw(heading_);
-		//heading_.move((heading_.getGlobalBounds().width * 0.5f), 0.0f);
 		heading_.move(context_horizontal_spacing, 0.0f);
 	}
 
@@ -342,10 +319,8 @@ void MenuState::Render(const float _delta_time)
 			}
 			song_text_.setString(song_name);
 			song_text_.move(0.0f, -(song_text_.getGlobalBounds().height * 0.5f));
-			//song_text_.move(-(song_text_.getGlobalBounds().width * 0.5f), -(song_text_.getGlobalBounds().height * 0.5f));
 			machine_.window_.draw(song_text_);
 			song_text_.move(0.0f, (song_text_.getGlobalBounds().height * 0.5f));
-			//song_text_.move((song_text_.getGlobalBounds().width * 0.5f), (song_text_.getGlobalBounds().height * 0.5f));
 		}
 		song_text_.move(0.0f, song_vertical_spacing);
 	}
@@ -357,15 +332,13 @@ void MenuState::Render(const float _delta_time)
 		{
 			for (auto &beatmap : selected_.song->second)
 			{
-				// Don't draw song text unless it's past the vertical cutoff value
+				// Don't draw beatmap text unless it's past the vertical cutoff value
 				if (beatmap_text_.getPosition().y > context_vertical_cuttoff)
 				{
 					beatmap_text_.setString(beatmap.name_);
 					beatmap_text_.move(0.0f, -(beatmap_text_.getGlobalBounds().height * 0.5f));
-					//beatmap_text_.move(-(beatmap_text_.getGlobalBounds().width * 0.5f), -(beatmap_text_.getGlobalBounds().height * 0.5f));
 					machine_.window_.draw(beatmap_text_);
 					beatmap_text_.move(0.0f, (beatmap_text_.getGlobalBounds().height * 0.5f));
-					//beatmap_text_.move((beatmap_text_.getGlobalBounds().width * 0.5f), (beatmap_text_.getGlobalBounds().height * 0.5f));
 				}
 				beatmap_text_.move(0.0f, beatmaps_vertical_spacing);
 			}
@@ -383,6 +356,21 @@ void MenuState::ProcessEvent(sf::Event& _event)
 	}
 }
 
+void MenuState::ReloadSkin()
+{
+	textures_ = sfx::TextureFileVector
+	{
+		{ machine_.background_texture_, Skin("menu_background.jpg") },
+		{ selector_texture_, Skin("skins/default/selector.png") }
+	};
+	sfx::Global::TextureManager.Load(textures_);
+	machine_.background_.setTexture(*machine_.background_texture_);
+
+	heading_.setFont(machine_.font_);
+	song_text_.setFont(machine_.font_);
+	beatmap_text_.setFont(machine_.font_);
+}
+
 void MenuState::SettingsMenu()
 {
 	if (display_settings_window_)
@@ -397,24 +385,24 @@ void MenuState::SettingsMenu()
 
 		ImGui::TextColored(ImColor(255, 69, 0), "Mods");
 		ImGui::SameLine();
-		//ImGui::Checkbox("Shuffle", &play_settings_.duncan_factor);
+		//ImGui::Checkbox("Shuffle", &game_settings_.duncan_factor);
 		//if (ImGui::IsItemHovered())
 			//ImGui::SetTooltip("Randomizes the lanes that notes go down.\nWill currently be forced to on for Single beatmaps and off for Four Key beatmaps.");
 		//ImGui::SameLine();
-		ImGui::Checkbox("Autoplay", &play_settings_.auto_play);
+		ImGui::Checkbox("Autoplay", &game_settings_.auto_play);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Disables input keys while playing, the computer automatically clicks the circles.\na.k.a. Cookiezi.exe");
 		ImGui::SameLine();
-		ImGui::Checkbox("Flip", &play_settings_.flipped);
+		ImGui::Checkbox("Flip", &game_settings_.flipped);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Notes go from bottom to top instead of top to bottom.");
 
 		ImGui::Spacing();
 
-		static int play_offset = play_settings_.play_offset.asMilliseconds();
+		static int play_offset = game_settings_.play_offset.asMilliseconds();
 		ImGui::SliderInt("Play Offset", &play_offset, -100, 100, "%.0fms");
-		play_settings_.play_offset = sf::milliseconds(play_offset);
-		if (play_settings_.play_offset != sf::Time::Zero)
+		game_settings_.play_offset = sf::milliseconds(play_offset);
+		if (game_settings_.play_offset != sf::Time::Zero)
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Default##playoffset"))
@@ -423,10 +411,10 @@ void MenuState::SettingsMenu()
 			}
 		}
 
-		static float approach_time = play_settings_.approach_time.asSeconds();
+		static float approach_time = game_settings_.approach_time.asSeconds();
 		ImGui::SliderFloat("Approach Time", &approach_time, 0.3, 3, "%.2fs", 1.5f);
-		play_settings_.approach_time = sf::seconds(approach_time);
-		if (play_settings_.approach_time != sf::milliseconds(700))
+		game_settings_.approach_time = sf::seconds(approach_time);
+		if (game_settings_.approach_time != sf::milliseconds(700))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Default##approachtime"))
@@ -435,10 +423,10 @@ void MenuState::SettingsMenu()
 			}
 		}
 
-		static float countdown_time = play_settings_.countdown_time.asSeconds();
+		static float countdown_time = game_settings_.countdown_time.asSeconds();
 		ImGui::SliderFloat("Countdown Time", &countdown_time, approach_time, 5, "%.2fs", 1.0f);
-		play_settings_.countdown_time = sf::seconds(countdown_time);
-		if (play_settings_.countdown_time != sf::seconds(3))
+		game_settings_.countdown_time = sf::seconds(countdown_time);
+		if (game_settings_.countdown_time != sf::seconds(3))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Default##countdowntime"))
@@ -451,32 +439,32 @@ void MenuState::SettingsMenu()
 		ImGui::Spacing();
 
 		const char* beatstyle[] = { "Hidden", "Interpolated", "Generated" };
-		ImGui::Combo("Beat ", &play_settings_.beat_style, beatstyle, 3);
+		ImGui::Combo("Beat ", &game_settings_.beat_style, beatstyle, 3);
 		const char* hitsounds[] = { "None", "Soft", "Deep" };
-		ImGui::Combo("Hitsound", &play_settings_.hitsound, hitsounds, 3);
-		ImGui::SliderFloat("Music Volume", &play_settings_.music_volume, 0, 100);
-		if (play_settings_.music_volume != 100)
+		ImGui::Combo("Hitsound", &game_settings_.hitsound, hitsounds, 3);
+		ImGui::SliderFloat("Music Volume", &game_settings_.music_volume, 0, 100);
+		if (game_settings_.music_volume != 100)
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Default##musicvolume"))
 			{
-				play_settings_.music_volume = 100;
+				game_settings_.music_volume = 100;
 			}
 		}
-		ImGui::SliderFloat("SFX Volume", &play_settings_.sfx_volume, 0, 100);
-		if (play_settings_.sfx_volume != 50)
+		ImGui::SliderFloat("SFX Volume", &game_settings_.sfx_volume, 0, 100);
+		if (game_settings_.sfx_volume != 50)
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Default##sfxvolume"))
 			{
-				play_settings_.sfx_volume = 50;
+				game_settings_.sfx_volume = 50;
 			}
 		}
 
 		ImGui::Spacing();
 
 		const char* barpositions[] = { "Top Right", "Along Top", "Along Bottom" };
-		ImGui::Combo("Progress Bar Position", &play_settings_.progress_bar_position, barpositions, 3);
+		ImGui::Combo("Progress Bar Position", &game_settings_.progress_bar_position, barpositions, 3);
 
 		if (ImGui::Button("Done"))
 		{
@@ -487,270 +475,11 @@ void MenuState::SettingsMenu()
 	}
 }
 
-bool MenuState::LoadSettings()
-{
-	using namespace rapidxml;
-
-	std::ifstream input_stream(settings_filename);
-	if (input_stream)
-	{
-		file<> file(input_stream);
-		xml_document<> doc;
-		doc.parse<parse_no_data_nodes>(file.data());
-
-		xml_node<>* settings_node = doc.first_node("settings");
-
-		if (settings_node != 0)
-		{
-			// TO-DO load these settings
-			play_settings_.keybinds.emplace_back(Keyboard::Key::Z);
-			play_settings_.keybinds.emplace_back(Keyboard::Key::X);
-			play_settings_.keybinds.emplace_back(Keyboard::Key::N);
-			play_settings_.keybinds.emplace_back(Keyboard::Key::M);
-			play_settings_.path_count = 4;
-			
-
-			xml_node<>* offset_node = settings_node->first_node("play_offset");
-			if (offset_node)
-			{
-				play_settings_.play_offset = sf::milliseconds(std::stoi(offset_node->value()));
-			}
-			else
-			{
-				play_settings_.play_offset = sf::Time::Zero;
-			}
-
-			xml_node<>* approach_time_node = settings_node->first_node("approach_time");
-			if (approach_time_node)
-			{
-				play_settings_.approach_time = sf::milliseconds(std::stoi(approach_time_node->value()));
-			}
-			else
-			{
-				play_settings_.approach_time = sf::milliseconds(700);
-			}
-
-			xml_node<>* countdown_time_node = settings_node->first_node("countdown_time");
-			if (countdown_time_node)
-			{
-				play_settings_.countdown_time = sf::milliseconds(std::stoi(countdown_time_node->value()));
-			}
-			else
-			{
-				play_settings_.countdown_time = sf::seconds(3);
-			}
-
-			xml_node<>* auto_play_node = settings_node->first_node("auto_play");
-			if (auto_play_node)
-			{
-				play_settings_.auto_play = std::stoi(auto_play_node->value());
-			}
-			else
-			{
-				play_settings_.auto_play = false;
-			}
-			
-			xml_node<>* shuffle_node = settings_node->first_node("shuffle");
-			if (shuffle_node)
-			{
-				play_settings_.duncan_factor = std::stoi(shuffle_node->value());
-			}
-			else
-			{
-				play_settings_.duncan_factor = true;
-			}
-
-			xml_node<>* flipped_node = settings_node->first_node("flip");
-			if (flipped_node)
-			{
-				play_settings_.flipped = std::stoi(flipped_node->value());
-			}
-			else
-			{
-				play_settings_.flipped = false;
-			}
-			
-			xml_node<>* music_volume_node = settings_node->first_node("music_volume");
-			if (music_volume_node)
-			{
-				play_settings_.music_volume = std::stof(music_volume_node->value());
-			}
-			else
-			{
-				play_settings_.music_volume = 100;
-			}
-
-			
-			xml_node<>* sfx_volume_node = settings_node->first_node("sfx_volume");
-			if (sfx_volume_node)
-			{
-				play_settings_.sfx_volume = std::stof(sfx_volume_node->value());
-			}
-			else
-			{
-				play_settings_.sfx_volume = 50;
-			}
-
-			
-			xml_node<>* hitsound_node = settings_node->first_node("hitsound");
-			if (hitsound_node)
-			{
-				play_settings_.hitsound = std::stoi(hitsound_node->value());
-			}
-			else
-			{
-				play_settings_.hitsound = 1;
-			}
-
-			
-			xml_node<>* progress_bar_position_node = settings_node->first_node("progress_bar_position");
-			if (progress_bar_position_node)
-			{
-				play_settings_.progress_bar_position = std::stoi(progress_bar_position_node->value());
-			}
-			else
-			{
-				play_settings_.progress_bar_position = 2;
-			}
-
-			
-			xml_node<>* beat_style_node = settings_node->first_node("beat_style");
-			if (beat_style_node)
-			{
-				play_settings_.beat_style = std::stoi(beat_style_node->value());
-			}
-			else
-			{
-				play_settings_.beat_style = 0;
-			}
-			
-			doc.clear();
-			return true;
-		}
-		else
-		{
-			Log::Error("No settings node found. Format of input file is incorrect.");
-			return false;
-		}
-	}
-	else
-	{
-		Log::Error("Settings file could not be opened.");
-		return false;
-	}
-	return false;
-}
-
-void MenuState::SaveSettings()
-{
-	using namespace rapidxml;
-
-	xml_document<> doc;
-
-	xml_node<>* decl = doc.allocate_node(node_declaration);
-	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
-	decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
-	doc.append_node(decl);
-
-	xml_node<>* root_node = doc.allocate_node(node_element, "settings");
-	doc.append_node(root_node);
-
-	// TO-DO: Save these settings
-	/*play_settings_.keybinds.emplace_back(Keyboard::Key::Z);
-	play_settings_.keybinds.emplace_back(Keyboard::Key::X);
-	play_settings_.keybinds.emplace_back(Keyboard::Key::N);
-	play_settings_.keybinds.emplace_back(Keyboard::Key::M);
-	play_settings_.path_count = 4;*/
-
-	if (play_settings_.play_offset != sf::Time::Zero)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.play_offset.asMilliseconds()).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "play_offset", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.approach_time != sf::milliseconds(700))
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.approach_time.asMilliseconds()).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "approach_time", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.countdown_time != sf::seconds(3))
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.countdown_time.asMilliseconds()).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "countdown_time", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.auto_play != false)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.auto_play).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "auto_play", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.duncan_factor != true)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.duncan_factor).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "shuffle", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.flipped != false)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.flipped).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "flip", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.music_volume != 100)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.music_volume).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "music_volume", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.sfx_volume != 50)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.sfx_volume).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "sfx_volume", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.hitsound != 1)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.hitsound).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "hitsound", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.progress_bar_position != 2)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.progress_bar_position).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "progress_bar_position", value);
-		root_node->append_node(node);
-	}
-
-	if (play_settings_.beat_style != 0)
-	{
-		auto value = doc.allocate_string(std::to_string(play_settings_.beat_style).c_str());
-		xml_node<>* node = doc.allocate_node(node_element, "beat_style", value);
-		root_node->append_node(node);
-	}
-
-	std::ofstream output_stream(settings_filename);
-
-	output_stream << doc;
-	output_stream.close();
-	doc.clear();
-}
-
 bool MenuState::UpdateGUI()
 {
 	ImGui::SetNextWindowPos(ImVec2(beatmaps_x + (context_horizontal_spacing * 0.7f), context_vertical_cuttoff - window_size.y * 0.04f));
 	ImGui::SetNextWindowSize(ImVec2(window_size.x - (beatmaps_x + (context_horizontal_spacing * 0.7f) + 10), window_size.y - (context_vertical_cuttoff - window_size.y * 0.04f + 10)));
-	if (!ImGui::Begin("RhythMIR GUI", show_GUI, ImVec2(0, 0), -1.f,
+	if (!ImGui::Begin("RhythMIR GUI", &gui_.main_window_, ImVec2(0, 0), -1.f,
 					  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
 					  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
@@ -765,7 +494,7 @@ bool MenuState::UpdateGUI()
 		canceling_generating_ = false;
 	}
 
-	if (Global::Input.KeyPressed(Keyboard::Escape))
+	if (sfx::Global::Input.KeyPressed(sf::Keyboard::Escape))
 	{
 		ImGui::OpenPopup("Exit?");
 	}
@@ -1262,10 +991,10 @@ void MenuState::Play()
 		{
 			LoadBeatmap(*selected_.beatmap, false, true);
 			if (loaded_beatmap_->play_mode_ == SINGLE)
-				play_settings_.duncan_factor = true;
+				game_settings_.duncan_factor = true;
 			else if (loaded_beatmap_->play_mode_ == FOURKEY)
-				play_settings_.duncan_factor = false;
-			ChangeState<GameState>(std::move(loaded_beatmap_), std::move(play_settings_));
+				game_settings_.duncan_factor = false;
+			ChangeState<GameState>(std::move(loaded_beatmap_), std::move(game_settings_));
 			return;
 		}
 		else
@@ -1275,206 +1004,7 @@ void MenuState::Play()
 		Log::Message("No beatmap loaded. A beatmap is required to play. Generate or load one.");
 }
 
-void MenuState::LoadSongList(const std::string& _file_name)
-{
-	using namespace rapidxml;
 
-	std::ifstream input_stream(_file_name);
-	if (input_stream)
-	{
-		file<> file(input_stream);
-		xml_document<> doc;
-		doc.parse<parse_no_data_nodes>(file.data());
-
-		xml_node<>* song_list_node = doc.first_node("songlist");
-
-		if (song_list_node != 0)
-		{
-			xml_node<>* song_node = song_list_node->first_node("song");
-
-			while (song_node)
-			{
-				auto artist = song_node->first_attribute("artist")->value();
-				auto title = song_node->first_attribute("title")->value();
-				auto source_file = song_node->first_attribute("source")->value();
-				/*auto beatmap_list_path = song_node->first_attribute("beatmap_list_path")->value();
-				std::string path_overwrite;
-				if (!beatmap_list_path)
-					path_overwrite = std::string();
-				else
-					path_overwrite = beatmap_list_path;*/
-				auto pair = songs_.emplace(Song(artist, title, source_file/*, path_overwrite*/), std::set<Beatmap>());
-				if (pair.second)
-				{
-					Log::Message("Added " + pair.first->first.song_name() + " to songs.");
-				}
-				else
-				{
-					Log::Warning("Failed emplacing " + std::string(artist) + " - " + std::string(title) + " in songs map.");
-				}
-
-				song_node = song_node->next_sibling("song");
-			}
-		}
-		else
-		{
-			Log::Error("No song list node found. Format of input file is invalid.");
-		}
-	}
-	else
-	{
-		if (!boost::filesystem::exists(boost::filesystem::path(song_directory)))
-		{
-			Log::Important("Song list file could not be opened. Directory does not exist.");
-			Log::Message("Creating directory " + song_directory + ".");
-			boost::filesystem::create_directory(song_directory);
-		}
-		else
-		{
-			if (boost::filesystem::exists(song_list_default_filename))
-				Log::Error("Song list file exists but could not be opened.");
-			else
-				Log::Message("No song list file exists. The song list is saved automatically upon exit.");
-		}
-	}
-}
-
-void MenuState::SaveSongList(const std::string& _file_name)
-{
-	using namespace rapidxml;
-
-	xml_document<> doc;
-
-	xml_node<>* decl = doc.allocate_node(node_declaration);
-	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
-	decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
-	doc.append_node(decl);
-
-	xml_node<>* root_node = doc.allocate_node(node_element, "songlist");
-	doc.append_node(root_node);
-
-	for (auto& song : songs_)
-	{
-		if (song.first.source_file_name_ != ".test") // Skip test songs
-		{
-			xml_node<>* song_node = doc.allocate_node(node_element, "song");
-			auto artist = doc.allocate_string(song.first.artist_.c_str());
-			song_node->append_attribute(doc.allocate_attribute("artist", artist));
-			auto title = doc.allocate_string(song.first.title_.c_str());
-			song_node->append_attribute(doc.allocate_attribute("title", title));
-			auto source = doc.allocate_string(song.first.source_file_name_.c_str());
-			song_node->append_attribute(doc.allocate_attribute("source", source));
-			//song_node->append_attribute(doc.allocate_attribute("beatmap_list_path", song.first.relative_path().c_str()));
-			root_node->append_node(song_node);
-		}
-	}
-
-	// Don't need to check for directory here. If there is no song directory the song list load function will have created one.
-
-	std::ofstream output_stream(_file_name);
-	output_stream << doc;
-	output_stream.close();
-	doc.clear();
-}
-
-void MenuState::LoadBeatmapList(const Song& _song, bool _force_load)
-{
-	using namespace rapidxml;
-
-	if (songs_.find(_song)->second.empty() || _force_load) // Only load list if the beatmap list is empty or forced
-	{
-		std::ifstream input_stream(_song.relative_path() + beatmap_list_default_filename);
-		if (input_stream)
-		{
-			file<> file(input_stream);
-			xml_document<> doc;
-			doc.parse<parse_no_data_nodes>(file.data());
-
-			xml_node<>* beatmap_list_node = doc.first_node("beatmaplist");
-
-			if (beatmap_list_node != 0)
-			{
-				xml_node<>* beatmap_node = beatmap_list_node->first_node("beatmap");
-
-				while (beatmap_node)
-				{
-					auto beatmap_name = beatmap_node->first_attribute("name")->value();
-					auto pair = selected_.song->second.emplace( _song, beatmap_name );
-					if (pair.second)
-					{
-						Log::Message("Added " + std::string(beatmap_name) + " to the beatmaps set.");
-					}
-					else
-					{
-						Log::Warning("Failed emplacing " + std::string(beatmap_name) + " in the beatmaps set.");
-					}
-
-					beatmap_node = beatmap_node->next_sibling("beatmap");
-				}
-			}
-			else
-			{
-				Log::Error("No beatmap list node found. Format of input file is invalid.");
-			}
-		}
-		else
-		{
-			if (!boost::filesystem::exists(boost::filesystem::path(_song.relative_path())))
-			{
-				Log::Warning("Beatmap list file could not be opened. Directory does not exist.");
-				Log::Message("Saving a beatmap automatically updates the beatmap list file.");
-			}
-			else
-			{
-				if (boost::filesystem::exists(_song.relative_path() + beatmap_list_default_filename))
-					Log::Error("Beatmap list file for " + selected_.song->first.song_name() + " exists but could not be opened.");
-				else
-				{
-					Log::Message("No Beatmap list file exists for " + selected_.song->first.song_name() + ".");
-					Log::Message("Creating an empty one now. The beatmap list is updated every time a beatmap is saved or generated.");
-					SaveBeatmapList(_song);
-				}
-			}
-		}
-	}
-}
-
-void MenuState::SaveBeatmapList(const Song& _song)
-{
-	using namespace rapidxml;
-
-	xml_document<> doc;
-
-	xml_node<>* decl = doc.allocate_node(node_declaration);
-	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
-	decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
-	doc.append_node(decl);
-
-	xml_node<>* root_node = doc.allocate_node(node_element, "beatmaplist");
-	doc.append_node(root_node);
-
-	for (auto& beatmap : songs_.find(_song)->second)
-	{
-		if (beatmap.name_.find("__test__") == std::string::npos) // Skip test beatmaps
-		{
-			xml_node<>* beatmap_node = doc.allocate_node(node_element, "beatmap");
-			auto name = doc.allocate_string(beatmap.name_.c_str());
-			beatmap_node->append_attribute(doc.allocate_attribute("name", name));
-			root_node->append_node(beatmap_node);
-		}
-	}
-
-	if (!boost::filesystem::exists(_song.relative_path()))
-	{
-		Log::Message("Creating directory " + _song.relative_path() + ".");
-		boost::filesystem::create_directory(_song.relative_path());
-	}
-	
-	std::ofstream output_stream(_song.relative_path() + beatmap_list_default_filename);
-	output_stream << doc;
-	output_stream.close();
-	doc.clear();
-}
 
 void MenuState::GetSongBeatmaps()
 {

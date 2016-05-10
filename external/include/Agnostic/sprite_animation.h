@@ -1,6 +1,6 @@
-#ifndef _AGNOSTIC_SPRITE_ANIMATION_H_
-#define _AGNOSTIC_SPRITE_ANIMATION_H_
-#include "updateable.h"
+#pragma once
+
+#include <Agnostic/updateable.h>
 
 namespace agn
 {
@@ -137,4 +137,3 @@ namespace agn
 		void CalculateUVDimensions();
 	};
 }
-#endif // _AGNOSTIC_SPRITE_ANIMATION_H_

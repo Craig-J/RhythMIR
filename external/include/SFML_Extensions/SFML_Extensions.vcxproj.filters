@@ -51,9 +51,6 @@
     <ClCompile Include="Graphics\animation.cpp">
       <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\button.cpp">
-      <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\sprite.cpp">
       <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
     </ClCompile>
@@ -81,9 +78,6 @@
       <Filter>SFML_Extensions %28sfx%29</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\animation.h">
-      <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\button.h">
       <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\sprite.h">
@@ -395,20 +389,11 @@
     <ClInclude Include="ImGui\imgui-rendering-SFML.h">
       <Filter>ImGui\Backend</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui\imconfig-events-SFML.h">
-      <Filter>ImGui\Backend</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imconfig-rendering-SFML.h">
-      <Filter>ImGui\Backend</Filter>
-    </ClInclude>
     <ClInclude Include="ImGui\imgui-events-SFML.h">
       <Filter>ImGui\Backend</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\console.h">
       <Filter>ImGui\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\SFImGui.h">
-      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\hsl.h">
       <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>

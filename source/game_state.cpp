@@ -1,6 +1,9 @@
 #include "game_state.h"
-#include "game_state_machine.h"
+
+#include "app_state_machine.h"
 #include "menu_state.h"
+
+#include <SFML_Extensions/global.h>
 
 namespace
 {
@@ -22,7 +25,7 @@ namespace
 	
 }
 
-GameState::GameState(GameStateMachine& _state_machine,
+GameState::GameState(AppStateMachine& _state_machine,
 					 UniqueStatePtr<AppState>& _state,
 					 std::unique_ptr<Beatmap> _beatmap,
 					 GameSettings _settings) :
@@ -39,24 +42,24 @@ GameState::GameState(GameStateMachine& _state_machine,
 
 void GameState::InitializeState()
 {
-	textures_ = TextureFileVector
+	textures_ = sfx::TextureFileVector
 	{
 		{ machine_.background_texture_, "skins/default/play_background.png" },
 		{ pause_background_texture_, "skins/default/pause_background.png" },
 		{ white_circle_texture_, "skins/default/circle_white.png", },
 		{ beat_texture_, "skins/default/beat.png" }
 	};
-	Global::TextureManager.Load(textures_);
+	sfx::Global::TextureManager.Load(textures_);
 
 	machine_.background_.setTexture(*machine_.background_texture_);
 
-	sounds_ = SoundFileVector
+	sounds_ = sfx::SoundFileVector
 	{
 		{ deep_hit_sound_, "skins/default/deep_hit.wav" },
 		{ soft_hit_sound_, "skins/default/soft_hit.wav" },
 		{ miss_sound_, "skins/default/combobreak.wav" }
 	};
-	Global::AudioManager.Load(sounds_);
+	sfx::Global::AudioManager.Load(sounds_);
 
 	window_centre = sf::Vector2f(machine_.window_.getSize().x * 0.5, machine_.window_.getSize().y * 0.5);
 	window_size = sf::Vector2f(machine_.window_.getSize());
@@ -130,7 +133,7 @@ void GameState::InitializeState()
 	{
 	case VISUALIZATION:
 		settings_.path_count = sections_.front().notes.size();
-		InitializeVisualizerMode();
+		InitializeVisualizationMode();
 		break;
 	case SINGLE:
 		InitializeFourKeyMode();
@@ -143,9 +146,9 @@ void GameState::InitializeState()
 
 void GameState::TerminateState()
 {
-	Global::TextureManager.Unload(textures_);
+	sfx::Global::TextureManager.Unload(textures_);
 	textures_.clear();
-	Global::AudioManager.Unload(sounds_);
+	sfx::Global::AudioManager.Unload(sounds_);
 	sounds_.clear();
 }
 
@@ -153,12 +156,12 @@ bool GameState::Update(const float _delta_time)
 {
 	if (finished_)
 	{
-		if (Global::Input.KeyPressed(Keyboard::BackSpace))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::BackSpace))
 		{
 			ChangeState<MenuState>(std::move(beatmap_));
 			return true;
 		}
-		if (Global::Input.KeyPressed(Keyboard::Return))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::Return))
 		{
 			ChangeState<GameState>(std::move(beatmap_), std::move(settings_));
 			return true;
@@ -170,7 +173,7 @@ bool GameState::Update(const float _delta_time)
 	}
 	else
 	{
-		if (Global::Input.KeyPressed(Keyboard::Escape))
+		if (sfx::Global::Input.KeyPressed(sf::Keyboard::Escape))
 		{
 			paused_ = !paused_;
 		}
@@ -183,12 +186,12 @@ bool GameState::Update(const float _delta_time)
 			play_clock_.Stop();
 			if (beatmap_->music_->getStatus() == sf::Music::Playing)
 				beatmap_->music_->pause();
-			if (Global::Input.KeyPressed(Keyboard::BackSpace))
+			if (sfx::Global::Input.KeyPressed(sf::Keyboard::BackSpace))
 			{
 				ChangeState<MenuState>(std::move(beatmap_));
 				return true;
 			}
-			if (Global::Input.KeyPressed(Keyboard::Return))
+			if (sfx::Global::Input.KeyPressed(sf::Keyboard::Return))
 			{
 				ChangeState<GameState>(std::move(beatmap_), std::move(settings_));
 				return true;
@@ -290,7 +293,7 @@ bool GameState::Update(const float _delta_time)
 					{
 						for (int index = 0; index < note_paths_.size(); ++index)
 						{
-							if (Global::Input.KeyPressed(settings_.keybinds[index]))
+							if (sfx::Global::Input.KeyPressed(settings_.keybinds[index]))
 							{
 								AttemptNoteHit(note_paths_[index]);
 							}
@@ -492,6 +495,9 @@ void GameState::ProcessEvent(sf::Event& _event)
 		break;
 	}
 }
+
+void GameState::ReloadSkin()
+{}
 
 bool GameState::PauseMenu()
 {
@@ -709,7 +715,7 @@ void GameState::InitializeFourKeyMode()
 	}
 }
 
-void GameState::InitializeVisualizerMode()
+void GameState::InitializeVisualizationMode()
 {
 	// NotePath initialization
 	note_paths_.reserve(settings_.path_count);

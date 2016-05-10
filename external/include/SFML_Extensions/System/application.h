@@ -1,9 +1,9 @@
-#ifndef _SFX_APPLICATION_H_
-#define _SFX_APPLICATION_H_
+#pragma once
 
-#include <SFML\Graphics\RenderWindow.hpp>
-#include "frame_clock.h"
-#include "system_HUD.h"
+#include <SFML_Extensions/System/frame_clock.h>
+#include <SFML_Extensions/System/system_HUD.h>
+
+#include <SFML/Graphics/RenderWindow.hpp>
 
 namespace sfx
 {
@@ -37,4 +37,3 @@ namespace sfx
 		bool running_;
 	};
 }
-#endif // _SFX_APPLICATION_H_

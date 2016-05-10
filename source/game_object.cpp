@@ -58,7 +58,7 @@ bool GameObject::VerifyPosition(const sf::RenderWindow& window)
 
 	if ((getPosition().x > width) || (getPosition().x < 0) || (getPosition().y > height) || (getPosition().y < 0)) // If out of screen bounds
 	{
-		SetVisibility(false); // sets object to not visible, essentially removing it from scene
+		SetVisibility(false); // sets object to not visible, removing it from scene
 		return false;
 	}
 	return true;

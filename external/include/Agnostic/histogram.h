@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 namespace agn
@@ -34,10 +35,6 @@ namespace agn
 		size_t highest_bin = 0;
 		for (auto element : _data)
 		{
-			/*if (element < _min || element > _max)
-			{
-				histogram[_bin_count]++;
-			}*/
 			auto bin = _bin_count;
 			for (size_t bin_index = 0; bin_index < _bin_count; ++bin_index)
 			{

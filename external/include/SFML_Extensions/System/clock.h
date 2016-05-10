@@ -1,6 +1,6 @@
-#ifndef _SFX_CLOCK_H_
-#define _SFX_CLOCK_H_
-#include <SFML\System\Clock.hpp>
+#pragma once
+
+#include <SFML/System/Clock.hpp>
 
 namespace sfx
 {
@@ -22,5 +22,3 @@ namespace sfx
 		bool active_;
 	};
 }
-
-#endif

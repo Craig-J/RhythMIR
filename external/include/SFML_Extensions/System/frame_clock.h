@@ -26,16 +26,15 @@
 //	Minor formatting changes only.
 //
 
-#ifndef _SFX_FRAMECLOCK_H_
-#define _SFX_FRAMECLOCK_H_
+#pragma once
+
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include <limits>
 #include <cassert>
 #include <algorithm>
 #include <vector>
-
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Clock.hpp>
 
 namespace sfx
 {
@@ -256,6 +255,4 @@ namespace sfx
 
 		sf::Clock m_clock;
 	};
-}   // namespace sfx
-
-#endif  // _SFX_FRAMECLOCK_H_
+}

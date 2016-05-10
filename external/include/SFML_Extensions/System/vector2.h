@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <SFML/System/Vector2.hpp>
+
+#include <string>
 
 namespace sfx
 {

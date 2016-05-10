@@ -1,5 +1,5 @@
-#ifndef _AGNOSTIC_STRING_H_
-#define _AGNOSTIC_STRING_H_
+#pragma once
+
 #include <sstream>
 #include <iomanip>
 #include <algorithm> 
@@ -59,5 +59,3 @@ namespace agn
 		return s;
 	}
 }
-
-#endif

@@ -1,5 +1,6 @@
-#include "application.h"
-#include <SFML_Extensions\global.h>
+#include <SFML_Extensions/System/application.h>
+
+#include <SFML_Extensions/global.h>
 
 namespace sfx
 {

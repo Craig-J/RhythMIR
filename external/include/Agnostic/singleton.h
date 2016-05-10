@@ -1,5 +1,4 @@
-#ifndef _AGNOSTIC_SINGLETON_H_
-#define _AGNOSTIC_SINGLETON_H_
+#pragma once
 
 namespace agn
 {
@@ -84,5 +83,3 @@ namespace agn
 	template <typename _Type>
 	_Type* Singleton<_Type>::instance_ = nullptr;
 }
-
-#endif // _AGNOSTIC_SINGLETON_H_

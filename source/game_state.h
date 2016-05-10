@@ -1,16 +1,18 @@
 #pragma once
-#include "appstate.h"
-#include "game_object.h"
+
 #include "beatmap.h"
-#include <SFML_Extensions\System\clock.h>
-#include <SFML_Extensions\Graphics\hsl.h>
+#include "game_object.h"
 #include "game_settings.h"
+#include "appstate.h"
+
+#include <SFML_Extensions/System/clock.h>
+#include <SFML_Extensions/Graphics/hsl.h>
 
 class GameState : public AppState
 {
 public:
 
-	GameState(GameStateMachine&,
+	GameState(AppStateMachine&,
 			  UniqueStatePtr<AppState>&,
 			  std::unique_ptr<Beatmap>,
 			  GameSettings);
@@ -21,6 +23,7 @@ public:
 	bool Update(const float _delta_time);
 	void Render(const float _delta_time);
 	void ProcessEvent(sf::Event & _event);
+	void ReloadSkin();
 	
 private:
 
@@ -41,17 +44,17 @@ private:
 	std::vector<NoteObject> beats_;
 
 	std::vector<std::unique_ptr<sf::Sound>> active_sounds_;
-	SoundPtr deep_hit_sound_;
-	SoundPtr soft_hit_sound_;
-	SoundPtr miss_sound_;
+	sfx::SoundPtr deep_hit_sound_;
+	sfx::SoundPtr soft_hit_sound_;
+	sfx::SoundPtr miss_sound_;
 
 	sfx::Clock play_clock_;
 	
 	sfx::Sprite pause_background_;
 	
-	TexturePtr pause_background_texture_;
-	TexturePtr white_circle_texture_;
-	TexturePtr beat_texture_;
+	sfx::TexturePtr pause_background_texture_;
+	sfx::TexturePtr white_circle_texture_;
+	sfx::TexturePtr beat_texture_;
 
 	sf::Text clock_text_;
 	sf::Text countdown_text_;
@@ -71,7 +74,8 @@ private:
 	bool hit_counters_;
 
 	void InitializeFourKeyMode();
-	void InitializeVisualizerMode();
+	void InitializeVisualizationMode();
+
 	void PlayHitSound();
 	void PlayMissSound();
 };

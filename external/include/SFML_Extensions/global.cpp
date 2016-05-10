@@ -1,4 +1,4 @@
-#include "global.h"
+#include <SFML_Extensions/global.h>
 
 namespace sfx
 {

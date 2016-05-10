@@ -1,10 +1,10 @@
-#ifndef _SFX_AUDIOMANAGER_H_
-#define _SFX_AUDIOMANAGER_H_
+#pragma once
 
-#include <agnostic\resource_manager.h>
-#include <SFML\Audio\SoundBuffer.hpp>
-#include <SFML\Audio\Music.hpp>
-#include <agnostic\logger.h>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Audio/Music.hpp>
+
+#include <Agnostic/resource_manager.h>
+#include <Agnostic/logger.h>
 using agn::Log;
 
 namespace sfx
@@ -124,5 +124,3 @@ namespace sfx
 	};
 
 }
-
-#endif // _SFX_AUDIOMANAGER_H_

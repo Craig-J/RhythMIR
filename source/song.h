@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <tuple>
 
@@ -58,5 +59,7 @@ public:
 	}
 
 private:
+
 	std::string path_;
+
 };

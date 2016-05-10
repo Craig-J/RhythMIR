@@ -1,9 +1,11 @@
-#ifndef IMGUI_SFML_EVENTS_BACKEND
-#define IMGUI_SFML_EVENTS_BACKEND
-#include <vector>
+#pragma once
+
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
+#include <ImGui/imgui.h>
+
+#include <vector>
 
 namespace ImGui
 {
@@ -102,4 +104,3 @@ namespace ImGui
         }
     }
 }
-#endif

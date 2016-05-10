@@ -1,15 +1,19 @@
-#ifndef _GAME_STATE_MACHINE_H_
-#define _GAME_STATE_MACHINE_H_
+#pragma once
 
-#include <SFML_Extensions\System\application.h>
 #include "appstate.h"
 
-class GameStateMachine
+#include <SFML_Extensions/System/frame_clock.h>
+#include <SFML_Extensions/Graphics/sprite.h>
+
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Font.hpp>
+
+class AppStateMachine
 {
 public:
 
-	GameStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&, bool&);
-	~GameStateMachine() {}
+	AppStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&, bool&);
+	~AppStateMachine() {}
 
 	bool Start();
 	void Exit();
@@ -18,6 +22,8 @@ public:
 	void ProcessEvent(sf::Event& _event);
 
 private:
+
+	void ReloadSkin();
 
 	// Each state is essentially a part of the state machine.
 	// Friend is used so that states can be stored in their own files rather than everything here.
@@ -28,7 +34,7 @@ private:
 		friend class GameState;
 
 	// Instances of top-level states here.
-	// Instances of nested state machines should go in their parent states classes.
+		// Instances of nested state machines should go in their parent states classes.
 	UniqueStatePtr<AppState> current_state_;
 
 	sf::RenderWindow& window_;
@@ -36,15 +42,8 @@ private:
 	sf::Font& font_;
 	bool& display_hud_;
 
-	struct Options
-	{
-		bool music_;
-		bool sound_effects_;
-	} options_;
-
-	TexturePtr loading_background_texture_;
-	TexturePtr background_texture_;
-	Sprite background_;
+	sfx::TexturePtr loading_background_texture_;
+	sfx::TexturePtr background_texture_;
+	sfx::Sprite background_;
 
 };
-#endif // _GAME_STATE_MACHINE_H_

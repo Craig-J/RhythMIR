@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RhythMIR", "source\RhythMIR
 	ProjectSection(ProjectDependencies) = postProject
 		{EBEADAA1-BC2F-4088-9146-A04A807D404E} = {EBEADAA1-BC2F-4088-9146-A04A807D404E}
 		{7673B1AA-8D4A-482E-85DC-2F6C2FF8B076} = {7673B1AA-8D4A-482E-85DC-2F6C2FF8B076}
+		{35D4F8D3-44CE-4D4A-AED6-9719F3E5A62B} = {35D4F8D3-44CE-4D4A-AED6-9719F3E5A62B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFML_Extensions", "external\include\SFML_Extensions\SFML_Extensions.vcxproj", "{EBEADAA1-BC2F-4088-9146-A04A807D404E}"
@@ -19,8 +20,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aubio", "external\include\aubio\aubio.vcxproj", "{92A60520-8725-43CE-90E6-3C8066156643}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "external\include\ImGui\ImGui.vcxproj", "{35D4F8D3-44CE-4D4A-AED6-9719F3E5A62B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82DD6C45-9CFF-4176-A020-B2820D1043AE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSPFilters", "external\include\DspFilters\DSPFilters.vcxproj", "{7673B1AA-8D4A-482E-85DC-2F6C2FF8B076}"
 EndProject

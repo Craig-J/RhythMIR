@@ -1,5 +1,4 @@
-#ifndef _AGNOSTIC_GENERIC_STATE_H_
-#define _AGNOSTIC_GENERIC_STATE_H_
+#pragma once
 
 #include <memory>
 
@@ -35,6 +34,7 @@ namespace agn
 		}
 
 	protected:
+
 		// ChangeState
 		// Basic state transition implementation.
 		// Terminate current state and calls the static initialize to create a new state.
@@ -67,5 +67,3 @@ namespace agn
 		UniqueStatePtr<_State>& state_;
 	};
 }
-
-#endif // _AGNOSTIC_GENERIC_STATE_H_

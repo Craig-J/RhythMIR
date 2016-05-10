@@ -1,17 +1,17 @@
-#ifndef _APPSTATE_H_
-#define _APPSTATE_H_
+#pragma once
 
-#include <agnostic\generic_state.h>
+#include <SFML_Extensions/Audio/audio_manager.h>
+#include <SFML_Extensions/Graphics/texture_manager.h>
+
+#include <agnostic/generic_state.h>
 using agn::UniqueStatePtr;
 
-#include <SFML_Extensions\global.h>
-
-class AppState : public agn::GenericState<class GameStateMachine, AppState>
+class AppState : public agn::GenericState<class AppStateMachine, AppState>
 {
 public:
 
-	AppState(GameStateMachine&, UniqueStatePtr<AppState>&);
-	AppState(GameStateMachine&, UniqueStatePtr<AppState>&, sfx::TexturePtr);
+	AppState(AppStateMachine&, UniqueStatePtr<AppState>&);
+	AppState(AppStateMachine&, UniqueStatePtr<AppState>&, sfx::TexturePtr);
 	virtual ~AppState() {}
 
 	// Boolean returns indicate success or failure.
@@ -19,11 +19,10 @@ public:
 	virtual void Render(const float _delta_time) = 0;
 	virtual void TerminateState() {}
 	virtual void ProcessEvent(sf::Event & _event) {}
+	virtual void ReloadSkin() {}
 
 protected:
 
-	TextureFileVector textures_;
-	SoundFileVector sounds_;
+	sfx::TextureFileVector textures_;
+	sfx::SoundFileVector sounds_;
 };
-
-#endif // _APPSTATE_H_

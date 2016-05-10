@@ -1,4 +1,4 @@
-#include "clock.h"
+#include <SFML_Extensions/System/clock.h>
 
 namespace sfx
 {

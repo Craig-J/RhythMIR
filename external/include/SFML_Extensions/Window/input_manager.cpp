@@ -1,4 +1,5 @@
-#include "input_manager.h"
+#include <SFML_Extensions/Window/input_manager.h>
+
 namespace sfx
 {
 

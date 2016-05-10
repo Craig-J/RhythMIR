@@ -1,19 +1,24 @@
-#ifndef _RHYTHMIR_AUBIO_H_
-#define _RHYTHMIR_AUBIO_H_
-#include <aubio\aubio.h>
-#include "beatmap.h"
+#pragma once
+
+#include "RhythMIR_lib_interface.h"
+
+
+#include <ImGui/imgui.h>
+
+#include <DspFilters/Dsp.h>
+
+#include <aubio/aubio.h>
+
+
+#include <Agnostic/math.h>
+#include <Agnostic/string.h>
+#include <Agnostic/histogram.h>
+#include <Agnostic/logger.h>
+using agn::Log;
+
 #include <atomic>
 #include <thread>
 #include <mutex>
-#include <ImGui\imgui.h>
-#include <Agnostic\logger.h>
-using agn::Log;
-#include <Agnostic\math.h>
-#include <Agnostic\string.h>
-#include <Agnostic\histogram.h>
-#include <RapidXML\rapidxml_utils.hpp>
-#include <RapidXML\rapidxml_print.hpp>
-#include <DspFilters\Dsp.h>
 
 class Aubio
 {
@@ -29,52 +34,6 @@ public:
 	void SaveBeatmap(const Beatmap& _beatmap);
 
 private:
-
-	struct Function
-	{
-		char_t* name;
-		int window_size;
-
-		bool operator==(const Function& _other) const
-		{
-			return(*name == *_other.name && window_size == _other.window_size);
-		}
-	};
-
-	struct OnsetObject
-	{
-		Function function;
-		aubio_onset_t* object;
-	};
-
-	struct TempoEstimate
-	{
-		float BPM;
-		float time;
-		float confidence;
-
-		operator float() const { return BPM; }
-
-		bool operator<(const float& _other) const
-		{
-			return (BPM < _other);
-		}
-
-		bool operator<(const TempoEstimate& _other) const
-		{
-			return (BPM < _other.BPM);
-		}
-
-		bool operator==(const float& _other) const
-		{
-			return (BPM == _other);
-		}
-
-		bool operator==(const TempoEstimate& _other) const
-		{
-			return (std::tie(BPM, time) == std::tie(_other.BPM, _other.time));
-		}
-	};
 
 	struct Settings
 	{
@@ -100,11 +59,8 @@ private:
 			SINGLE,
 			FOUR,
 			EIGHT
-			//FIFTEEN
-			//THIRTYONE,
-			//SLANEY,
-			//PIANO
 		} filterbank_type;
+
 		int filter_count;
 		std::vector<std::pair<float, float>> filter_params;
 		float filter_lowpass_frequency;
@@ -131,12 +87,13 @@ private:
 		void Reset();
 	} gui_;
 
-	Beatmap* beatmap_;
+	std::unique_ptr<Beatmap> beatmap_;
+
 	Function tempo_function_;
 	std::vector<TempoEstimate> beats_;
 
 	std::vector<Function> onset_functions_;
-	std::vector<OnsetObject> onset_objects_;
+	std::vector<OnsetObject<aubio_onset_t>> onset_objects_;
 
 	aubio_source_t* source_;
 
@@ -152,4 +109,3 @@ private:
 
 	void FilterSource(fvec_t* _source_buffer, std::vector<fvec_t*>& _filter_buffers);
 };
-#endif // _RHYTHMIR_AUBIO_H_

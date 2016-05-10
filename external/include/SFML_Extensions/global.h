@@ -4,15 +4,15 @@
 // SFML and SFML Extensions. SFML Extensions is dependent on the Agnostic library.
 // This file also serves as a home for global objects.
 
-// Graphics, Window and System included.
-#include <SFML\Graphics.hpp>
-#include <SFML_Extensions\Window\input_manager.h>
-#include <SFML_Extensions\Graphics\texture_manager.h>
-#include <SFML_Extensions\Graphics\sprite.h>
+// Graphics, Window and System includes.
+#include <SFML_Extensions/Window/input_manager.h>
+#include <SFML_Extensions/Graphics/texture_manager.h>
+#include <SFML_Extensions/Graphics/sprite.h>
+#include <SFML/Graphics.hpp>
 
-// Audio included.
-#include <SFML\Audio.hpp>
-#include <SFML_Extensions\Audio\audio_manager.h>
+// Audio includes.
+#include <SFML_Extensions/Audio/audio_manager.h>
+#include <SFML/Audio.hpp>
 
 namespace sfx
 {
@@ -26,19 +26,3 @@ namespace sfx
 	};
 }
 
-using sfx::Global;
-
-using sf::Keyboard;
-using sf::Mouse;
-
-using sfx::Sprite;
-using sfx::Texture;
-using sfx::UniqueTexturePtr;
-using sfx::TexturePtr;
-using sfx::TextureFileVector;
-
-using sfx::UniqueMusicPtr;
-using sfx::MusicPtr;
-using sfx::UniqueSoundPtr;
-using sfx::SoundPtr;
-using sfx::SoundFileVector;

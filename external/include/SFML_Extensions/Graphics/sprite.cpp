@@ -1,5 +1,4 @@
-#include "sprite.h"
-#include <agnostic\logger.h>
+#include <SFML_Extensions/Graphics/sprite.h>
 
 namespace sfx
 {
@@ -41,7 +40,7 @@ namespace sfx
 		ApplyOrientation();
 	}
 
-	void Sprite::SetAnimation(Animation* _animation)
+	void Sprite::SetAnimation(AnimationPtr _animation)
 	{
 		animation_ = _animation;
 	}

@@ -1,5 +1,6 @@
-#include "SFImGui_application.h"
-#include <SFML_Extensions\global.h>
+#include <SFML_Extensions/ImGui/SFImGui_application.h>
+
+#include <SFML_Extensions/global.h>
 
 namespace sfx
 {
@@ -30,7 +31,7 @@ namespace sfx
 			ImGui::SFML::UpdateImGuiRendering();
 			sfx::Global::Input.Update();
 			EventLoop();
-			if (Global::Input.KeyPressed(Keyboard::F7))
+			if (Global::Input.KeyPressed(sf::Keyboard::F7))
 			{
 				unlimited_framerate_ = !unlimited_framerate_;
 				if(unlimited_framerate_)
@@ -38,11 +39,11 @@ namespace sfx
 				else
 					window_.setFramerateLimit(60);
 			}
-			if (Global::Input.KeyPressed(Keyboard::F10))
+			if (Global::Input.KeyPressed(sf::Keyboard::F10))
 			{
 				display_hud_ = !display_hud_;
 			}
-			if (Global::Input.KeyPressed(Keyboard::F11))
+			if (Global::Input.KeyPressed(sf::Keyboard::F11))
 			{
 				display_test_window_ = !display_test_window_;
 			}
@@ -52,7 +53,7 @@ namespace sfx
 				running_ = Update();
 				if (running_)
 				{
-					window_.clear(sf::Color::Black);
+					window_.clear();
 					Render();
 					if (display_hud_)
 					{

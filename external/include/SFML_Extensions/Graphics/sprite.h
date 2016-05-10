@@ -1,12 +1,16 @@
-#ifndef _SFX_SPRITE_H_
-#define _SFX_SPRITE_H_
+#pragma once
 
-#include <SFML\Graphics\Sprite.hpp>
-#include <SFML_Extensions\Graphics\texture_manager.h>
-#include <SFML_Extensions\Graphics\animation.h>
+#include <SFML_Extensions/Graphics/texture_manager.h>
+#include <SFML_Extensions/Graphics/animation.h>
+
+#include <SFML/Graphics/Sprite.hpp>
+
+#include <memory>
 
 namespace sfx
 {
+	using AnimationPtr = std::shared_ptr<Animation>;
+
 	class Sprite : public sf::Sprite
 	{
 	public:
@@ -37,8 +41,8 @@ namespace sfx
 		// SetAnimation
 		// IN:		Pointer to animation to use
 		// Note:	Does not start the animation - must StartAnimation()
-		void SetAnimation(Animation* animation);
-		inline Animation* GetAnimation() const { return animation_; }
+		void SetAnimation(AnimationPtr animation);
+		inline AnimationPtr GetAnimation() const { return animation_; }
 
 		// Animate
 		// Updates the animation associated with this sprite
@@ -57,7 +61,7 @@ namespace sfx
 		TEXTURE_ORIENTATION orientation_;
 
 		bool animated_;
-		Animation* animation_;
+		AnimationPtr animation_;
 
 		// Internal helper functions
 		TEXTURE_ORIENTATION CalculateCurrentOrientation() const;
@@ -65,5 +69,3 @@ namespace sfx
 		void ApplyAnimationUVs();
 	};
 }
-
-#endif
