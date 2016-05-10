@@ -41,10 +41,10 @@ void GameState::InitializeState()
 {
 	textures_ = TextureFileVector
 	{
-		{ machine_.background_texture_, "play_background.png" },
-		{ pause_background_texture_, "pause_background.png" },
-		{ white_circle_texture_, "circle_white.png", },
-		{ beat_texture_, "beat.png" }
+		{ machine_.background_texture_, "skins/default/play_background.png" },
+		{ pause_background_texture_, "skins/default/pause_background.png" },
+		{ white_circle_texture_, "skins/default/circle_white.png", },
+		{ beat_texture_, "skins/default/beat.png" }
 	};
 	Global::TextureManager.Load(textures_);
 
@@ -52,9 +52,9 @@ void GameState::InitializeState()
 
 	sounds_ = SoundFileVector
 	{
-		{ deep_hit_sound_, "deep_hit.wav" },
-		{ soft_hit_sound_, "soft_hit.wav" },
-		{ miss_sound_, "combobreak.wav" }
+		{ deep_hit_sound_, "skins/default/deep_hit.wav" },
+		{ soft_hit_sound_, "skins/default/soft_hit.wav" },
+		{ miss_sound_, "skins/default/combobreak.wav" }
 	};
 	Global::AudioManager.Load(sounds_);
 

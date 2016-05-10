@@ -76,8 +76,8 @@ void MenuState::InitializeState()
 {
 	textures_ = TextureFileVector
 	{
-		{ machine_.background_texture_, "menu_background.jpg" },
-		{ selector_texture_, "selector.png" }
+		{ machine_.background_texture_, "skins/default/menu_background.jpg" },
+		{ selector_texture_, "skins/default/selector.png" }
 	};
 	Global::TextureManager.Load(textures_);
 	machine_.background_.setTexture(*machine_.background_texture_);

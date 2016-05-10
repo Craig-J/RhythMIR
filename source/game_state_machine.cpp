@@ -14,7 +14,7 @@ GameStateMachine::GameStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _
 
 bool GameStateMachine::Start()
 {
-	loading_background_texture_ = sfx::Global::TextureManager.Load("loading_background.jpg");
+	loading_background_texture_ = sfx::Global::TextureManager.Load("skins/default/loading_background.jpg");
 	// Calculate window dimensions and centre
 	sf::Vector2f window_dimensions((float)window_.getSize().x, (float)window_.getSize().y);
 	sf::Vector2f window_centre(window_dimensions.x / 2.0f, window_dimensions.y / 2.0f);
@@ -22,7 +22,7 @@ bool GameStateMachine::Start()
 	background_ = sfx::Sprite(window_centre, loading_background_texture_);
 	background_.SetDimensions(window_dimensions);
 
-	if (font_.loadFromFile("NovaMono.ttf"))
+	if (font_.loadFromFile("skins/default/NovaMono.ttf"))
 	{
 		Log::Message("Font loaded successfully.");
 	}

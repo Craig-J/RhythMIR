@@ -30,9 +30,6 @@
     <ClCompile Include="menu_state.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="intro_state.cpp">
-      <Filter>Application\States</Filter>
-    </ClCompile>
     <ClCompile Include="game_state.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
@@ -57,9 +54,6 @@
       <Filter>Application\State Machine</Filter>
     </ClInclude>
     <ClInclude Include="menu_state.h">
-      <Filter>Application\States</Filter>
-    </ClInclude>
-    <ClInclude Include="intro_state.h">
       <Filter>Application\States</Filter>
     </ClInclude>
     <ClInclude Include="game_state.h">
