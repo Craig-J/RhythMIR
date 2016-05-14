@@ -11,7 +11,7 @@ public:
 
 	MenuState(AppStateMachine&,
 			  UniqueStatePtr<AppState>&,
-			  std::unique_ptr<Beatmap> = nullptr);
+			  BeatmapPtr = nullptr);
 	virtual ~MenuState() {}
 	
 	void InitializeState();
@@ -25,7 +25,7 @@ private:
 
 	// Beatmap stuff
 	std::unique_ptr<Aubio> aubio_;
-	std::unique_ptr<Beatmap> loaded_beatmap_;
+	BeatmapPtr loaded_beatmap_;
 	std::atomic<bool> generating_beatmap_;
 	std::atomic<bool> canceling_generating_;
 
@@ -38,8 +38,8 @@ private:
 	enum MENUCONTEXT { SONGS, BEATMAPS};
 	struct MenuContext
 	{
-		std::map<Song, std::set<Beatmap>>::iterator song;
-		std::set<Beatmap>::iterator beatmap;
+		SongList::iterator song;
+		BeatmapList::iterator beatmap;
 		MENUCONTEXT context;
 	} selected_;
 	sfx::Sprite selector_;
@@ -52,7 +52,7 @@ private:
 
 	struct GUI
 	{
-		bool main_window_;
+		bool main_window;
 		bool input_focus;
 
 		char song_artist[256];
@@ -71,8 +71,13 @@ private:
 		bool deleting_enabled;
 
 	} gui_;
-	bool UpdateGUI();
+
+	bool MainWindow();
 	void Play();
+
+	void LoadBeatmap(const Beatmap&, bool _partial_load = true, bool _force_load = false);
+	void SaveBeatmap(const Beatmap&);
+	void GetSongBeatmaps();
 
 	void GenerateTestBeatmap();
 	void GenerateTestSong();

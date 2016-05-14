@@ -27,7 +27,7 @@ namespace
 
 GameState::GameState(AppStateMachine& _state_machine,
 					 UniqueStatePtr<AppState>& _state,
-					 std::unique_ptr<Beatmap> _beatmap,
+					 BeatmapPtr _beatmap,
 					 GameSettings _settings) :
 	AppState(_state_machine, _state),
 	beatmap_(std::move(_beatmap)),
@@ -601,7 +601,6 @@ void GameState::AttemptNoteHit(NotePath& _path)
 		// Ignore press when the offset is more than 300ms
 		if (abs_note_offset < 300)
 		{
-			sf::Sound* hitsound;
 			if (abs_note_offset < 30)
 			{
 				perfect_hits_++;

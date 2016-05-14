@@ -12,13 +12,26 @@
 // An object needlessly complicates the calling process since they're all going to be globals anyway.
 // No point in making a namespace as these functions are all implementation specific.
 
-struct Filesystem
+enum BeatmapFileType
 {
-	static std::string beatmap_extension;
-	static std::string current_skin_path;
+	RhythMIR,
+	osu,
+	StepMania
 };
 
-static const std::string Skin(std::string _filename);
+
+struct Filesystem
+{
+	static BeatmapFileType current_beatmap_type;
+	static std::string current_skin_path;
+	static std::string current_song_path;
+
+	// Individual beatmap I/O is delegated to the aubio object.
+	static BeatmapPtr LoadBeatmap(const Beatmap& _beatmap, bool _partial_load);
+	static void SaveBeatmap(const Beatmap& _beatmap);
+};
+
+const std::string Skin(std::string _filename);
 
 
 // Game Settings I/O
@@ -30,10 +43,8 @@ void LoadSongList(SongList& _song_list);
 void SaveSongList(SongList& _song_list);
 
 // Beatmap List I/O
-void LoadBeatmapList(const Song&, bool _force_load = false);
-void SaveBeatmapList(const Song&);
-void GetSongBeatmaps();
+void LoadBeatmapList(const SongList::iterator& _song);
+void SaveBeatmapList(const SongList::iterator& _song);
 
-// Individual beatmap I/O is delegated to the aubio object.
-void LoadBeatmap(const Beatmap&, bool _partial_load = true, bool _force_load = false);
-void SaveBeatmap(const Beatmap&);
+BeatmapPtr LoadRhythMIRBeatmap(const Beatmap& _beatmap, bool _partial_load);
+void SaveRhythMIRBeatmap(const Beatmap& _beatmap);

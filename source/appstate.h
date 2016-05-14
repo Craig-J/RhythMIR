@@ -2,6 +2,7 @@
 
 #include <SFML_Extensions/Audio/audio_manager.h>
 #include <SFML_Extensions/Graphics/texture_manager.h>
+#include <SFML/Window/Event.hpp>
 
 #include <agnostic/generic_state.h>
 using agn::UniqueStatePtr;

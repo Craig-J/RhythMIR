@@ -14,7 +14,7 @@ public:
 
 	GameState(AppStateMachine&,
 			  UniqueStatePtr<AppState>&,
-			  std::unique_ptr<Beatmap>,
+			  BeatmapPtr,
 			  GameSettings);
 	virtual ~GameState() {}
 	
@@ -35,7 +35,7 @@ private:
 	void SpawnNote(NotePath& _path);
 	void AttemptNoteHit(NotePath& _path);
 
-	std::unique_ptr<Beatmap> beatmap_;
+	BeatmapPtr beatmap_;
 
 	std::vector<NotePath> note_paths_;
 	std::queue<TimingSection> sections_;

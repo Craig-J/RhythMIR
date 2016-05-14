@@ -4,22 +4,23 @@
 
 #include <memory>
 
-struct Function
+struct FFTFunction
 {
 	std::string name;
+	int hop_size;
 	int window_size;
 
-	bool operator==(const Function& _other) const
+	bool operator==(const FFTFunction& _other) const
 	{
-		return(*name == *_other.name && window_size == _other.window_size);
+		return(std::tie(name, hop_size, window_size) == std::tie(_other.name, _other.hop_size, _other.window_size));
 	}
 };
 
 template<typename _T>
 struct OnsetObject
 {
-	Function function;
-	std::unique_ptr<_T> object;
+	FFTFunction function;
+	_T* object;
 };
 
 struct TempoEstimate
@@ -49,4 +50,15 @@ struct TempoEstimate
 	{
 		return (std::tie(BPM, time) == std::tie(_other.BPM, _other.time));
 	}
+};
+
+class MIRLibrary
+{
+public:
+
+	virtual void SettingsWindow();
+	virtual BeatmapPtr GenerateBeatmap(const Song& _song,
+									   std::string _beatmap_name,
+									   std::string _beatmap_description = std::string()) = 0;
+
 };

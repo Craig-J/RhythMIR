@@ -98,6 +98,9 @@ public:
 	std::string name_;
 	std::string description_;
 
+	std::unique_ptr<std::queue<Note>> beats_;
+	std::unique_ptr<std::vector<TimingSection>> sections_;
+
 	std::string full_file_path() const
 	{
 		return song_.relative_path() + name_;
@@ -115,14 +118,9 @@ public:
 	{
 		return(std::tie(song_, name_) != std::tie(_other.song_, _other.name_));
 	}
-
-private:
-
-	// Aubio has direct access to a beatmaps sections for beatmap generation.
-	friend class Aubio;
-
-	std::unique_ptr<std::queue<Note>> beats_;
-	std::unique_ptr<std::vector<TimingSection>> sections_;
 };
 
 using SongList = std::map<Song, std::set<Beatmap>>;
+using BeatmapList = std::set<Beatmap>;
+using BeatmapPtr = std::shared_ptr<Beatmap>;
+using UniqueBeatmapPtr = std::unique_ptr<Beatmap>;

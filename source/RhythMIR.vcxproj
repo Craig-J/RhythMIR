@@ -21,6 +21,7 @@
     <ClCompile Include="menu_state.cpp" />
     <ClCompile Include="RhythMIR_aubio.cpp" />
     <ClCompile Include="RhythMIR_filesystem.cpp" />
+    <ClCompile Include="RhythMIR_lib_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\include\RapidXML\rapidxml.hpp" />

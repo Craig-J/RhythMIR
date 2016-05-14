@@ -57,6 +57,9 @@
     <ClCompile Include="RhythMIR_filesystem.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="RhythMIR_lib_interface.cpp">
+      <Filter>Application\MIR Library Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RhythMIR_application.h">

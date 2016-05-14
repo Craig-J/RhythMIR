@@ -72,7 +72,7 @@ Aubio::Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling) :
 
 	// Onset
 	settings_.onset_function_count = 1;
-	Function default_function;
+	FFTFunction default_function;
 	default_function.name = "complex";
 	default_function.window_size = 512;
 	onset_functions_.push_back(default_function);
@@ -94,7 +94,7 @@ Aubio::~Aubio()
 	canceling_ = true;
 }
 
-void Aubio::UpdateGUI()
+void Aubio::MainWindow()
 {
 	if (generating_)
 	{
@@ -605,12 +605,12 @@ void Aubio::GeneratingWindow()
 			beatmap_->sections_->front().offset = sf::milliseconds(gui_.selected_offset);
 			if (!settings_.test_mode)
 			{
-				SaveBeatmap(*beatmap_); // Saves the beatmap to disk
+				Filesystem::SaveBeatmap(*beatmap_); // Saves the beatmap to disk
 			}
 			beats_.clear();
 			gui_.Reset();
 			generating_ = false;
-			beatmap_ = nullptr; // Don't delete the beatmap we just made. Just reset this objects pointer.
+			beatmap_.reset(); // Don't delete the beatmap we just made. Just reset this objects pointer.
 		}
 	}
 	ImGui::End();
@@ -672,11 +672,11 @@ void Aubio::FilterSource(fvec_t * _source_buffer, std::vector<fvec_t*>& _filter_
 	}
 }
 
-Beatmap* Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description)
+BeatmapPtr Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description)
 {
 	if (!generating_)
 	{
-		Beatmap* beatmap = new Beatmap(_song, _beatmap_name, _beatmap_description, (PLAYMODE)settings_.play_mode);
+		auto beatmap = std::make_shared<Beatmap>(_song, _beatmap_name, _beatmap_description, (PLAYMODE)settings_.play_mode);
 
 		beatmap->LoadMusic();
 
@@ -687,7 +687,7 @@ Beatmap* Aubio::GenerateBeatmap(const Song& _song, std::string _beatmap_name, st
 	return nullptr;
 }
 
-void Aubio::ThreadFunction(Beatmap* _beatmap)
+void Aubio::ThreadFunction(BeatmapPtr _beatmap)
 {
 	generating_ = true;
 	bool trained = !settings_.train_functions;
@@ -727,7 +727,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		case 0:
 			{
 				_beatmap->play_mode_ = SINGLE;
-				onset_objects_ = std::vector<OnsetObject>(1, { onset_functions_.front(), nullptr });
+				onset_objects_ = std::vector<OnsetObject<aubio_onset_t>>(1, { onset_functions_.front(), nullptr });
 				settings_.onset_function_count = 1;
 			}
 			break;
@@ -741,7 +741,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 					_beatmap->play_mode_ = VISUALIZATION;
 
 				settings_.onset_function_count = settings_.filter_count;
-				onset_objects_ = std::vector<OnsetObject>(settings_.filter_count, { onset_functions_.front(), nullptr });
+				onset_objects_ = std::vector<OnsetObject<aubio_onset_t>>(settings_.filter_count, { onset_functions_.front(), nullptr });
 				settings_.filterbank_window_size = onset_functions_[0].window_size;
 			}
 			break;
@@ -749,7 +749,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			{
 				_beatmap->play_mode_ = VISUALIZATION;
 				settings_.onset_function_count = 8;
-				onset_objects_ = std::vector<OnsetObject>(8, { onset_functions_.front(), nullptr });
+				onset_objects_ = std::vector<OnsetObject<aubio_onset_t>>(8, { onset_functions_.front(), nullptr });
 				onset_objects_[0].function.name = "energy";
 				onset_objects_[1].function.name = "hfc";
 				onset_objects_[2].function.name = "complex";
@@ -763,7 +763,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		}
 
 		// Tempo
-		auto tempo_object = new_aubio_tempo(tempo_function_.name,
+		auto tempo_object = new_aubio_tempo(const_cast<char_t*>(tempo_function_.name.c_str()),
 											tempo_function_.window_size,
 											settings_.hop_size,
 											settings_.samplerate);
@@ -781,7 +781,7 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 		// Onset
 		for (auto &object : onset_objects_)
 		{
-			object.object = new_aubio_onset(object.function.name,
+			object.object = new_aubio_onset(const_cast<char_t*>(object.function.name.c_str()),
 											object.function.window_size,
 											settings_.hop_size,
 											settings_.samplerate);
@@ -937,202 +937,6 @@ void Aubio::ThreadFunction(Beatmap* _beatmap)
 			_beatmap = nullptr;
 		}
 	}
-}
-
-Beatmap* Aubio::LoadBeatmap(const Beatmap& _beatmap, bool _partial_load)
-{
-	using namespace rapidxml;
-	
- 	std::ifstream input_stream(_beatmap.full_file_path() + ".RhythMIR");
-	if (input_stream)
-	{
-		file<> file(input_stream);
-		xml_document<> doc;
-		doc.parse<parse_no_data_nodes>(file.data());
-
-		xml_node<>* beatmap_node = doc.first_node("beatmap");
-
-		if (beatmap_node != 0)
-		{
-			Song song = Song(beatmap_node->first_attribute("artist")->value(),
-							 beatmap_node->first_attribute("title")->value(),
-							 beatmap_node->first_attribute("source")->value());
-			PLAYMODE mode;
-			switch (std::stoi(beatmap_node->first_attribute("type")->value()))
-			{
-			case 0:
-				mode = VISUALIZATION;
-				break;
-			case 1:
-				mode = SINGLE;
-				break;
-			case 4:
-				mode = FOURKEY;
-				break;
-			case 88:
-				mode = PIANO;
-				break;
-			default:
-				Log::Error("Unknown beatmap type.");
-				mode = UNKNOWN;
-				break;
-			}
-			xml_node<>* description_node = beatmap_node->first_node("description");
-			std::string description;
-			if(description_node)
-				description = description_node->value();
-			Beatmap* beatmap = new Beatmap(song, _beatmap.name_, description, mode);
-
-			if (!_partial_load)
-			{
-				xml_node<>* beats_node = beatmap_node->first_node("beats");
-				if (beats_node)
-				{
-					beatmap->beats_.reset(new std::queue<Note>());
-
-					xml_node<>* beat_node = beats_node->first_node("beat");
-					while (beat_node)
-					{
-						beatmap->beats_->emplace(sf::milliseconds(std::stoi(beat_node->first_attribute("offset")->value())));
-						beat_node = beat_node->next_sibling();
-					}
-				}
-
-				xml_node<>* section_node = beatmap_node->first_node("section");
-
-				while (section_node)
-				{
-					beatmap->sections_.reset(new std::vector<TimingSection>());
-					// Append section
-					beatmap->sections_->emplace_back(TimingSection(std::stof(section_node->first_attribute("BPM")->value()),
-																   sf::milliseconds(std::stoi(section_node->first_attribute("offset")->value()))));
-					// Get this notequeue vector. Will always be the last section.
-					auto &notequeue_vector = beatmap->sections_->back().notes;
-
-					// Reserve space in the notequeue vector if we know the mode.
-					if (mode != UNKNOWN)
-					{
-						notequeue_vector.reserve(mode);
-					}
-					else
-					{
-						Log::Important("Notequeue vector could not be pre-allocated as beatmap type is unknown.");
-					}
-
-					xml_node<>* notequeue_node = section_node->first_node("notequeue");
-					while (notequeue_node)
-					{
-						//auto frequency_cutoff = stof(notequeue_node->first_attribute("frequency_cutoff")->value());
-						notequeue_vector.emplace_back(); // Construct a notequeue at the back of the vector for this node
-						auto &notequeue = notequeue_vector.back();
-
-						xml_node<>* note_node = notequeue_node->first_node("note");
-						while (note_node)
-						{
-							notequeue.emplace(sf::milliseconds(std::stoi(note_node->first_attribute("offset")->value())));
-							note_node = note_node->next_sibling("note");
-						}
-
-						notequeue_node = notequeue_node->next_sibling("notequeue");
-					}
-
-					section_node = section_node->next_sibling("section");
-				}
-			}
-			doc.clear();
-			return beatmap;
-		}
-		else
-		{
-			Log::Error("No beatmap node found. Format of input file is incorrect.");
-			return nullptr;
-		}
-	}
-	else
-	{
-		Log::Error("Beatmap file could not be opened.");
-		return nullptr;
-	}
-}
-
-void Aubio::SaveBeatmap(const Beatmap& _beatmap)
-{
-	using namespace rapidxml;
-
-	xml_document<> doc;
-
-	xml_node<>* decl = doc.allocate_node(node_declaration);
-	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
-	decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
-	doc.append_node(decl);
-
-	xml_node<>* root_node = doc.allocate_node(node_element, "beatmap");
-	root_node->append_attribute(doc.allocate_attribute("artist", _beatmap.song_.artist_.c_str()));
-	root_node->append_attribute(doc.allocate_attribute("title", _beatmap.song_.title_.c_str()));
-	root_node->append_attribute(doc.allocate_attribute("source", _beatmap.song_.source_file_name_.c_str()));
-	auto type = doc.allocate_string(std::to_string(_beatmap.play_mode_).c_str());
-	root_node->append_attribute(doc.allocate_attribute("type", type));
-	doc.append_node(root_node);
-
-	if (_beatmap.description_ != std::string())
-	{
-		auto description = doc.allocate_string(_beatmap.description_.c_str());
-		xml_node<>* description_node = doc.allocate_node(node_element, "description", description);
-		root_node->append_node(description_node);
-	}
-
-	if (_beatmap.beats_)
-	{
-		xml_node<>* beats_node = doc.allocate_node(node_element, "beats");
-
-		auto beatqueue = *_beatmap.beats_;
-		while (!beatqueue.empty())
-		{
-			xml_node<>* beat_node = doc.allocate_node(node_element, "beat");
-			auto beat_offset = doc.allocate_string(std::to_string(beatqueue.front().offset.asMilliseconds()).c_str());
-			beat_node->append_attribute(doc.allocate_attribute("offset", beat_offset));
-			beatqueue.pop();
-			beats_node->append_node(beat_node);
-		}
-
-		root_node->append_node(beats_node);
-	}
-
-	if (_beatmap.sections_)
-	{
-		for (auto section : *_beatmap.sections_)
-		{
-			xml_node<>* section_node = doc.allocate_node(node_element, "section");
-			auto bpm = doc.allocate_string(std::to_string(section.BPM).c_str());
-			auto offset = doc.allocate_string(std::to_string(section.offset.asMilliseconds()).c_str());
-			section_node->append_attribute(doc.allocate_attribute("BPM", bpm));
-			section_node->append_attribute(doc.allocate_attribute("offset", offset));
-
-			for (auto& notequeue : section.notes)
-			{
-				xml_node<>* notequeue_node = doc.allocate_node(node_element, "notequeue");
-
-				while (!notequeue.empty())
-				{
-					xml_node<>* note_node = doc.allocate_node(node_element, "note");
-					auto note_offset = doc.allocate_string(std::to_string(notequeue.front().offset.asMilliseconds()).c_str());
-					note_node->append_attribute(doc.allocate_attribute("offset", note_offset));
-					notequeue.pop();
-					notequeue_node->append_node(note_node);
-				}
-
-				section_node->append_node(notequeue_node);
-			}
-
-			root_node->append_node(section_node);
-		}
-	}
-
-	std::ofstream output_stream(_beatmap.full_file_path() + ".RhythMIR");
-
-	output_stream << doc;
-	output_stream.close();
-	doc.clear();
 }
 
 void Aubio::GUI::Reset()

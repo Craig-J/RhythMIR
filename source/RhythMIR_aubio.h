@@ -1,14 +1,11 @@
 #pragma once
 
 #include "RhythMIR_lib_interface.h"
-
+#include "RhythMIR_filesystem.h"
 
 #include <ImGui/imgui.h>
-
 #include <DspFilters/Dsp.h>
-
 #include <aubio/aubio.h>
-
 
 #include <Agnostic/math.h>
 #include <Agnostic/string.h>
@@ -20,18 +17,16 @@ using agn::Log;
 #include <thread>
 #include <mutex>
 
-class Aubio
+class Aubio : public MIRLibrary
 {
 public:
 
 	Aubio(std::atomic<bool>& _generating, std::atomic<bool>& _canceling);
 	~Aubio();
 
-	void UpdateGUI();
+	void MainWindow();
 	void ExtraWindow();
-	Beatmap* GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description = std::string());
-	Beatmap* LoadBeatmap(const Beatmap& _beatmap, bool _partial_load);
-	void SaveBeatmap(const Beatmap& _beatmap);
+	BeatmapPtr GenerateBeatmap(const Song& _song, std::string _beatmap_name, std::string _beatmap_description = std::string());
 
 private:
 
@@ -87,12 +82,12 @@ private:
 		void Reset();
 	} gui_;
 
-	std::unique_ptr<Beatmap> beatmap_;
+	BeatmapPtr beatmap_;
 
-	Function tempo_function_;
+	FFTFunction tempo_function_;
 	std::vector<TempoEstimate> beats_;
 
-	std::vector<Function> onset_functions_;
+	std::vector<FFTFunction> onset_functions_;
 	std::vector<OnsetObject<aubio_onset_t>> onset_objects_;
 
 	aubio_source_t* source_;
@@ -102,7 +97,7 @@ private:
 	std::atomic<float> progress_;
 	std::thread* aubio_thread_;
 
-	void ThreadFunction(Beatmap*);
+	void ThreadFunction(BeatmapPtr);
 
 	void SettingsWindow();
 	void GeneratingWindow();

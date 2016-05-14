@@ -60,7 +60,7 @@ namespace
 
 MenuState::MenuState(AppStateMachine& _state_machine,
 					 UniqueStatePtr<AppState>& _state,
-					 std::unique_ptr<Beatmap> _beatmap) :
+					 BeatmapPtr _beatmap) :
 	AppState(_state_machine, _state),
 	loaded_beatmap_(std::move(_beatmap))
 {}
@@ -104,7 +104,7 @@ void MenuState::InitializeState()
 	// Song list and beatmap objects
 	selected_.context = SONGS;
 
-	LoadSongList();
+	LoadSongList(songs_);
 	selected_.song = songs_.begin();
 
 	if (!songs_.empty())
@@ -122,7 +122,7 @@ void MenuState::InitializeState()
 	if (machine_.display_hud_ == false)
 		machine_.display_hud_ = true;
 	gui_ = {}; // Default initialize everything
-	gui_.main_window_ = true;
+	gui_.main_window = true;
 
 	// Play Settings initialization
 	display_settings_window_ = false;
@@ -154,21 +154,21 @@ void MenuState::TerminateState()
 	sfx::Global::TextureManager.Unload(textures_);
 	textures_.clear();
 
-	for (auto &song : songs_)
+	for (auto song = songs_.begin(); song != songs_.end(); ++song)
 	{
-		if (song.first.source_file_name_ != ".test") // skip test songs
+		if (song->first.source_file_name_ != ".test") // skip test songs
 		{
 			// Only refresh the beatmap list if beatmaps isn't empty
 			// Not doing this causes songs empty beatmap lists to overwrite when a song hasn't been interacted with and we change state
-			if (!song.second.empty())
+			if (!song->second.empty())
 			{
-				LoadBeatmapList(song.first); // Preserve unloaded beatmaps lists by loading them before saving
-				SaveBeatmapList(song.first);
+				LoadBeatmapList(song); // Preserve unloaded beatmaps lists by loading them before saving
+				SaveBeatmapList(song);
 			}
 		}
 	}
 
-	SaveSongList();
+	SaveSongList(songs_);
 	SaveGameSettings(game_settings_);
 }
 
@@ -183,7 +183,7 @@ bool MenuState::Update(const float _delta_time)
 		context_vertical_cuttoff = context_vertical_padding + window_size.y * 0.08f;
 	}
 	SettingsMenu();
-	bool running = UpdateGUI();
+	bool running = MainWindow();
 	if (!gui_.input_focus)
 	{
 		if (sfx::Global::Input.KeyPressed(sf::Keyboard::Num1))
@@ -361,7 +361,7 @@ void MenuState::ReloadSkin()
 	textures_ = sfx::TextureFileVector
 	{
 		{ machine_.background_texture_, Skin("menu_background.jpg") },
-		{ selector_texture_, Skin("skins/default/selector.png") }
+		{ selector_texture_, Skin("selector.png") }
 	};
 	sfx::Global::TextureManager.Load(textures_);
 	machine_.background_.setTexture(*machine_.background_texture_);
@@ -475,11 +475,11 @@ void MenuState::SettingsMenu()
 	}
 }
 
-bool MenuState::UpdateGUI()
+bool MenuState::MainWindow()
 {
 	ImGui::SetNextWindowPos(ImVec2(beatmaps_x + (context_horizontal_spacing * 0.7f), context_vertical_cuttoff - window_size.y * 0.04f));
 	ImGui::SetNextWindowSize(ImVec2(window_size.x - (beatmaps_x + (context_horizontal_spacing * 0.7f) + 10), window_size.y - (context_vertical_cuttoff - window_size.y * 0.04f + 10)));
-	if (!ImGui::Begin("RhythMIR GUI", &gui_.main_window_, ImVec2(0, 0), -1.f,
+	if (!ImGui::Begin("RhythMIR GUI", &gui_.main_window, ImVec2(0, 0), -1.f,
 					  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
 					  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
@@ -569,7 +569,7 @@ bool MenuState::UpdateGUI()
 					auto song_to_add = Song(gui_.song_artist, gui_.song_title, gui_.song_source);
 					if (songs_.count(song_to_add) == 0)
 					{
-						if (boost::filesystem::exists(song_directory + song_to_add.source_file_name_))
+						if (boost::filesystem::exists(Filesystem::current_song_path + song_to_add.source_file_name_))
 						{
 							auto pair = songs_.emplace(song_to_add, std::set<Beatmap>());
 							if (pair.second)
@@ -578,11 +578,11 @@ bool MenuState::UpdateGUI()
 								song_vertical_offset = std::distance(songs_.begin(), selected_.song) * song_vertical_spacing;
 								selected_.beatmap = selected_.song->second.begin();
 
-								SaveSongList(song_list_default_filename);
+								SaveSongList(songs_);
 
 								Log::Message("Creating directory " + song_to_add.relative_path() + ".");
 								boost::filesystem::create_directory(song_to_add.relative_path());
-								boost::filesystem::rename(song_directory + song_to_add.source_file_name_, song_to_add.full_file_path());
+								boost::filesystem::rename(Filesystem::current_song_path + song_to_add.source_file_name_, song_to_add.full_file_path());
 							}
 							else
 							{
@@ -647,7 +647,7 @@ bool MenuState::UpdateGUI()
 					{
 						if (gui_.song_to_delete->first == loaded_beatmap_->song_)
 						{
-							loaded_beatmap_.reset(nullptr);
+							loaded_beatmap_.reset();
 						}
 					}
 					if (also_delete_from_disk)
@@ -783,7 +783,7 @@ bool MenuState::UpdateGUI()
 							selected_.beatmap = selected_.song->second.erase(selected_.beatmap);
 						if (!selected_.song->second.empty())
 							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
-						SaveBeatmapList(selected_.song->first);
+						SaveBeatmapList(selected_.song);
 						LoadBeatmap(*selected_.beatmap);
 
 						ImGui::CloseCurrentPopup();
@@ -844,7 +844,7 @@ bool MenuState::UpdateGUI()
 							selected_.beatmap = --selected_.song->second.end();
 							selected_.song->second.erase(selected_.beatmap);
 
-							SaveBeatmapList(selected_.song->first);
+							SaveBeatmapList(selected_.song);
 						}
 						loaded_beatmap_.reset();
 						beatmaps_vertical_offset = 0.0f;
@@ -894,14 +894,14 @@ bool MenuState::UpdateGUI()
 					{
 						if (selected_.song->second.count(Beatmap(selected_.song->first, gui_.beatmap_name)) == 0)
 						{
-							loaded_beatmap_.reset(aubio_->GenerateBeatmap(selected_.song->first, gui_.beatmap_name, gui_.beatmap_description));
+							loaded_beatmap_ = aubio_->GenerateBeatmap(selected_.song->first, gui_.beatmap_name, gui_.beatmap_description);
 							auto pair = selected_.song->second.emplace(selected_.song->first, gui_.beatmap_name);
 							if (pair.second)
 							{
 								selected_.beatmap = pair.first;
 								beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
 
-								SaveBeatmapList(selected_.song->first);
+								SaveBeatmapList(selected_.song);
 							}
 							else
 							{
@@ -922,7 +922,7 @@ bool MenuState::UpdateGUI()
 				ImGui::SetTooltip("Generates a beatmap for the selected song using current settings .");
 		}
 
-		aubio_->UpdateGUI();
+		aubio_->MainWindow();
 
 		ImGui::Separator();
 		ImGui::TextColored(ImColor(255, 69, 0), "Play UI");
@@ -1010,7 +1010,7 @@ void MenuState::GetSongBeatmaps()
 {
 	if (selected_.song->second.empty() && selected_.song->first.source_file_name_ != ".test")
 	{
-		LoadBeatmapList(selected_.song->first);
+		LoadBeatmapList(selected_.song);
 	}
 	selected_.beatmap = selected_.song->second.begin();
 	beatmaps_vertical_offset = 0.0f;
@@ -1020,13 +1020,13 @@ void MenuState::LoadBeatmap(const Beatmap& _beatmap, bool _partial_load, bool _f
 {
 	if (!loaded_beatmap_ || *loaded_beatmap_ != _beatmap || _force_load)
 	{
-		loaded_beatmap_.reset(aubio_->LoadBeatmap(_beatmap, _partial_load));
+		loaded_beatmap_ = Filesystem::LoadBeatmap(_beatmap, _partial_load);
 	}
 }
 
 void MenuState::SaveBeatmap(const Beatmap& _beatmap)
 {
-	aubio_->SaveBeatmap(_beatmap);
+	Filesystem::SaveBeatmap(_beatmap);
 }
 
 void MenuState::GenerateTestBeatmap()
