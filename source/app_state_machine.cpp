@@ -5,11 +5,11 @@
 
 #include <SFML_Extensions/global.h> // Access to global resource managers
 
-AppStateMachine::AppStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font, bool& _display_hud) :
+AppStateMachine::AppStateMachine(sf::RenderWindow& _window, sfx::FrameClock& _clock, sf::Font& _font, sfx::AppSettings& _settings) :
 	window_(_window),
 	clock_(_clock),
 	font_(_font),
-	display_hud_(_display_hud)
+	settings_(_settings)
 {
 }
 

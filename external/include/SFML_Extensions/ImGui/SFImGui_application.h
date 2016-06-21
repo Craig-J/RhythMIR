@@ -8,6 +8,8 @@
 #include <SFML_Extensions/ImGui/console.h>
 #include <ImGui/imgui.h>
 
+#include "../settings.h"
+
 namespace sfx
 {
 	class ImGuiApplication
@@ -24,7 +26,7 @@ namespace sfx
 		sfx::FrameClock clock_;
 		sf::RenderWindow& window_;
 		sf::Font font_;
-		bool display_hud_;
+		AppSettings settings_;
 
 	private:
 
@@ -41,6 +43,5 @@ namespace sfx
 		SystemHUD hud_;
 		bool display_test_window_;
 		bool running_;
-		bool unlimited_framerate_;
 	};
 }

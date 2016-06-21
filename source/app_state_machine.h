@@ -4,6 +4,7 @@
 
 #include <SFML_Extensions/System/frame_clock.h>
 #include <SFML_Extensions/Graphics/sprite.h>
+#include <SFML_Extensions/settings.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -12,7 +13,7 @@ class AppStateMachine
 {
 public:
 
-	AppStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&, bool&);
+	AppStateMachine(sf::RenderWindow&, sfx::FrameClock&, sf::Font&, sfx::AppSettings&);
 	~AppStateMachine() {}
 
 	bool Start();
@@ -40,7 +41,7 @@ private:
 	sf::RenderWindow& window_;
 	sfx::FrameClock& clock_;
 	sf::Font& font_;
-	bool& display_hud_;
+	sfx::AppSettings& settings_;
 
 	sfx::TexturePtr loading_background_texture_;
 	sfx::TexturePtr background_texture_;

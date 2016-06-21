@@ -124,6 +124,7 @@
     <ClInclude Include="include\SFML\Window\Window.hpp" />
     <ClInclude Include="include\SFML\Window\WindowHandle.hpp" />
     <ClInclude Include="include\SFML\Window\WindowStyle.hpp" />
+    <ClInclude Include="settings.h" />
     <ClInclude Include="System\application.h" />
     <ClInclude Include="System\clock.h" />
     <ClInclude Include="System\frame_clock.h" />

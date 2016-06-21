@@ -398,6 +398,9 @@
     <ClInclude Include="Graphics\hsl.h">
       <Filter>SFML_Extensions %28sfx%29\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="settings.h">
+      <Filter>SFML_Extensions %28sfx%29</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\SFML\Graphics\Rect.inl">

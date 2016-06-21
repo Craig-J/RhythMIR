@@ -67,6 +67,7 @@ MenuState::MenuState(AppStateMachine& _state_machine,
 
 void MenuState::InitializeState()
 {
+	machine_.settings_.limit_framerate_ = true;
 	ReloadSkin();
 
 	// Calculate various layout stuff
@@ -119,10 +120,11 @@ void MenuState::InitializeState()
 	loaded_beatmap_ = nullptr;
 
 	// GUI initialization
-	if (machine_.display_hud_ == false)
-		machine_.display_hud_ = true;
+	if (machine_.settings_.display_hud_ == false)
+		machine_.settings_.display_hud_ = true;
 	gui_ = {}; // Default initialize everything
 	gui_.main_window = true;
+	gui_.deleting_enabled = true;
 
 	// Play Settings initialization
 	display_settings_window_ = false;
@@ -176,7 +178,7 @@ bool MenuState::Update(const float _delta_time)
 {
 	if (sfx::Global::Input.KeyPressed(sf::Keyboard::F10))
 	{
-		if (machine_.display_hud_)
+		if (machine_.settings_.display_hud_)
 			context_vertical_padding = window_size.y * 0.2f;
 		else
 			context_vertical_padding = 10;
@@ -285,10 +287,10 @@ bool MenuState::Update(const float _delta_time)
 			break;
 		}
 
-		if (sfx::Global::Input.KeyPressed(sf::Keyboard::F9) && sfx::Global::Input.KeyDown(sf::Keyboard::LControl))
+		/*if (sfx::Global::Input.KeyPressed(sf::Keyboard::F9) && sfx::Global::Input.KeyDown(sf::Keyboard::LControl))
 		{
 			gui_.deleting_enabled = !gui_.deleting_enabled;
-		}
+		}*/
 	}
 	return running;
 }
@@ -784,7 +786,7 @@ bool MenuState::MainWindow()
 						if (!selected_.song->second.empty())
 							beatmaps_vertical_offset = std::distance(selected_.song->second.begin(), selected_.beatmap) * beatmaps_vertical_spacing;
 						SaveBeatmapList(selected_.song);
-						LoadBeatmap(*selected_.beatmap);
+						loaded_beatmap_.reset();
 
 						ImGui::CloseCurrentPopup();
 					}

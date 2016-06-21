@@ -127,7 +127,8 @@ void GameState::InitializeState()
 	beatmap_->music_->setPlayingOffset(sf::Time::Zero);
 	srand(time(0));
 
-	machine_.display_hud_ = false;
+	machine_.settings_.limit_framerate_ = false;
+	machine_.settings_.display_hud_ = false;
 
 	switch (beatmap_->play_mode_)
 	{

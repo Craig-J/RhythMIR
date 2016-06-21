@@ -10,20 +10,22 @@ namespace sfx
 		font_(),
 		hud_(clock_, font_),
 		console_(_window),
-		display_hud_(true),
-		display_test_window_(false),
-		unlimited_framerate_(false)
+		display_test_window_(false)
 	{
 		ImGui::SFML::SetRenderTarget(window_);
 		ImGui::SFML::InitImGuiRendering();
 		ImGui::SFML::SetWindow(window_);
 		ImGui::SFML::InitImGuiEvents();
-		window_.setFramerateLimit(60);
+
+		settings_.limit_framerate_ = true;
+		settings_.display_hud_ = true;
+		window_.setVerticalSyncEnabled(settings_.limit_framerate_);
 	}
 
 	void ImGuiApplication::Run()
 	{
 		running_ = Initialize();
+		static bool vsync = settings_.limit_framerate_;
 		while (running_)
 		{
 			clock_.beginFrame();
@@ -33,19 +35,24 @@ namespace sfx
 			EventLoop();
 			if (Global::Input.KeyPressed(sf::Keyboard::F7))
 			{
-				unlimited_framerate_ = !unlimited_framerate_;
-				if(unlimited_framerate_)
+				settings_.limit_framerate_ = !settings_.limit_framerate_;
+				/*if (unlimited_framerate_)
 					window_.setFramerateLimit(0);
 				else
-					window_.setFramerateLimit(60);
+					window_.setFramerateLimit(60);*/
 			}
 			if (Global::Input.KeyPressed(sf::Keyboard::F10))
 			{
-				display_hud_ = !display_hud_;
+				settings_.display_hud_ = !settings_.display_hud_;
 			}
 			if (Global::Input.KeyPressed(sf::Keyboard::F11))
 			{
 				display_test_window_ = !display_test_window_;
+			}
+			if (vsync != settings_.limit_framerate_)
+			{
+				vsync = settings_.limit_framerate_;
+				window_.setVerticalSyncEnabled(settings_.limit_framerate_);
 			}
 			if (running_)
 			{
@@ -55,10 +62,10 @@ namespace sfx
 				{
 					window_.clear();
 					Render();
-					if (display_hud_)
+					if (settings_.display_hud_)
 					{
 						window_.draw(hud_);
-						console_.Draw("Console", &display_hud_);
+						console_.Draw("Console", &settings_.display_hud_);
 					}
 					
 					ImGui::Render();
