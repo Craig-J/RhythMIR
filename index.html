@@ -1,19 +1,22 @@
 <!doctype html>
 <html>
+
 <head>
+
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>RhythMIR</title>
+  <link rel="shortcut icon" href="favicon.ico" />
+  <meta name="description" content="RhythMIR: Automatic Content Generator for Music Games">
+  <meta name="thumbnail" content="images/avatar.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
   <link href='https://fonts.googleapis.com/css?family=Play:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
-  <link rel="stylesheet" href="stylesheets/github-dark.css">
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="stylesheets/normalize.css">
+  <link rel="stylesheet" href="stylesheets/stylesheet.css">
+  <script src="https://use.fontawesome.com/4ce13a966f.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script type="text/javascript" src="javascripts/script.js"></script>
-
-  <title>RhythMIR</title>
-  <meta name="description" content="Digital Music Information Retrieval for Computer Games">
-
-  <meta name="viewport" content="width=device-width,initial-scale=1">
 
 </head>
 
@@ -21,78 +24,125 @@
 
   <div class="wrapper">
     <header>
-      <h1 class="title">RhythMIR</h1>
+      <h1>RhythMIR</h1>
     </header>
+
     <div id="container">
-      <p class="tagline">Digital Music Information Retrieval for Computer Games</p>
-      <div id="main" role="main">
+      <p class="tagline">Automatic Content Generation Tool for Music/Rhythm Games</p>
+      <div id="main">
+
         <div class="download-bar">
-        <div class="inner">
-          <a href="https://github.com/Craig-J/RhythMIR/releases/latest" class="download-button zip"><span>Latest Release</span></a>
-          <a href="http://craigjeffrey.net/" class="back-button">Home - craigjeffrey.net</a>
-          <a href="https://github.com/Craig-J/RhythMIR" class="code">View RhythMIR on GitHub</a>
+          <ul>
+            <li>
+              <a href="http://craigjeffrey.net/"><img class="avatar" src="images/avatar.png"> craigjeffrey.net</a>
+            </li>
+            <li>
+              <a href="https://github.com/Craig-J/RhythMIR" target="_blank"><i class="fa fa-github"></i> GitHub</a>
+            </li>
+            <li>
+              <a href="https://github.com/Craig-J/RhythMIR/releases/latest" target="_blank"><i class="fa fa-download"></i> Latest Release</a>
+            </li>
+          </ul>
+          <span class="blc"></span><span class="trc"></span>
         </div>
-        <span class="blc"></span><span class="trc"></span>
+
+        <div class="navigation-bar">
+          <ul>
+            <li>
+              <a href="#home"><i class="fa fa-home"></i></a>
+            </li>
+            <li>
+              <a href="#developer">Development</a>
+            </li>
+            <li>
+              <a href="#dissertation">Dissertation</a>
+            </li>
+          </ul>
         </div>
-        <article class="markdown-body">
 
-<h2>NOTE: Website still under development. - 9th May 2016.</h2>
+        <article class="main-body">
 
-<h1><a id="what-is-rhythmir" class="anchor" href="#what-is-rhythmir" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is RhythMIR?</h1>
-<p>
-  RhythMIR is a project by <a href="http://craigjeffrey.net/">Craig Jeffrey</a> which uses techniques of <a href="https://en.wikipedia.org/wiki/Music_information_retrieval">Music Information Retrieval</a> to generate metadata files for music tracks.
-  RhythMIR is also a simple rhythm game with gameplay generated from these metadata files.
-  RhythMIR is currently in development as Craig's Honours Project for the last year of <a href="http://www.abertay.ac.uk/studying/ug/comopgamestech/">Computer Games Technology at Abertay University</a>.
-</p>
+          <div id="developer">
+            <h5>Prerequisites</h5>
+            <p>
+            </p>
 
+            <hr>
 
-<hr>
-<h2>
-<a id="quick-install" class="anchor" href="#quick-install" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Install</h2>
+            <h5>Compiling</h5>
+            <p>
+            </p>
+          </div>
 
-<p>
-  Download RhythMIR.zip using the latest releases button on the bar at the top of the page.
-  You can then run RhythMIR.exe from this folder.
-  Note that no songs are included with the download, you must add your own.
-  They must be .wav format.
-</p>
+          <div id="dissertation">
+            <h5>Digital Music Information Retrieval for Computer Games</h5>
+            <p>
+              13263 words.
+              62 pages.
+              22 figures.
+              7 tables.
+              14 constant tempo songs analysed to discover their BPMs.
+              2 case studies done to analyse creating gameplay automatically from music files.
+            </p>
 
+            <a href="Dissertation.pdf"><i class="fa fa-file-pdf-o"></i> Download "Digital Music Information Retrieval for Computer Games" (24.7MB)</a>
+            <div class="pdf-container">
+            <object data="Dissertation.pdf" type="application/pdf">
+              Your browser does not support embedding. Please download to view.
+            </object>
+            </div>
+          </div>
 
-<h2>
-<a id="tutorial" class="anchor" href="#tutorial" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial</h2>
+          <div id="home">
+            <h5>What is RhythMIR?</h5>
+            <p>
+              RhythMIR is both an automatic content generation tool and a rhythm game.
+              <ul>
+                <li>
+                  Input your own music (only .wav format is supported currently).
+                </li>
+                <li>
+                  Automatic timing (tempo estimation) - discover beats-per-minute of the music.
+                </li>
+                <li>
+                  Beatmap generation (onset detection) - create gameplay with notes annotated from the music.
+                </li>
+                <li>
+                  Play in sync with the music!
+                </li>
+              </ul>
+            </p>
 
+            <hr>
 
-<hr>
-<h2>
-<a id="project-report" class="anchor" href="#project-report" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Project Report</h2>
-<a href="Dissertation.pdf">Dissertation (24.7MB)</a>
+            <div class="iframe-wrapper">
+              <iframe width="1280" height="720" src="https://www.youtube.com/embed/WPfwNWcrB7w" allowfullscreen></iframe>
+            </div>
 
+            <hr>
 
-<hr>
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+            <h5>Quick Install</h5>
+            <p>
+              Download RhythMIR.zip using the latest releases button on the bar at the top of the page. You can then run RhythMIR.exe from
+              this folder. Note that no songs are included with the download, you must add your own. Currently only .wav format is supported.
+            </p>
+          </div>
 
-<p>
-  You can contact me at <a href="mailto:craigjeffrey3@gmail.com">craigjeffrey3@gmail.com</a>.
-</p>
+          <hr>
 
+          <h5><a id="support-or-contact" href="#support-or-contact" ></a>Support or Contact</h5>
+          <p>
+            Contact me at <a href="mailto:craigjeffrey3@gmail.com">craigjeffrey3@gmail.com</a>.
+          </p>
 
-<h3>
-<a id="copyrightlicense" class="anchor" href="#copyrightlicense" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Copyright/License</h3>
-
-<p>
-  RhythMIR is free and open source under the MIT License.
-</p>
-
+          <h5><a id="copyrightlicense" href="#copyrightlicense" ></a>Copyright/License</h5>
+          <p>
+            RhythMIR is free and open source under the MIT License.
+          </p>
 
         </article>
       </div>
     </div>
-    <footer>
-      <div class="owner">
-      <p><a href="https://github.com/Craig-J" class="avatar"><img src="images/avatar.png"></a><a href="https://github.com/Craig-J">Craig-J</a> maintains <a href="https://github.com/Craig-J/RhythMIR">RhythMIR</a></p>
-      </div>
-    </footer>
   </div>
   <div class="current-section">
     <a href="#top">Scroll to top</a>
@@ -100,6 +150,6 @@
     <p class="name"></p>
   </div>
 
-
 </body>
+
 </html>
