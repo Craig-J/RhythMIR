@@ -141,6 +141,7 @@ p.tagline {
   margin: 0 -35px;
   position: relative;
   text-align: center;
+  z-index: 5;
 }
 
 .navigation-bar {
