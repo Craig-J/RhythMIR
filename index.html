@@ -63,14 +63,42 @@
         <article class="main-body">
 
           <div id="developer">
-            <h5>Prerequisites</h5>
+            <h5>Prerequisites/Dependencies</h5>
             <p>
+              The only prerequisite missing from the GitHub repository is Boost filesystem.
+              The version of boost used originally is <a href="http://www.boost.org/users/history/version_1_60_0.html">Boost 1.60.0</a> however latest versions will likely work as well.
+              Boost will be removed as a dependency when the filesystem library becomes standard.<br>
+              Other dependencies:
+              <ul>
+                <li>
+                  <a href="http://aubio.org/">aubio</a> - an audio labelling library licensed under the GNU/GPL.
+                </li>
+                <li>
+                  <a href="https://github.com/ocornut/imgui">dear imgui</a> - a GUI library licensed under the MIT license.
+                </li>
+                <li>
+                  <a href="https://github.com/vinniefalco/DSPFilters">DSPFilters</a> - a library of digital signal processing classes licensed under the MIT license.
+                </li>
+                <li>
+                  <a href="http://rapidxml.sourceforge.net/">RapidXML</a> - an xml parser licensed under either the Boost software license or the MIT license.
+                </li>
+                <li>
+                  <a href="http://www.sfml-dev.org/">SFML</a> - a multimedia library licensed under the zlib/png license.
+                </li>
+                <li>
+                  Agnostic (no-dependency utility library) and SFML Extensions, both licensed under MIT license. (Written by me)
+                </li>
+              </ul>
+              <img class="center" src="images/dependencies.png">
             </p>
 
             <hr>
 
             <h5>Compiling</h5>
             <p>
+              Source code includes a VC++ 2015 solution. I have no plans to switch to a dedicated build tool at this time.
+              SFML and Boost binaries are precompiled with VC++ 2015 runtime and included in the repository.
+              If you wish to compile using another runtime version, these will need replaced (external/lib for boost and external/include/sfml_extensions/lib for sfml).
             </p>
           </div>
 
@@ -136,7 +164,7 @@
           <h5><a id="support-or-contact" href="#support-or-contact" ></a>Support or Contact</h5>
           <p>
             Bug reports and feature requests can be <a href="https://github.com/Craig-J/RhythMIR/issues">submitted to Github.</a>
-            Contact me at <a href="mailto:craigjeffrey3@gmail.com">craigjeffrey3@gmail.com</a>.
+            Contact me directly at <a href="mailto:craigjeffrey3@gmail.com">craigjeffrey3@gmail.com</a>.
           </p>
 
           <h5><a id="copyrightlicense" href="#copyrightlicense" ></a>Copyright/License</h5>
@@ -147,11 +175,6 @@
         </article>
       </div>
     </div>
-  </div>
-  <div class="current-section">
-    <a href="#top">Scroll to top</a>
-    <!--<a href="https://github.com/Craig-J/RhythMIR/tarball/master" class="tar">tar</a><a href="https://github.com/Craig-J/RhythMIR/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>!-->
-    <p class="name"></p>
   </div>
 
 </body>

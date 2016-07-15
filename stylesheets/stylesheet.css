@@ -90,6 +90,15 @@ iframe {
   border: 0;
 }
 
+img.center {
+  display: block;
+  margin: 0 auto;
+}
+
+p + ul {
+  margin-top: -20px;
+}
+
 
 /*
     MAIN LAYOUT
