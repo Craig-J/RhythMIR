@@ -3,3 +3,4 @@ memes/
 *.RhythMIR
 output_log.txt
 imgui.ini
+*.exe
