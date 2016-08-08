@@ -60,6 +60,12 @@
     <ClCompile Include="RhythMIR_lib_interface.cpp">
       <Filter>Application\MIR Library Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="note_object.cpp">
+      <Filter>Application\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="mapset.cpp">
+      <Filter>Application\Beatmap/Song</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RhythMIR_application.h">
@@ -109,6 +115,12 @@
     </ClInclude>
     <ClInclude Include="RhythMIR_filesystem.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="note_object.h">
+      <Filter>Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="mapset.h">
+      <Filter>Application\Beatmap/Song</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

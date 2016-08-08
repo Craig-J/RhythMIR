@@ -1,6 +1,6 @@
 #pragma once
 
-#include "beatmap.h"
+#include "mapset.h"
 
 #include <memory>
 
@@ -57,7 +57,7 @@ class MIRLibrary
 public:
 
 	virtual void SettingsWindow();
-	virtual BeatmapPtr GenerateBeatmap(const Song& _song,
+	virtual BeatmapPtr GenerateBeatmap(MapSet& _mapset,
 									   std::string _beatmap_name,
 									   std::string _beatmap_description = std::string()) = 0;
 

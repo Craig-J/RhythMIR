@@ -97,7 +97,8 @@ private:
 	std::atomic<float> progress_;
 	std::thread* aubio_thread_;
 
-	void ThreadFunction(BeatmapPtr);
+	void EstimateTempo(BeatmapPtr);
+	void GenerateBeatmap(BeatmapPtr);
 
 	void SettingsWindow();
 	void GeneratingWindow();

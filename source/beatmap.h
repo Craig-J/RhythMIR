@@ -1,32 +1,29 @@
 #pragma once
 
 #include "song.h"
-#include "game_object.h"
 
 #include <SFML_Extensions/Audio/audio_manager.h>
 #include <SFML_Extensions/Graphics/texture_manager.h>
 
 #include <queue>
+#include <map>
 
 // STORAGE RELATED OBJECTS
 // Note abtracts the properties of a note as stored by the beatmap before gameplay
+enum NoteType { SINGLE, SUSTAINED };
 struct Note
 {
-public:
-	Note(sf::Time& _offset);
+	Note(NoteType _type, sf::Time& _offset);
 
+	NoteType type;
 	sf::Time offset;
-	sf::Time duration;
 	float frequency;
+	sf::Time duration; // for sustained notes
 };
 
-// TimingSection abstracts a section of constant BPM (or the whole song if BPM doesn't vary)
-struct TimingSection
+// Section abstracts an annotated section of the music
+struct Section : public TimingSection
 {
-	TimingSection(float _BPM, sf::Time _offset);
-
-	float BPM;
-	sf::Time offset;
 	std::vector<std::queue<Note>> notes;
 };
 
@@ -43,39 +40,6 @@ enum PLAYMODE		// Generally corresponds to number of note paths for a beatmap
 	PLAYMODE_COUNT
 };
 
-// NoteObject implements a game object for notes when they are to be used to create gameplay
-class NoteObject : public GameObject
-{
-public:
-	NoteObject(sf::Vector2f& _start_position,
-			   sf::Vector2f& _target_position,
-			   sf::Time& _approach_time,
-			   sfx::TexturePtr _texture,
-			   sf::Color _color = sf::Color::White);
-
-	sf::Time offset_from_perfect;
-};
-
-// NotePath abstracts a lane where notes can be placed
-struct NotePath
-{
-	NotePath(sf::Vector2f& _start_position,
-			 sf::Vector2f& _target_position,
-			 sf::Time& _approach_time,
-			 int _accuracy,
-			 sfx::TexturePtr _note_texture,
-			 sf::Color _note_color = sf::Color::White);
-
-	sf::Vector2f start_position;
-	sf::Vector2f target_position;
-	sf::Time approach_time;
-	int accuracy;
-	sfx::TexturePtr note_texture;
-	sf::Color note_color;
-	std::vector<NoteObject> notes;
-	GameObject target;
-};
-
 // Beatmap abstracts the gameplay component of a song, including it's TimingSections and Music shared ptr
 class Beatmap
 {
@@ -86,20 +50,19 @@ public:
 			const std::string& _description = std::string(),
 			const PLAYMODE& _mode = SINGLE);
 
-	std::queue<TimingSection> CopyTimingSections() const;
-	std::unique_ptr<std::queue<Note>> CopyBeats() const;
+	const std::vector<Section>& Sections() const;
+	std::shared_ptr<std::queue<Note>> Beats() const;
+	void SetSections(const std::vector<Section>& _sections);
+	void SetBeats(const std::queue<Note>& _beats);
 
 	void LoadMusic();
 	void UnloadMusic();
 
-	const Song song_;
+	const Song& song_;
 	PLAYMODE play_mode_;
 	sfx::MusicPtr music_;
 	std::string name_;
 	std::string description_;
-
-	std::unique_ptr<std::queue<Note>> beats_;
-	std::unique_ptr<std::vector<TimingSection>> sections_;
 
 	std::string full_file_path() const
 	{
@@ -118,9 +81,14 @@ public:
 	{
 		return(std::tie(song_, name_) != std::tie(_other.song_, _other.name_));
 	}
+
+private:
+
+	std::shared_ptr<std::queue<Note>> beats_;
+	std::vector<Section> sections_;
 };
 
-using SongList = std::map<Song, std::set<Beatmap>>;
-using BeatmapList = std::set<Beatmap>;
+
+using BeatmapSet = std::set<Beatmap>;
 using BeatmapPtr = std::shared_ptr<Beatmap>;
 using UniqueBeatmapPtr = std::unique_ptr<Beatmap>;

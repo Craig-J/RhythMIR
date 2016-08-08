@@ -1,7 +1,16 @@
 #pragma once
 
+#include <SFML/System/Time.hpp>
+
 #include <string>
 #include <tuple>
+
+struct TimingSection
+{
+	float BPM;
+	unsigned int beat_divisor; // https://osu.ppy.sh/wiki/Beat_Snap_Divisor
+	sf::Time offset;
+};
 
 class Song
 {

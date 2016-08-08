@@ -15,6 +15,8 @@
     <ClCompile Include="beatmap.cpp" />
     <ClCompile Include="game_object.cpp" />
     <ClCompile Include="app_state_machine.cpp" />
+    <ClCompile Include="mapset.cpp" />
+    <ClCompile Include="note_object.cpp" />
     <ClCompile Include="RhythMIR_application.cpp" />
     <ClCompile Include="game_state.cpp" />
     <ClCompile Include="main.cpp" />
@@ -33,6 +35,8 @@
     <ClInclude Include="game_object.h" />
     <ClInclude Include="game_settings.h" />
     <ClInclude Include="app_state_machine.h" />
+    <ClInclude Include="mapset.h" />
+    <ClInclude Include="note_object.h" />
     <ClInclude Include="RhythMIR_application.h" />
     <ClInclude Include="game_state.h" />
     <ClInclude Include="menu_state.h" />
