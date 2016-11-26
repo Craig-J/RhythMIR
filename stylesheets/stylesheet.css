@@ -7,7 +7,8 @@ body {
   font-size: 14px;
   font-family: 'Play';
   line-height: 1.5;
-  background: #111;
+  background: rgba(30, 30, 30, 0.95);
+  overflow-y: scroll;
 }
 
 a {
