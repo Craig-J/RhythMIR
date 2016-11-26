@@ -121,7 +121,6 @@ h1.title {
 
 #container {
   border: 1px solid #1e1e1e;
-  background: #ddd url(../images/pattern.jpg);
   box-shadow: 0 0 5px #b1b1b1;
 }
 
@@ -132,6 +131,7 @@ p.tagline {
   font-size: 17px;
   text-shadow: 2px 2px #444;
   text-align: center;
+  background: #ddd url(../images/pattern.jpg);
 }
 
 #main {
